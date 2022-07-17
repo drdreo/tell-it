@@ -1,0 +1,57 @@
+<div class="page-container">
+    <div *ngIf="homeInfo$ | async as homeInfo" class="overview">
+        <div class="overview__total-users" data-cy="overview_online">Online: <span>{{homeInfo.userCount}}</span></div>
+        Rooms
+        <div class="overview__rooms" data-cy="overview_rooms">
+            <div *ngFor="let room of homeInfo.rooms"
+                 class="overview__rooms__entry"
+                 [class.has-started]="room.started"
+                 (click)="onRoomClick(room.name)">
+                <span *ngIf="room.started" class="live"></span>  {{room.name}}
+            </div>
+        </div>
+    </div>
+
+    <img class="brand-logo" src="/assets/images/logo.png" alt="App Icon"/>
+
+    <h4 class="brand-title">Home</h4>
+
+    <form class="form" [formGroup]="loginForm" (ngSubmit)="joinRoom()">
+        <input class="input username" placeholder="Name" formControlName="username" required data-cy="username"/>
+        <div class="room__wrapper">
+            <input class="input room" placeholder="Room" formControlName="room" required data-cy="room"/>
+            <button class="generate" (click)="generateRoomName()" type="button">Generate</button>
+        </div>
+        <button *ngIf="isJoinable;else spectateButton"
+                class="button join"
+                type="submit"
+                [disabled]="loginForm.invalid"
+                data-cy="join_button">Join
+        </button>
+        <ng-template #spectateButton>
+            <button class="button join" type="button" data-cy="spectate_button" (click)="spectateRoom()">Spectate
+            </button>
+        </ng-template>
+    </form>
+
+    <div class="form__error">
+        <div *ngIf="username?.invalid && username?.dirty">
+            <div *ngIf="username?.errors?.minlength">
+                Name must be at least 2 characters long.
+            </div>
+
+        </div>
+
+        <div *ngIf="room?.invalid && room?.dirty">
+            <div *ngIf="room?.errors?.forbiddenName">
+                Room name is invalid!
+            </div>
+        </div>
+    </div>
+
+    <div class="repository-badge" tippy="Check out the repository">
+        <a href="https://github.com/drdreo/nx-socket-template" target="_blank" rel="noopener">
+            <img src="https://img.shields.io/badge/Repository-GitHub-blue" alt="Create an issue at GitHub"/>
+        </a>
+    </div>
+</div>

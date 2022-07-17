@@ -1,0 +1,25 @@
+{
+  "projectType": "library",
+  "sourceRoot": "libs/nx-socket-template/data-access/src",
+  "prefix": "socket-template-app",
+  "targets": {
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/nx-socket-template/data-access"],
+      "options": {
+        "jestConfig": "libs/nx-socket-template/data-access/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "libs/nx-socket-template/data-access/**/*.ts",
+          "libs/nx-socket-template/data-access/**/*.html"
+        ]
+      }
+    }
+  },
+  "tags": ["scope:client type:feature"]
+}

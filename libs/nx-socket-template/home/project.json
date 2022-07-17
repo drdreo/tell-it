@@ -1,0 +1,25 @@
+{
+  "projectType": "library",
+  "sourceRoot": "libs/nx-socket-template/home/src",
+  "prefix": "socket-template-app",
+  "targets": {
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/nx-socket-template/home"],
+      "options": {
+        "jestConfig": "libs/nx-socket-template/home/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "libs/nx-socket-template/home/**/*.ts",
+          "libs/nx-socket-template/home/**/*.html"
+        ]
+      }
+    }
+  },
+  "tags": ["scope:client type:feature"]
+}

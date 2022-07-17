@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "projects": {
+    "api": "apps/api",
+    "api-interfaces": "libs/api-interfaces",
+    "api-socket": "libs/api/socket",
+    "nx-socket-template": "apps/nx-socket-template",
+    "nx-socket-template-data-access": "libs/nx-socket-template/data-access",
+    "nx-socket-template-e2e": "apps/nx-socket-template-e2e",
+    "nx-socket-template-home": "libs/nx-socket-template/home",
+    "nx-socket-template-room": "libs/nx-socket-template/room",
+    "nx-socket-template-ui": "libs/nx-socket-template/ui",
+    "shared-domain": "libs/shared/domain",
+    "shared-utils": "libs/shared/utils"
+  }
+}

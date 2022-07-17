@@ -1,0 +1,25 @@
+{
+  "projectType": "library",
+  "sourceRoot": "libs/nx-socket-template/ui/src",
+  "prefix": "socket-template-app",
+  "targets": {
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/nx-socket-template/ui"],
+      "options": {
+        "jestConfig": "libs/nx-socket-template/ui/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "libs/nx-socket-template/ui/**/*.ts",
+          "libs/nx-socket-template/ui/**/*.html"
+        ]
+      }
+    }
+  },
+  "tags": ["scope:client type:ui"]
+}

@@ -1,0 +1,104 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/nx-socket-template/src",
+  "prefix": "socket-template-app",
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:browser",
+      "outputs": [
+        "{options.outputPath}"
+      ],
+      "options": {
+        "outputPath": "dist/apps/nx-socket-template",
+        "index": "apps/nx-socket-template/src/index.html",
+        "main": "apps/nx-socket-template/src/main.ts",
+        "polyfills": "apps/nx-socket-template/src/polyfills.ts",
+        "tsConfig": "apps/nx-socket-template/tsconfig.app.json",
+        "inlineStyleLanguage": "scss",
+        "assets": [
+          "apps/nx-socket-template/src/favicon.ico",
+          "apps/nx-socket-template/src/assets"
+        ],
+        "styles": [
+          "apps/nx-socket-template/src/styles.scss",
+          "libs/nx-socket-template/ui/src/lib/styles/variables.scss"
+        ],
+        "scripts": []
+      },
+      "configurations": {
+        "production": {
+          "budgets": [
+            {
+              "type": "initial",
+              "maximumWarning": "500kb",
+              "maximumError": "1mb"
+            },
+            {
+              "type": "anyComponentStyle",
+              "maximumWarning": "2kb",
+              "maximumError": "4kb"
+            }
+          ],
+          "fileReplacements": [
+            {
+              "replace": "apps/nx-socket-template/src/environments/environment.ts",
+              "with": "apps/nx-socket-template/src/environments/environment.prod.ts"
+            }
+          ],
+          "outputHashing": "all"
+        },
+        "development": {
+          "buildOptimizer": false,
+          "optimization": false,
+          "vendorChunk": true,
+          "extractLicenses": false,
+          "sourceMap": true,
+          "namedChunks": true
+        }
+      },
+      "defaultConfiguration": "production"
+    },
+    "serve": {
+      "executor": "@angular-devkit/build-angular:dev-server",
+      "configurations": {
+        "production": {
+          "browserTarget": "nx-socket-template:build:production"
+        },
+        "development": {
+          "browserTarget": "nx-socket-template:build:development"
+        }
+      },
+      "defaultConfiguration": "development",
+      "options": {
+        "proxyConfig": "apps/nx-socket-template/proxy.conf.json"
+      }
+    },
+    "extract-i18n": {
+      "executor": "@angular-devkit/build-angular:extract-i18n",
+      "options": {
+        "browserTarget": "nx-socket-template:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "apps/nx-socket-template/src/**/*.ts",
+          "apps/nx-socket-template/src/**/*.html"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": [
+        "coverage/apps/nx-socket-template"
+      ],
+      "options": {
+        "jestConfig": "apps/nx-socket-template/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}
