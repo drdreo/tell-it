@@ -7,7 +7,7 @@ import { SocketService } from '@tell-it/data-access';
 import { takeUntil, Subject, Observable } from 'rxjs';
 
 @Component({
-    selector: 'socket-template-app-home',
+    selector: 'tell-it-app-home',
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -25,7 +25,8 @@ export class HomeComponent implements OnDestroy {
         room: new FormControl('', {
             validators: [
                 Validators.required,
-                roomNameValidator(/^\w+$/i)]
+                roomNameValidator(/^\w+$/i)
+            ]
         })
     });
     isJoinable = true;
@@ -38,7 +39,7 @@ export class HomeComponent implements OnDestroy {
         this.socketService.roomJoined()
             .pipe(takeUntil(this.unsubscribe$))
             .subscribe(({ userID, room }) => {
-                sessionStorage.setItem('userID', userID);
+                sessionStorage.setItem('playerID', userID);
                 this.router.navigate(['/room', room]);
             });
 
@@ -71,7 +72,7 @@ export class HomeComponent implements OnDestroy {
         const username = this.username?.value;
         const roomName = this.room?.value;
         if (this.loginForm.valid && username && roomName) {
-            this.socketService.join(username, roomName);
+            this.socketService.join(roomName, username);
         }
     }
 

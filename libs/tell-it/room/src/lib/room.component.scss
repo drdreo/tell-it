@@ -1,0 +1,17 @@
+@import '../../../../../libs/tell-it/ui/src/lib/styles';
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    width: 90%;
+    height: 100%;
+
+    @include respond-to(desktop) {
+        width: 33%;
+    }
+
+    .story {
+        height: 50%;
+    }
+}

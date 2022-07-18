@@ -1,9 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Inject } from '@angular/core';
-import { UserEvent, UserVoteKickMessage, UserJoinMessage, HomeInfo, ServerEvent, ServerJoined, UserLeft, UserOverview } from '@tell-it/api-interfaces';
+import { UserEvent, UserVoteKickMessage, UserJoinMessage, HomeInfo, ServerEvent, ServerJoined, UserLeft, UserOverview, ServerGameStatusUpdate, ServerUsersUpdate, UserSubmitTextMessage, ServerStoryUpdate } from '@tell-it/api-interfaces';
+import { GameStatus } from '@tell-it/domain/game';
+import { API_URL_TOKEN } from '@tell-it/domain/tokens';
 import { Socket } from 'ngx-socket-io';
 import { Observable, map, merge } from 'rxjs';
-import { API_URL_TOKEN } from '@tell-it/domain/tokens';
 
 @Injectable({
     providedIn: 'root'
@@ -16,8 +17,8 @@ export class SocketService {
         return merge(this.http.get<HomeInfo>(this.API_URL + '/home'), this.socket.fromEvent<HomeInfo>(ServerEvent.Info));
     }
 
-    join(userName: string, roomName: string) {
-        this.socket.emit(UserEvent.JoinRoom, { userName, roomName } as UserJoinMessage);
+    join(roomName: string, userName?: string, userID?: string) {
+        this.socket.emit(UserEvent.JoinRoom, { userName, roomName, userID } as UserJoinMessage);
     }
 
     joinAsSpectator(roomName: string) {
@@ -38,7 +39,7 @@ export class SocketService {
     }
 
     usersUpdate(): Observable<UserOverview[]> {
-        return this.socket.fromEvent<any>(ServerEvent.UsersUpdate)
+        return this.socket.fromEvent<ServerUsersUpdate>(ServerEvent.UsersUpdate)
                    .pipe(map(data => data.users));
     }
 
@@ -59,4 +60,15 @@ export class SocketService {
      * Game Actions
      ********************/
 
+    gameStatus(): Observable<GameStatus> {
+        return this.socket.fromEvent<ServerGameStatusUpdate>(ServerEvent.GameStatus).pipe(map(data => data.status));
+    }
+
+    submitText(text: string) {
+        this.socket.emit(UserEvent.SubmitText, { text } as UserSubmitTextMessage);
+    }
+
+    storyUpdate() {
+        return this.socket.fromEvent<ServerStoryUpdate>(ServerEvent.StoryUpdate).pipe(map(data => data.text));
+    }
 }

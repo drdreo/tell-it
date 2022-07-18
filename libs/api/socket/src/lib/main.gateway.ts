@@ -1,11 +1,12 @@
 import { Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WsException, OnGatewayDisconnect, WsResponse, WebSocketServer, ConnectedSocket, OnGatewayConnection, MessageBody } from '@nestjs/websockets';
-import { ServerEvent, UserEvent, ServerJoined, HomeInfo, UserVoteKickMessage, UserJoinMessage, ServerSpectatorJoined, UserSpectatorJoinMessage } from '@tell-it/api-interfaces';
+import { ServerEvent, UserEvent, ServerJoined, HomeInfo, UserVoteKickMessage, UserJoinMessage, ServerSpectatorJoined, UserSpectatorJoinMessage, UserKicked, ServerUsersUpdate, UserSubmitTextMessage, ServerStoryUpdate } from '@tell-it/api-interfaces';
+import { GameStatus } from '@tell-it/domain/game';
 import { Server, Socket } from 'socket.io';
 import { environment } from '../../../../../apps/api/src/environments/environment';
 import { RoomService } from './room.service';
 import { InvalidConfigError, RoomFullError, RoomStartedError } from './room/errors';
-import { User } from './user/User';
+import { RoomCommand, RoomCommandName } from './room/RoomCommands';
 
 
 // @UseInterceptors(SentryInterceptor)
@@ -25,6 +26,10 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     constructor(private roomService: RoomService) {
         this.logger.verbose('Created');
+
+
+        this.roomService.roomCommands$
+            .subscribe((cmd: RoomCommand) => this.handleRoomCommands(cmd));
     }
 
     handleConnection(socket: Socket) {
@@ -39,7 +44,11 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     @SubscribeMessage(UserEvent.JoinRoom)
-    onJoinRoom(@ConnectedSocket() socket: Socket, @MessageBody() { userID, roomName, userName }: UserJoinMessage): WsResponse<ServerJoined> {
+    onJoinRoom(@ConnectedSocket() socket: Socket, @MessageBody() {
+        userID,
+        roomName,
+        userName
+    }: UserJoinMessage): WsResponse<ServerJoined> {
         this.logger.log(`User[${ userName }] joining!`);
         let sanitizedRoom = roomName.toLowerCase();
         socket.join(sanitizedRoom);
@@ -101,6 +110,7 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
         // connect the socket with its userID
         socket.data.userID = newUserID;
         this.socketToRoom.set(socket.id, sanitizedRoom);
+        this.userToSocket.set(newUserID, socket.id);
 
         // inform everyone that someone joined
         this.roomService.getRoom(sanitizedRoom).sendUsersUpdate();
@@ -111,7 +121,7 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     @SubscribeMessage(UserEvent.SpectatorJoin)
-    onJoinSpectator(@ConnectedSocket() socket: Socket, @MessageBody() { roomName } : UserSpectatorJoinMessage): WsResponse<ServerSpectatorJoined> {
+    onJoinSpectator(@ConnectedSocket() socket: Socket, @MessageBody() { roomName }: UserSpectatorJoinMessage): WsResponse<ServerSpectatorJoined> {
         const sanitizedRoom = roomName.toLowerCase();
         this.logger.log(`Spectator trying to join room[${ sanitizedRoom }]!`);
         const room = this.roomService.getRoom(sanitizedRoom);
@@ -138,7 +148,14 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
         }
 
         room.sendUsersUpdate(socket.id);
+        const gameStatus = room.gameStatus;
+        // tell the spectator all information if game started: players, game status, board, pot
+        if (gameStatus === GameStatus.Started) {
+            room.sendUserStoryUpdate(socket.data.userID, socket.id);
+        }
+        room.sendGameStatusUpdate(socket.id);
     }
+
 
     @SubscribeMessage(UserEvent.Start)
     onStartGame(@ConnectedSocket() socket: Socket) {
@@ -157,6 +174,13 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
     onVoteKick(@ConnectedSocket() socket: Socket, @MessageBody() { kickUserID }: UserVoteKickMessage) {
         const room = this.socketToRoom.get(socket.id);
         this.roomService.voteKick(room, socket.data.userID, kickUserID);
+    }
+
+    @SubscribeMessage(UserEvent.SubmitText)
+    obTextSubmit(@ConnectedSocket() socket: Socket, @MessageBody() { text }: UserSubmitTextMessage) {
+        const room = this.socketToRoom.get(socket.id);
+        this.roomService.submitNewText(room, socket.data.userID, text);
+        this.sendUserTextIndividually(room);
     }
 
     private sendTo(recipient: string, event: ServerEvent, data?: any) {
@@ -214,17 +238,20 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
         this.userToSocket.delete(socket.data.userID);
     }
 
-    private async sendUserUpdateIndividually(room: string, users: User[], data: any) {
-        for (const user of users) {
+    private async sendUserTextIndividually(roomName: string) {
+        const room = this.roomService.getRoom(roomName);
+        for (const user of room.getUsersPreview()) {
             const socketId = await this.getSocketIdByUserId(user.id);
             // only tell currently connected users the update
-            if (socketId && !user.disconnected) {
-                this.sendTo(socketId, ServerEvent.UsersUpdate, data);
+            // and the ones that already submitted and created a story
+
+            if (socketId && !user.disconnected && room.isUserOwner(user.id)) {
+                this.sendTo(socketId, ServerEvent.StoryUpdate, { text: room.getTextForUser(user.id) });
             }
         }
     }
 
-    private async sendUsersUpdateToSpectators(roomName: string, data: any) {
+    private async sendUsersUpdateToSpectators(roomName: string, data: ServerUsersUpdate) {
         const room = this.roomService.getRoom(roomName);
         const socketsOfRoom = await this.server.in(roomName).fetchSockets();
 
@@ -242,5 +269,47 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
             userCount: this.roomService.getUserCount()
         };
         this.sendToAll(ServerEvent.Info, response);
+    }
+
+    private handleRoomCommands({ name, data, recipient, room }: RoomCommand) {
+        this.logger.verbose(`Room[${ room }] - ${ name }:`);
+        this.logger.debug(data);
+
+        const receiver = recipient ? recipient : room;
+        recipient ? this.logger.debug('Recipient was set to: ' + recipient) : '';
+
+        switch (name) {
+            case RoomCommandName.Info:
+                this.sendHomeInfo();
+                break;
+
+            case RoomCommandName.UsersUpdate:
+                if (!recipient) {
+                    this.sendUsersUpdateToSpectators(room, data.users);
+                }
+
+                this.sendTo(receiver, ServerEvent.UsersUpdate, { users: data.users });
+                break;
+
+            case RoomCommandName.GameStatusUpdate:
+                this.sendTo(receiver, ServerEvent.GameStatus, { status: data.status });
+                break;
+
+            case RoomCommandName.Closed :
+                this.sendTo(receiver, ServerEvent.RoomClosed);
+                break;
+
+            case RoomCommandName.UserKicked :
+                this.sendTo(receiver, ServerEvent.UserKick, { kickedUser: data.kickedUser } as UserKicked);
+                break;
+
+            case RoomCommandName.UserStoryUpdate:
+                this.sendTo(receiver, ServerEvent.StoryUpdate, { text: data.story } as ServerStoryUpdate);
+                break;
+
+            default:
+                this.logger.warn(`Command[${ name }] was not handled!`);
+                break;
+        }
     }
 }

@@ -42,8 +42,8 @@
 
         </div>
 
-        <div *ngIf="room?.invalid && room?.dirty">
-            <div *ngIf="room?.errors?.forbiddenName">
+        <div *ngIf="room?.invalid && (room?.dirty || room?.touched)">
+            <div *ngIf="room?.errors?.['forbiddenName']">
                 Room name is invalid!
             </div>
         </div>

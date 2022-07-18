@@ -1,1 +1,37 @@
-<p>room works!</p>
+<div class="page-container">
+
+  <div *ngIf="(gameStatus$ | async) === 'waiting'" class="ready-container">
+
+    <ng-container *ngIf="{
+    user: user$ | async,
+    users: users$ | async
+  } as userData">
+
+      <ng-container *ngIf="userData.user && userData.users!.length > 1 && userData.user.id === userData.users![0].id; else waitingText">
+        <div class="ready-container__message">Everyone's ready?</div>
+        <button class="button" (click)="startGame()">Start</button>
+      </ng-container>
+
+      <ng-template #waitingText>
+        Room: {{roomName}} <br>
+        Waiting for the leader to start.
+      </ng-template>
+    </ng-container>
+
+  </div>
+
+  <div *ngIf="(gameStatus$ | async) === 'started'" class="game-container">
+
+    <ng-container *ngIf="story$ | async as story; else noStory">
+      <tell-it-app-message [message]="story"></tell-it-app-message>
+    </ng-container>
+    <ng-template #noStory>
+      No story yet...
+    </ng-template>
+
+
+    <textarea class="input story" #storyInput></textarea>
+
+    <button class="button" (click)="submitText(storyInput.value); storyInput.value=''">Submit</button>
+  </div>
+</div>

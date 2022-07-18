@@ -1,7 +1,8 @@
 import { Logger } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
-import { mergeDeep } from '@tell-it/utils';
 import { RoomConfig, UserOverview } from '@tell-it/api-interfaces';
+import { GameStatus } from '@tell-it/domain/game';
+import { mergeDeep } from '@tell-it/utils';
 import { nanoid } from 'nanoid';
 import { Subject } from 'rxjs';
 import { User } from '../user/User';
@@ -22,11 +23,10 @@ const defaultConfig: RoomConfig = {
 };
 
 export class BaseRoom {
-
     commands$: Subject<RoomCommand>;
     startTime: Date | undefined;
-    protected logger;
-    private users: User[] = [];
+    protected logger: Logger;
+    protected users: User[] = [];
     private roomConfig: RoomConfig;
 
     constructor(public name: string, CONFIG?: RoomConfig) {
@@ -44,6 +44,17 @@ export class BaseRoom {
         }
     }
 
+    private _gameStatus: GameStatus = GameStatus.Waiting;
+
+    get gameStatus(): GameStatus {
+        return this._gameStatus;
+    }
+
+    set gameStatus(value: GameStatus) {
+        this._gameStatus = value;
+        this.sendGameStatus(this._gameStatus);
+    }
+
     getUser(userID: string): User {
         return this.users.find(user => user.id === userID);
     }
@@ -53,9 +64,9 @@ export class BaseRoom {
     }
 
     getUsersPreview(): UserOverview[] {
-        return {
-            ...this.users.map(user => ({...user, kickVotes: [...user.kickVotes]}))
-        };
+        return [
+            ...this.users.map(user => ({ ...user, kickVotes: [...user.kickVotes] }))
+        ];
     }
 
     getConfig(): RoomConfig {
@@ -63,7 +74,7 @@ export class BaseRoom {
     }
 
     hasStarted(): boolean {
-        return !!this.startTime;
+        return this.gameStatus === GameStatus.Started;
     }
 
     addUser(userName: string): string {
@@ -77,7 +88,7 @@ export class BaseRoom {
             this.users.push(user);
             return user.id;
         } else {
-            throw new RoomFullError('Table is already full!');
+            throw new RoomFullError('Room is already full!');
         }
     }
 
@@ -108,10 +119,8 @@ export class BaseRoom {
 
         this.users.map(user => user.reset());
 
-        // this.game = new Game(`Game[${ this.name }]`);
-
         this.startTime = new Date();
-        this.sendRoomStarted();
+        this.gameStatus = GameStatus.Started;
     }
 
     destroy(): void {
@@ -125,7 +134,7 @@ export class BaseRoom {
             name: RoomCommandName.UsersUpdate,
             room: this.name,
             recipient,
-            data: { users: this.users }
+            data: { users: this.getUsersPreview() }
         });
     }
 
@@ -151,21 +160,15 @@ export class BaseRoom {
 
     }
 
-    protected sendRoomStarted() {
+    protected sendGameStatus(status: GameStatus) {
         this.commands$.next({
-            name: RoomCommandName.Started,
-            room: this.name
+            name: RoomCommandName.GameStatusUpdate,
+            room: this.name,
+            data: { status }
         });
     }
 
-    protected sendGameEnded() {
-        this.commands$.next({
-            name: RoomCommandName.Ended,
-            room: this.name
-        });
-    }
-
-    protected sendTableClosed() {
+    protected sendRoomClosed() {
         this.commands$.next({
             name: RoomCommandName.Closed,
             room: this.name

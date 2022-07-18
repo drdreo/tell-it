@@ -21,7 +21,7 @@
           "error",
           {
             "type": "element",
-            "prefix": "socket-template-app",
+            "prefix": "tell-it-app",
             "style": "kebab-case"
           }
         ]

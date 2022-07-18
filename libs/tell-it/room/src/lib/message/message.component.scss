@@ -1,0 +1,29 @@
+.message {
+    // layout
+    position: relative;
+    max-width: 30em;
+
+    // looks
+    color: black;
+    background-color: #fff;
+    padding: 0.5rem 1rem;
+    font-size: 1.25rem;
+    border-radius: 1rem;
+    box-shadow:	0 0.125rem 0.5rem rgba(255, 255, 255, .3), 0 0.0625rem 0.125rem rgba(255, 255, 255, .2);
+}
+
+.message::before {
+    // layout
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    bottom: 100%;
+    left: 1.5em; // offset should move with padding of parent
+    border: .75rem solid transparent;
+    border-top: none;
+
+    // looks
+    border-bottom-color: #fff;
+    filter: drop-shadow(0 -0.0625rem 0.0625rem rgba(255, 255, 255, .1));
+}

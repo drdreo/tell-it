@@ -4,13 +4,13 @@
     "api": "apps/api",
     "api-interfaces": "libs/api-interfaces",
     "api-socket": "libs/api/socket",
-    "tell-it-data-access": "libs/tell-it/data-access",
-    "tell-it-home": "libs/tell-it/home",
-    "tell-it-room": "libs/tell-it/room",
-    "tell-it-ui": "libs/tell-it/ui",
     "shared-domain": "libs/shared/domain",
     "shared-utils": "libs/shared/utils",
     "tell-it": "apps/tell-it",
-    "tell-it-e2e": "apps/tell-it-e2e"
+    "tell-it-data-access": "libs/tell-it/data-access",
+    "tell-it-e2e": "apps/tell-it-e2e",
+    "tell-it-home": "libs/tell-it/home",
+    "tell-it-room": "libs/tell-it/room",
+    "tell-it-ui": "libs/tell-it/ui"
   }
 }

@@ -13,7 +13,8 @@
     "start": "nx serve",
     "build:app": "nx build --configuration=production",
     "build:server": "nx build api --configuration=production",
-    "start:server": "node dist/apps/api/main.js",
+    "start:server": "nx serve api --watch",
+    "start:server:prod": "node dist/apps/api/main.js",
     "test": "nx test",
     "heroku-postbuild": "npm run build:server"
   },

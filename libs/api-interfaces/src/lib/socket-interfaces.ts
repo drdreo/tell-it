@@ -1,3 +1,6 @@
+import { GameStatus } from '@tell-it/domain/game';
+import { UserOverview } from './api-interfaces';
+
 export enum ServerEvent {
     Info = 'server:info',
     Joined = 'server:user:joined',
@@ -7,6 +10,9 @@ export enum ServerEvent {
     UsersUpdate = 'server:users:update',
 
     RoomClosed = 'server:room:closed',
+
+    GameStatus = 'server:game:status',
+    StoryUpdate = 'server:game:story:update',
 }
 
 export enum UserEvent {
@@ -16,10 +22,15 @@ export enum UserEvent {
     SpectatorJoin = 'client:spectator:join',
     Leave = 'client:user:leave',
     VoteKick = 'client:user:vote-kick',
+    SubmitText = 'client:user:submit-text',
 }
 
 export interface UserVoteKickMessage {
     kickUserID: string;
+}
+
+export interface UserSubmitTextMessage {
+    text: string;
 }
 
 export interface UserJoinMessage {
@@ -34,4 +45,16 @@ export interface UserSpectatorJoinMessage {
 
 export interface ServerSpectatorJoined {
     room: string;
+}
+
+export interface ServerGameStatusUpdate {
+    status: GameStatus;
+}
+
+export interface ServerUsersUpdate {
+    users: UserOverview[];
+}
+
+export interface ServerStoryUpdate {
+    text: string;
 }

@@ -1,7 +1,7 @@
 {
   "projectType": "library",
   "sourceRoot": "libs/tell-it/home/src",
-  "prefix": "socket-template-app",
+  "prefix": "tell-it-app",
   "targets": {
     "test": {
       "executor": "@nrwl/jest:jest",

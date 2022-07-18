@@ -2,15 +2,15 @@ import { Injectable, Logger } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { RoomInfo } from '@tell-it/api-interfaces';
 import { Subject } from 'rxjs';
-import { BaseRoom } from './room/BaseRoom';
 import { RoomCommand, RoomCommandName } from './room/RoomCommands';
+import { TellItRoom } from './room/TellItRoom';
 import { User } from './user/User';
 
 const AUTO_DESTROY_DELAY = 30000; // after what time the room will be destroyed automatically, when no user is in it
 
 @Injectable()
 export class RoomService {
-    rooms: BaseRoom[] = [];
+    rooms: TellItRoom[] = [];
 
     private _roomCommands$ = new Subject<RoomCommand>();
     roomCommands$ = this._roomCommands$.asObservable();
@@ -24,7 +24,7 @@ export class RoomService {
         });
     }
 
-    getRoom(roomName: string): BaseRoom {
+    getRoom(roomName: string): TellItRoom {
         return this.rooms.find(room => room.name === roomName);
     }
 
@@ -48,8 +48,8 @@ export class RoomService {
         this._roomCommands$.next(command);
     }
 
-    createRoom(name: string): BaseRoom {
-        const room = new BaseRoom(name);
+    createRoom(name: string): TellItRoom {
+        const room = new TellItRoom(name);
         room.commands$ = this._roomCommands$;
         this.rooms.push(room);
         return room;
@@ -132,4 +132,16 @@ export class RoomService {
         this.rooms = this.rooms.filter(r => r.name !== roomName);
     }
 
+    submitNewText(roomName: string, userID: any, text: string) {
+        const room = this.getRoom(roomName);
+        if (room) {
+            room.submitText(userID, text);
+
+            // // update all user stories when one gets updated
+            // const users = room.getUsersPreview();
+            // room.s
+        } else {
+            throw new WsException(`Can not submit a new text to Room[${ roomName }] because it does not exist.`);
+        }
+    }
 }

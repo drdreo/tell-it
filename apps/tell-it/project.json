@@ -2,7 +2,7 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "apps/tell-it/src",
-  "prefix": "socket-template-app",
+  "prefix": "tell-it-app",
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:browser",

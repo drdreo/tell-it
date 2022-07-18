@@ -1,12 +1,15 @@
+import { GameStatus, StoryData } from '@tell-it/domain/game';
+
 export enum RoomCommandName {
     Info = 'home_info',
-    Started = 'room_started',
-    Ended = 'room_ended',
     Closed = 'table_closed',
 
     UsersUpdate = 'users_update',
     NewRound = 'new_round',
-    UserKicked = 'player_kicked'
+    UserKicked = 'player_kicked',
+
+    UserStoryUpdate = 'user_story_update',
+    GameStatusUpdate = 'game_status_update'
 }
 
 export interface RoomCommand {
@@ -17,5 +20,7 @@ export interface RoomCommand {
         users?;
         userID?: string;
         kickedUser?: string;
+        status?: GameStatus;
+        story?: string;
     };
 }
