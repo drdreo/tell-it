@@ -25,7 +25,7 @@
     "packageManager": "npm",
     "defaultCollection": "@nrwl/angular"
   },
-  "defaultProject": "nx-socket-template",
+  "defaultProject": "tell-it",
   "targetDefaults": {
     "build": {
       "dependsOn": ["^build"]

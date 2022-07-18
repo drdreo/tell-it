@@ -1,4 +1,4 @@
-import { UserOverview } from '@socket-template-app/api-interfaces';
+import { UserOverview } from '@tell-it/api-interfaces';
 
 export class User {
     disconnected = false;

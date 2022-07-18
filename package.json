@@ -9,12 +9,13 @@
   },
   "scripts": {
     "ng": "nx",
-    "postinstall": "node apps/nx-socket-template/decorate-angular-cli.js && ngcc --properties es2020 browser module main",
+    "postinstall": "node apps/tell-it/decorate-angular-cli.js && ngcc --properties es2020 browser module main",
     "start": "nx serve",
     "build:app": "nx build --configuration=production",
     "build:server": "nx build api --configuration=production",
     "start:server": "node dist/apps/api/main.js",
-    "test": "nx test"
+    "test": "nx test",
+    "heroku-postbuild": "npm run build:server"
   },
   "dependencies": {
     "@angular/animations": "14.0.6",

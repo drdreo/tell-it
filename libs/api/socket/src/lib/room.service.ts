@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
-import { RoomInfo } from '@socket-template-app/api-interfaces';
+import { RoomInfo } from '@tell-it/api-interfaces';
 import { Subject } from 'rxjs';
 import { BaseRoom } from './room/BaseRoom';
 import { RoomCommand, RoomCommandName } from './room/RoomCommands';

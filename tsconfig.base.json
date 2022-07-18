@@ -15,25 +15,25 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@socket-template-app/utils": ["libs/shared/utils/src/index.ts"],
-      "@socket-template-app/api-interfaces": [
+      "@tell-it/api-interfaces": [
         "libs/api-interfaces/src/index.ts"
       ],
-      "@socket-template-app/api/socket": ["libs/api/socket/src/index.ts"],
-      "@socket-template-app/data-access": [
-        "libs/nx-socket-template/data-access/src/index.ts"
+      "@tell-it/api/socket": ["libs/api/socket/src/index.ts"],
+      "@tell-it/data-access": [
+        "libs/tell-it/data-access/src/index.ts"
       ],
-      "@socket-template-app/home": [
-        "libs/nx-socket-template/home/src/index.ts"
+      "@tell-it/domain": ["libs/shared/domain/src/index.ts"],
+      "@tell-it/domain/*": ["libs/shared/domain/src/lib/*"],
+      "@tell-it/home": [
+        "libs/tell-it/home/src/index.ts"
       ],
-      "@socket-template-app/nx-socket-template/ui": [
-        "libs/nx-socket-template/ui/src/index.ts"
+      "@tell-it/ui": [
+        "libs/tell-it/ui/src/index.ts"
       ],
-      "@socket-template-app/room": [
-        "libs/nx-socket-template/room/src/index.ts"
+      "@tell-it/room": [
+        "libs/tell-it/room/src/index.ts"
       ],
-      "@socket-template-app/domain/*": ["libs/shared/domain/src/lib/*"],
-      "@socket-template-app/domain": ["libs/shared/domain/src/index.ts"]
+      "@tell-it/utils": ["libs/shared/utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

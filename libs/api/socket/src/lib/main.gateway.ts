@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { SubscribeMessage, WebSocketGateway, WsException, OnGatewayDisconnect, WsResponse, WebSocketServer, ConnectedSocket, OnGatewayConnection, MessageBody } from '@nestjs/websockets';
-import { ServerEvent, UserEvent, ServerJoined, HomeInfo, UserVoteKickMessage, UserJoinMessage, ServerSpectatorJoined, UserSpectatorJoinMessage } from '@socket-template-app/api-interfaces';
+import { ServerEvent, UserEvent, ServerJoined, HomeInfo, UserVoteKickMessage, UserJoinMessage, ServerSpectatorJoined, UserSpectatorJoinMessage } from '@tell-it/api-interfaces';
 import { Server, Socket } from 'socket.io';
 import { environment } from '../../../../../apps/api/src/environments/environment';
 import { RoomService } from './room.service';
