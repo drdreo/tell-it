@@ -6,7 +6,8 @@
     "ng": "nx",
     "postinstall": "node apps/nx-socket-template/decorate-angular-cli.js && ngcc --properties es2020 browser module main",
     "start": "nx serve",
-    "build": "nx build",
+    "build:app": "nx build --configuration=production",
+    "build:server": "nx build api --configuration=production",
     "test": "nx test"
   },
   "private": true,
