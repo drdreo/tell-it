@@ -1,7 +1,12 @@
 {
-  "name": "socket-template-app",
+  "name": "tell-it-in-one",
   "version": "0.0.1",
   "license": "MIT",
+  "private": true,
+  "engines" : {
+    "npm" : ">=7.0.0",
+    "node" : ">=16.0.0"
+  },
   "scripts": {
     "ng": "nx",
     "postinstall": "node apps/nx-socket-template/decorate-angular-cli.js && ngcc --properties es2020 browser module main",
@@ -11,7 +16,6 @@
     "start:server": "node dist/apps/api/main.js",
     "test": "nx test"
   },
-  "private": true,
   "dependencies": {
     "@angular/animations": "14.0.6",
     "@angular/common": "14.0.6",
