@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { RoomInfo } from '@tell-it/api-interfaces';
+import { StoryData } from "@tell-it/domain/game";
 import { Subject } from 'rxjs';
 import { RoomCommand, RoomCommandName } from './room/RoomCommands';
 import { TellItRoom } from './room/TellItRoom';
@@ -38,6 +39,14 @@ export class RoomService {
 
     getUserCount(): number {
         return this.rooms.reduce((prev, room) => prev + room.getUserCount(), 0);
+    }
+
+    getRoomFinishVotes(roomName:string): string[]{
+        return this.getRoom(roomName).getFinishVotes();
+    }
+
+    getStories(roomName:string): StoryData[] {
+        return this.getRoom(roomName).getStories();
     }
 
     /**********************
@@ -136,12 +145,17 @@ export class RoomService {
         const room = this.getRoom(roomName);
         if (room) {
             room.submitText(userID, text);
-
-            // // update all user stories when one gets updated
-            // const users = room.getUsersPreview();
-            // room.s
         } else {
             throw new WsException(`Can not submit a new text to Room[${ roomName }] because it does not exist.`);
+        }
+    }
+
+    voteFinish(roomName: string, userID: any) {
+        const room = this.getRoom(roomName);
+        if (room) {
+            room.voteFinish(userID);
+        } else {
+            throw new WsException(`Can not vote finish on Room[${ roomName }] because it does not exist.`);
         }
     }
 }

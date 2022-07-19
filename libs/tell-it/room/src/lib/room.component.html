@@ -1,11 +1,11 @@
 <div class="page-container">
 
-  <div *ngIf="(gameStatus$ | async) === 'waiting'" class="ready-container">
-
-    <ng-container *ngIf="{
+  <ng-container *ngIf="{
     user: user$ | async,
     users: users$ | async
   } as userData">
+
+    <div *ngIf="(gameStatus$ | async) === 'waiting'" class="ready-container">
 
       <ng-container *ngIf="userData.user && userData.users!.length > 1 && userData.user.id === userData.users![0].id; else waitingText">
         <div class="ready-container__message">Everyone's ready?</div>
@@ -16,22 +16,46 @@
         Room: {{roomName}} <br>
         Waiting for the leader to start.
       </ng-template>
-    </ng-container>
 
-  </div>
+    </div>
 
-  <div *ngIf="(gameStatus$ | async) === 'started'" class="game-container">
+    <div *ngIf="(gameStatus$ | async) === 'started'" class="game-container">
 
-    <ng-container *ngIf="story$ | async as story; else noStory">
-      <tell-it-app-message [message]="story"></tell-it-app-message>
-    </ng-container>
-    <ng-template #noStory>
-      No story yet...
-    </ng-template>
+      <div *ngIf="turnTimer$ | async as turnTimer" class="turn-timer">
+        Time: {{turnTimer}}
+      </div>
+
+      <div *ngIf="finishVotes$ | async as finishVotes" class="finish-votes">
+        Finish: {{finishVotes.length }}/{{userData.users?.length}}
+      </div>
+
+      <ng-container *ngIf="story$ | async as story; else noStory">
+        <tell-it-app-message [author]='story.author' [message]="story.text"></tell-it-app-message>
+      </ng-container>
+      <ng-template #noStory>
+        No story yet...
+      </ng-template>
 
 
-    <textarea class="input story" #storyInput></textarea>
+      <textarea #storyInput class="input story"></textarea>
 
-    <button class="button" (click)="submitText(storyInput.value); storyInput.value=''">Submit</button>
-  </div>
+      <button class="button" (click)="submitText(storyInput.value); storyInput.value=''">Submit</button>
+      <button class="button" (click)="voteFinish()">Finish</button>
+    </div>
+
+    <div *ngIf="(gameStatus$ | async) === 'ended'" class="stories">
+
+      <ng-container *ngIf="finalStories$ | async as finalStories; else finishScreen">
+        <ng-container *ngFor="let story of finalStories">
+          <tell-it-app-message class="story" [author]="story.author" [message]="story.text"></tell-it-app-message>
+        </ng-container>
+      </ng-container>
+      <ng-template #finishScreen>
+        GGs. Load the final story now.
+        <button class="button" (click)="loadFinalStories()">Load</button>
+      </ng-template>
+    </div>
+
+  </ng-container>
+
 </div>

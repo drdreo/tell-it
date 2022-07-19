@@ -8,6 +8,7 @@ import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 })
 export class MessageComponent {
 
+  @Input() author!: string | null;
   @Input() message!: string | null;
 
   constructor() {}

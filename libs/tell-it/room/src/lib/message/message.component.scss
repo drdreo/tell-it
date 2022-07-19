@@ -1,3 +1,16 @@
+:host {
+    display: block;
+    position: relative;
+}
+
+.author {
+    position: absolute;
+    top: -50px;
+    font-size: 24px;
+    color: olivedrab;
+    font-weight: bold;
+}
+
 .message {
     // layout
     position: relative;
@@ -9,7 +22,7 @@
     padding: 0.5rem 1rem;
     font-size: 1.25rem;
     border-radius: 1rem;
-    box-shadow:	0 0.125rem 0.5rem rgba(255, 255, 255, .3), 0 0.0625rem 0.125rem rgba(255, 255, 255, .2);
+    box-shadow: 0 0.125rem 0.5rem rgba(255, 255, 255, .3), 0 0.0625rem 0.125rem rgba(255, 255, 255, .2);
 }
 
 .message::before {

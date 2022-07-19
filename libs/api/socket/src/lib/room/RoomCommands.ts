@@ -1,4 +1,4 @@
-import { GameStatus, StoryData } from '@tell-it/domain/game';
+import { GameStatus, StoryData } from "@tell-it/domain/game";
 
 export enum RoomCommandName {
     Info = 'home_info',
@@ -21,6 +21,6 @@ export interface RoomCommand {
         userID?: string;
         kickedUser?: string;
         status?: GameStatus;
-        story?: string;
+        story?: StoryData;
     };
 }

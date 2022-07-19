@@ -15,3 +15,21 @@
         height: 50%;
     }
 }
+
+.stories {
+
+    height: 100%;
+    padding: 1rem;
+
+    .story {
+        margin: 4rem 0;
+        display: block;
+    }
+}
+
+
+.turn-timer {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}

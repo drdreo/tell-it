@@ -1,23 +1,25 @@
-import { StoryData } from '@tell-it/domain/game';
+export class Story {
 
-export class Story implements StoryData {
+	userId: string;  // the current writer of the story
+	private texts: string[] = [];
 
-    userId: string;
-    private texts: string[] = [];
+	constructor(public ownerId: string) {
+		this.userId = ownerId;
+	}
 
-    constructor(public ownerId: string) {
-        this.userId = ownerId;
-    }
+	addText(text: string) {
+		this.texts.push(text);
+	}
 
-    addText(text: string) {
-        this.texts.push(text);
-    }
+	getAllTexts(): string[] {
+		return this.texts;
+	}
 
-    getAllTexts(): string[] {
-        return this.texts;
-    }
+	getLatestText(): string {
+		return this.texts[this.texts.length - 1];
+	}
 
-    getLatestText(): string {
-        return this.texts[this.texts.length - 1];
-    }
+	serialize(): string {
+		return this.texts.join(". ");
+	}
 }
