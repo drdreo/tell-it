@@ -127,6 +127,7 @@ export class BaseRoom {
 		this.logger.debug(`Destroy!`);
 
 		this.startTime = undefined;
+		this.sendRoomClosed();
 	}
 
 	sendUsersUpdate(recipient?: string) {

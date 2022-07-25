@@ -14,7 +14,11 @@
         "polyfills": "apps/tell-it/src/polyfills.ts",
         "tsConfig": "apps/tell-it/tsconfig.app.json",
         "inlineStyleLanguage": "scss",
-        "assets": ["apps/tell-it/src/favicon.ico", "apps/tell-it/src/assets"],
+        "assets": [
+          "apps/tell-it/src/favicon.ico",
+          "apps/tell-it/src/favicon",
+          "apps/tell-it/src/assets"
+        ],
         "styles": [
           "apps/tell-it/src/styles.scss",
           "libs/tell-it/ui/src/lib/styles/variables.scss"

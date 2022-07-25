@@ -106,12 +106,9 @@ export class RoomService {
         const user = this.getUser(userID);
         const room = this.getRoom(roomName);
         // if the room didnt start yet, just remove the player
-        if (!room.hasStarted()) {
-            this.logger.log(`User[${ user.name }] removed, because game didn't start yet!`);
-            room.removeUser(user);
-        } else {
-            user.disconnected = true;
-        }
+        // functionality disabled. might add it back
+
+        user.disconnected = true;
 
         // if every user disconnected, remove the table after some time
         if (this.destroyTimeout) {
@@ -141,7 +138,7 @@ export class RoomService {
         this.rooms = this.rooms.filter(r => r.name !== roomName);
     }
 
-    submitNewText(roomName: string, userID: any, text: string) {
+    submitNewText(roomName: string, userID: string, text: string) {
         const room = this.getRoom(roomName);
         if (room) {
             room.submitText(userID, text);
@@ -150,7 +147,7 @@ export class RoomService {
         }
     }
 
-    voteFinish(roomName: string, userID: any) {
+    voteFinish(roomName: string, userID: string) {
         const room = this.getRoom(roomName);
         if (room) {
             room.voteFinish(userID);

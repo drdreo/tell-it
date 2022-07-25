@@ -8,7 +8,7 @@
     height: 100%;
 
     @include respond-to(desktop) {
-        width: 33%;
+        width: 45%;
     }
 
     .story {
@@ -17,7 +17,6 @@
 }
 
 .stories {
-
     height: 100%;
     padding: 1rem;
 
@@ -26,7 +25,6 @@
         display: block;
     }
 }
-
 
 .turn-timer {
     position: absolute;

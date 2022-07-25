@@ -40,14 +40,14 @@
       <textarea #storyInput class="input story"></textarea>
 
       <button class="button" (click)="submitText(storyInput.value); storyInput.value=''">Submit</button>
-      <button class="button" (click)="voteFinish()">Finish</button>
+      <button class="button warning" (click)="voteFinish()">Finish</button>
     </div>
 
     <div *ngIf="(gameStatus$ | async) === 'ended'" class="stories">
 
       <ng-container *ngIf="finalStories$ | async as finalStories; else finishScreen">
         <ng-container *ngFor="let story of finalStories">
-          <tell-it-app-message class="story" [author]="story.author" [message]="story.text"></tell-it-app-message>
+          <tell-it-app-message class="story" [author]="story.author" [message]="story.text" [ttsEnabled]="true"></tell-it-app-message>
         </ng-container>
       </ng-container>
       <ng-template #finishScreen>

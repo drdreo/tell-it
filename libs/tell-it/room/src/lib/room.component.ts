@@ -21,7 +21,7 @@ export class RoomComponent implements OnInit, OnDestroy {
 	gameStatus$: Observable<GameStatus>;
 	users$: Observable<UserOverview[]>;
 	user$: Observable<UserOverview | undefined>;
-	story$: Observable<StoryData | undefined >;
+	story$: Observable<StoryData | undefined>;
 	finishVotes$: Observable<string[]>;
 	finalStories$: Observable<StoryData[]>;
 	turnTimer$: Observable<number | undefined>;
@@ -54,6 +54,12 @@ export class RoomComponent implements OnInit, OnDestroy {
 				}
 			});
 
+		// if the room is closed while players are on the page, redirect them to the home page
+		this.socketService.roomClosed()
+			.pipe(takeUntil(this.unsubscribe$))
+			.subscribe(() => {
+				this.router.navigate(["/"]);
+			});
 	}
 
 	ngOnDestroy(): void {

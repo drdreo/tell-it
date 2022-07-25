@@ -64,6 +64,15 @@
             background-color: transparent;
         }
     }
+
+    &.warning {
+        background-color: $warning-color;
+        color: $black;
+
+        &:hover {
+            background-color: transparentize($warning-color, 0.1);
+        }
+    }
 }
 
 

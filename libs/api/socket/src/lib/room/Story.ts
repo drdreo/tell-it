@@ -1,10 +1,8 @@
 export class Story {
 
-	userId: string;  // the current writer of the story
 	private texts: string[] = [];
 
 	constructor(public ownerId: string) {
-		this.userId = ownerId;
 	}
 
 	addText(text: string) {

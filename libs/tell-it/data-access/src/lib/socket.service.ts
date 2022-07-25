@@ -29,6 +29,10 @@ export class SocketService {
 		return this.socket.fromEvent<ServerJoined>(ServerEvent.Joined);
 	}
 
+	roomClosed(): Observable<void> {
+		return this.socket.fromEvent<void>(ServerEvent.RoomClosed);
+	}
+
 	// ask the server to send all relevant data again
 	requestUpdate() {
 		this.socket.emit(UserEvent.RequestUpdate);

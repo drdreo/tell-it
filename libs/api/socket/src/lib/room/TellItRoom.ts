@@ -23,23 +23,27 @@ export class TellItRoom extends BaseRoom {
 	}
 
 	getStories(): StoryData[] {
-		return this.stories.map(story => ({text: story.serialize(), author: this.getNameOfUser(story.ownerId)}));
+		return this.stories.map(story => ({ text: story.serialize(), author: this.getNameOfUser(story.ownerId) }));
 	}
 
 	getStoryForUser(userId: string): Story | undefined {
-		return this.stories.find(story => story.userId === userId);
+		try {
+			return this.getUser(userId)?.getCurrentStory();
+		} catch (e) {
+			return undefined;
+		}
 	}
 
 	getTextForUser(id: string): StoryData | undefined {
 		const story = this.getStoryForUser(id);
 		if (!story) {
-			console.warn("trying to get text, but no story found");
+			this.logger.warn("trying to get text, but no story found");
 			return;
 		}
 		return { text: story.getLatestText(), author: this.getNameOfUser(story.ownerId) };
 	}
 
-	getNameOfUser(userID: string): string | undefined{
+	getNameOfUser(userID: string): string | undefined {
 		return this.users.find(user => user.id === userID)?.name;
 	}
 
@@ -59,22 +63,22 @@ export class TellItRoom extends BaseRoom {
 		const nextIndex = (currentIndex + 1) % this.users.length;
 		const newUser = this.users[nextIndex];
 
-		if (this.isUserOwner(userID)) {
-			// if this user is already an owner, find his story
-			const story = this.getStoryForUser(userID);
+		let story: Story;
 
-			if (story) {
-				story.addText(text);
-				story.userId = newUser.id;
-			} else {
+		// if this user already owns a story, submit the text to his current story
+		if (this.isUserOwner(userID)) {
+			try {
+				story = this.dequeueUserStory(userID);
+			} catch (e) {
 				throw new CantWaitError();
 			}
 		} else {
-			const newStory = new Story(userID);
-			newStory.addText(text);
-			newStory.userId = newUser.id;
-			this.stories.push(newStory);
+			story = new Story(userID);
+			this.stories.push(story);
 		}
+
+		story.addText(text);
+		this.enqueueUserStory(newUser.id, story);
 	}
 
 	isUserOwner(userID: string) {
@@ -97,5 +101,13 @@ export class TellItRoom extends BaseRoom {
 
 	getFinishVotes(): string[] {
 		return [...this.finishVotes];
+	}
+
+	private dequeueUserStory(userID: string): Story {
+		return this.getUser(userID)?.dequeueCurrentStory();
+	}
+
+	private enqueueUserStory(userID: string, story: Story): void {
+		this.getUser(userID)?.enqueueStory(story);
 	}
 }

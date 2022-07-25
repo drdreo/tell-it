@@ -39,7 +39,7 @@ h6 {
 
 ::-webkit-scrollbar-thumb {
   background: #e1e1e1;
-  border: 0px none #ffffff;
+  border: 0 none #ffffff;
   border-radius: 50px;
 }
 
@@ -53,7 +53,7 @@ h6 {
 
 ::-webkit-scrollbar-track {
   background: #666666;
-  border: 0px none #ffffff;
+  border: 0 none #ffffff;
   border-radius: 15px;
 }
 
@@ -79,4 +79,31 @@ h6 {
   height: 100vh;
 
   color: white;
+}
+
+.scrollbar-invert {
+
+  &::-webkit-scrollbar-thumb {
+    background: #666666;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #515151;
+  }
+
+  &::-webkit-scrollbar-thumb:active {
+    background: #4d7be8;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #e1e1e1;
+  }
+
+  &::-webkit-scrollbar-track:hover {
+    background: #ffffff;
+  }
+
+  &::-webkit-scrollbar-track:active {
+    background: #ffffff;
+  }
 }

@@ -1,4 +1,12 @@
-<div class="author">{{author}}</div>
+<div class="author">
+  {{author}}
+  <button *ngIf="ttsEnabled && message" class="tts-button" (click)="tts(message)">
+    <img alt="Play Button" src="assets/images/play-button.svg" />
+  </button>
+</div>
+
 <div *ngIf="message" class="message">
-  {{message}}
+  <div class="message-container scrollbar-invert">
+    {{message}}
+  </div>
 </div>

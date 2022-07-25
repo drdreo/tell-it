@@ -4,17 +4,31 @@
 }
 
 .author {
-    position: absolute;
-    top: -50px;
+
+    display: flex;
     font-size: 24px;
     color: olivedrab;
     font-weight: bold;
+    margin-bottom: 1rem;
+
+    .tts-button {
+        background: none;
+        border: none;
+        width: 1.5rem;
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+.message-container {
+    overflow-y: auto;
 }
 
 .message {
+    max-height: 35vh;
+
     // layout
+    display: flex;
     position: relative;
-    max-width: 30em;
 
     // looks
     color: black;

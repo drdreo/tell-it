@@ -157,7 +157,6 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		room.sendGameStatusUpdate(socket.id);
 	}
 
-
 	@SubscribeMessage(UserEvent.Start)
 	onStartGame(@ConnectedSocket() socket: Socket) {
 		const room = this.socketToRoom.get(socket.id);
@@ -169,6 +168,7 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	onUserLeave(@ConnectedSocket() socket: Socket): void {
 		const room = this.socketToRoom.get(socket.id);
 		this.handleUserDisconnect(socket.data.userID, room);
+		this.disconnectSocket(socket, room);
 	}
 
 	@SubscribeMessage(UserEvent.VoteKick)
@@ -253,7 +253,7 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	}
 
 	// to prevent sockets from still receiving game messages. Leaves the room and unsets all socket data
-	private disconnectSocket(socket: any, room: string) {
+	private disconnectSocket(socket: Socket, room: string) {
 		socket.leave(room);
 		this.socketToRoom.delete(socket.id);
 		this.userToSocket.delete(socket.data.userID);
@@ -318,7 +318,7 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				break;
 
 			case RoomCommandName.Closed :
-				this.sendTo(receiver, ServerEvent.RoomClosed);
+				this.sendTo(room, ServerEvent.RoomClosed);
 				break;
 
 			case RoomCommandName.UserKicked :

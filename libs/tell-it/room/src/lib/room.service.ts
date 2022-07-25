@@ -4,8 +4,12 @@ import { UserOverview, RoomResponse } from "@tell-it/api-interfaces";
 import { SocketService } from "@tell-it/data-access";
 import { GameStatus, StoryData } from "@tell-it/domain/game";
 import { API_URL_TOKEN } from "@tell-it/domain/tokens";
-import { BehaviorSubject, Observable, Subject, takeUntil, interval, map, firstValueFrom, ReplaySubject, distinctUntilChanged } from "rxjs";
+import { BehaviorSubject, Observable, Subject, takeUntil, interval, map, firstValueFrom, ReplaySubject, distinctUntilChanged, tap } from "rxjs";
 
+
+function isStoryEqual(a: StoryData | undefined, b: StoryData| undefined): boolean {
+	return  a?.author === b?.author && a?.text === b?.text;
+}
 
 @Injectable()
 export class RoomService implements OnDestroy {
@@ -29,6 +33,7 @@ export class RoomService implements OnDestroy {
 
 	constructor(private http: HttpClient, private socketService: SocketService, @Inject(API_URL_TOKEN) private API_URL: string) {
 
+
 		this.socketService.usersUpdate()
 			.pipe(takeUntil(this.unsubscribe$))
 			.subscribe(users => {
@@ -43,7 +48,8 @@ export class RoomService implements OnDestroy {
 
 		this.socketService.storyUpdate()
 			.pipe(
-				distinctUntilChanged(),
+				distinctUntilChanged(isStoryEqual),
+				tap(story => console.log("Story update: ", story)),
 				takeUntil(this.unsubscribe$))
 			.subscribe((story) => {
 				this._story$.next(story);
@@ -109,7 +115,7 @@ export class RoomService implements OnDestroy {
 			this.socketService.join(room, undefined, this.clientPlayerID);
 
 		} else if (!isPlayer) {
-			if (response.config.spectatorsAllowed === false) {
+			if (!response.config.spectatorsAllowed) {
 				throw new Error("Not allowed to spectate!");
 			}
 
