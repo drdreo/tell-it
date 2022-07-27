@@ -32,7 +32,7 @@
 
     <div *ngIf="(gameStatus$ | async) === 'started'" class="game-container">
 
-      <div class="responsive-container" [class.input-focused]="inputFocused">
+      <div class="responsive-container">
         <div *ngIf="turnTimer$ | async as turnTimer" class="turn-timer">
           Time: {{turnTimer}}
         </div>

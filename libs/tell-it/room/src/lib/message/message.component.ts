@@ -12,11 +12,20 @@ export class MessageComponent {
 	@Input() message!: string | null;
 	@Input() ttsEnabled = false;
 
+	private isReading = false;
+
 	tts(text: string): void {
-		const synth = window.speechSynthesis;
-		const utterThis = new SpeechSynthesisUtterance(text);
-		utterThis.pitch = 1;
-		utterThis.rate = 1;
-		synth.speak(utterThis);
+		if (!this.isReading) {
+			this.isReading = true;
+			const synth = window.speechSynthesis;
+			const utterThis = new SpeechSynthesisUtterance(text);
+			utterThis.pitch = 1;
+			utterThis.rate = 1;
+			synth.speak(utterThis);
+
+			utterThis.onend = () => {
+				this.isReading = false;
+			};
+		}
 	}
 }
