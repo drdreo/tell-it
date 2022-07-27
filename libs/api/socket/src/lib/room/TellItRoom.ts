@@ -2,6 +2,8 @@ import { Logger } from "@nestjs/common";
 import { RoomConfig } from "@tell-it/api-interfaces";
 import { CantWaitError } from "@tell-it/domain/errors";
 import { GameStatus, StoryData } from "@tell-it/domain/game";
+
+
 import { BaseRoom } from "./BaseRoom";
 import { RoomCommandName } from "./RoomCommands";
 import { Story } from "./Story";
@@ -56,6 +58,22 @@ export class TellItRoom extends BaseRoom {
 		});
 	}
 
+	sendFinalStories() {
+		this.commands$.next({
+			name: RoomCommandName.FinalStories,
+			room: this.name,
+			data: { stories: this.getStories() }
+		});
+	}
+
+	sendPersistStories() {
+		this.commands$.next({
+			name: RoomCommandName.PersistStories,
+			room: this.name,
+			data: { stories: this.getStories() }
+		});
+	}
+
 	submitText(userID: string, text: string) {
 
 		// find new user to continue
@@ -92,10 +110,15 @@ export class TellItRoom extends BaseRoom {
 			return;
 		}
 
-		this.finishVotes.add(userName);
+		if (this.finishVotes.has(userName)) {
+			// user already voted, toggle it
+			this.finishVotes.delete(userName);
+		} else {
+			this.finishVotes.add(userName);
+		}
 
 		if (this.finishVotes.size > this.users.length / 2) {
-			this.gameStatus = GameStatus.Ended;
+			this.gameEnded();
 		}
 	}
 
@@ -110,4 +133,11 @@ export class TellItRoom extends BaseRoom {
 	private enqueueUserStory(userID: string, story: Story): void {
 		this.getUser(userID)?.enqueueStory(story);
 	}
+
+	private gameEnded() {
+		this.gameStatus = GameStatus.Ended;
+		this.sendFinalStories();
+		this.sendPersistStories();
+	}
+
 }

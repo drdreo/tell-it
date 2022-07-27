@@ -29,8 +29,7 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		this.logger.verbose("Created");
 
 
-		this.roomService.roomCommands$
-			.subscribe((cmd: RoomCommand) => this.handleRoomCommands(cmd));
+		this.roomService.roomCommands$.subscribe((cmd: RoomCommand) => this.handleRoomCommands(cmd));
 	}
 
 	handleConnection(socket: Socket) {
@@ -51,6 +50,7 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		userName
 	}: UserJoinMessage): WsResponse<ServerJoined> {
 		this.logger.log(`User[${ userName }] joining!`);
+
 		let sanitizedRoom = roomName.toLowerCase();
 		socket.join(sanitizedRoom);
 		this.socketToRoom.set(socket.id, sanitizedRoom);
@@ -153,6 +153,8 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		// tell the spectator all information if game started: players, game status, board, pot
 		if (gameStatus === GameStatus.Started) {
 			room.sendUserStoryUpdate(socket.data.userID, socket.id);
+		} else if (gameStatus === GameStatus.Ended) {
+			room.sendFinalStories();
 		}
 		room.sendGameStatusUpdate(socket.id);
 	}
@@ -327,6 +329,14 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 			case RoomCommandName.UserStoryUpdate:
 				this.sendTo(receiver, ServerEvent.StoryUpdate, data.story as ServerStoryUpdate);
+				break;
+
+			case RoomCommandName.FinalStories:
+				this.sendTo(room, ServerEvent.FinalStories, { stories: data.stories } as ServerFinalStories);
+				break;
+
+			case RoomCommandName.PersistStories:
+				this.roomService.persistStories(data.stories);
 				break;
 
 			default:

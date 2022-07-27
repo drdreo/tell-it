@@ -10,6 +10,8 @@ export enum RoomCommandName {
 
     UserStoryUpdate = 'user_story_update',
     GameStatusUpdate = 'game_status_update',
+	FinalStories = 'final_stories',
+    PersistStories = 'persist_stories',
 }
 
 export interface RoomCommand {
@@ -22,5 +24,6 @@ export interface RoomCommand {
         kickedUser?: string;
         status?: GameStatus;
         story?: StoryData;
+        stories?: StoryData[];
     };
 }

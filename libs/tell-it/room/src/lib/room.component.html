@@ -7,55 +7,73 @@
 
     <div *ngIf="(gameStatus$ | async) === 'waiting'" class="ready-container">
 
+      Room: {{roomName}} <br>
+
+      <ul>
+        <li *ngFor="let user of userData.users">
+          {{user.name}}
+        </li>
+      </ul>
+
       <ng-container *ngIf="userData.user && userData.users!.length > 1 && userData.user.id === userData.users![0].id; else waitingText">
-        <div class="ready-container__message">Everyone's ready?</div>
-        <button class="button" (click)="startGame()">Start</button>
+        <div class="ready-container__message">
+          <p>Everyone's ready?</p>
+          <button class="button" (click)="startGame()">Start</button>
+        </div>
       </ng-container>
 
       <ng-template #waitingText>
-        Room: {{roomName}} <br>
-        Waiting for the leader to start.
+        <div class="ready-container__message">
+          Waiting for the leader to start.
+        </div>
       </ng-template>
 
     </div>
 
     <div *ngIf="(gameStatus$ | async) === 'started'" class="game-container">
 
-      <div *ngIf="turnTimer$ | async as turnTimer" class="turn-timer">
-        Time: {{turnTimer}}
+      <div class="responsive-container" [class.input-focused]="inputFocused">
+        <div *ngIf="turnTimer$ | async as turnTimer" class="turn-timer">
+          Time: {{turnTimer}}
+        </div>
+
+        <div *ngIf="finishVotes$ | async as finishVotes" class="finish-votes">
+          Finish: {{finishVotes.length }}/{{userData.users?.length}}
+        </div>
+
+        <ng-container *ngIf="story$ | async as story; else noStory">
+          <tell-it-app-message [author]="story.author" [message]="story.text"></tell-it-app-message>
+        </ng-container>
+        <ng-template #noStory>
+          Waiting for a story...
+        </ng-template>
+
+        <textarea #storyInput
+                  class="input story"
+                  (focus)="inputFocused = true;"
+                  (focusout)="inputFocused = false;"></textarea>
+
+        <button class="button" (click)="submitText(storyInput.value); storyInput.value=''">Submit</button>
+        <button class="button warning" (click)="voteFinish()">Finish</button>
       </div>
 
-      <div *ngIf="finishVotes$ | async as finishVotes" class="finish-votes">
-        Finish: {{finishVotes.length }}/{{userData.users?.length}}
-      </div>
-
-      <ng-container *ngIf="story$ | async as story; else noStory">
-        <tell-it-app-message [author]='story.author' [message]="story.text"></tell-it-app-message>
-      </ng-container>
-      <ng-template #noStory>
-        No story yet...
-      </ng-template>
-
-
-      <textarea #storyInput class="input story"></textarea>
-
-      <button class="button" (click)="submitText(storyInput.value); storyInput.value=''">Submit</button>
-      <button class="button warning" (click)="voteFinish()">Finish</button>
     </div>
 
     <div *ngIf="(gameStatus$ | async) === 'ended'" class="stories">
 
       <ng-container *ngIf="finalStories$ | async as finalStories; else finishScreen">
         <ng-container *ngFor="let story of finalStories">
-          <tell-it-app-message class="story" [author]="story.author" [message]="story.text" [ttsEnabled]="true"></tell-it-app-message>
+          <tell-it-app-message class="story"
+                               [author]="story.author"
+                               [message]="story.text"
+                               [ttsEnabled]="true"></tell-it-app-message>
         </ng-container>
       </ng-container>
       <ng-template #finishScreen>
-        GGs. Load the final story now.
+        Loading final stories...
         <button class="button" (click)="loadFinalStories()">Load</button>
       </ng-template>
     </div>
-
   </ng-container>
 
 </div>

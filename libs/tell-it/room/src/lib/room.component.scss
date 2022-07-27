@@ -1,9 +1,7 @@
 @import '../../../../../libs/tell-it/ui/src/lib/styles';
 
 .game-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
+
     width: 90%;
     height: 100%;
 
@@ -13,6 +11,31 @@
 
     .story {
         height: 50%;
+    }
+}
+
+.responsive-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+
+    height: 100%;
+
+    @include respond-to(mobile) {
+        &.input-focused {
+            height: 70%;
+        }
+    }
+
+}
+
+.ready-container {
+    display: flex;
+    flex-direction: column;
+
+    &__message{
+        display: flex;
+        flex-direction: column;
     }
 }
 

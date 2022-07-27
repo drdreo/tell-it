@@ -1,3 +1,5 @@
+import { StoryData } from "@tell-it/domain/game";
+
 export interface RoomInfo {
     name: string;
     started: boolean;
@@ -13,6 +15,13 @@ export interface RoomResponse {
     users: UserOverview[];
     startTime: Date;
     config: RoomConfig;
+}
+
+export interface StoriesResponse {
+    stories: {
+        date: number;
+        stories: StoryData[];
+    }[];
 }
 
 export interface ServerJoined {
