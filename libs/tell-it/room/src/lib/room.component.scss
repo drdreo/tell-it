@@ -22,9 +22,7 @@
     height: 100%;
 
     @include respond-to(mobile) {
-        &.input-focused {
-            height: 70%;
-        }
+        height: 60%;
     }
 
 }

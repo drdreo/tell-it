@@ -28,7 +28,6 @@ export class RoomComponent implements OnInit, OnDestroy {
 	/***/
 
 	private unsubscribe$ = new Subject<void>();
-	inputFocused = false;
 
 	constructor(private router: Router, private route: ActivatedRoute, private socketService: SocketService, private roomService: RoomService) {
 		this.gameStatus$ = this.roomService.gameStatus$;

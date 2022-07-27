@@ -48,10 +48,7 @@
           Waiting for a story...
         </ng-template>
 
-        <textarea #storyInput
-                  class="input story"
-                  (focus)="inputFocused = true;"
-                  (focusout)="inputFocused = false;"></textarea>
+        <textarea #storyInput class="input story"></textarea>
 
         <button class="button" (click)="submitText(storyInput.value); storyInput.value=''">Submit</button>
         <button class="button warning" (click)="voteFinish()">Finish</button>
