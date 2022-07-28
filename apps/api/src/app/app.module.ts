@@ -22,7 +22,8 @@ const configuration = () => (environment);
 			username: environment.database.user,
 			password: environment.database.password,
 			database: environment.database.database,
-			autoLoadEntities: true
+			autoLoadEntities: true,
+			ssl: environment.production,
 		}),
 		ApiDataAccessModule,
 		SocketModule,
