@@ -1,4 +1,5 @@
 import { CantWaitError } from "@tell-it/domain/errors";
+import { Subject } from "rxjs";
 import { TellItRoom } from "./TellItRoom";
 
 describe("TellIt Room", () => {
@@ -6,6 +7,7 @@ describe("TellIt Room", () => {
 
 	beforeEach(async () => {
 		room = new TellItRoom("test");
+		room.commands$ = new Subject();
 	});
 
 	it("should be defined", () => {
@@ -78,6 +80,7 @@ describe("TellIt Room", () => {
 
 		it("should have no story after submitting", () => {
 			room = new TellItRoom("test");
+			room.commands$ = new Subject();
 			userId1 = room.addUser("user1");
 			userId2 = room.addUser("user2");
 			room.submitText(userId1, "First story of 1");
