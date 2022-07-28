@@ -91,4 +91,8 @@ export class SocketService {
 	fetchFinalStories() {
 		this.socket.emit(UserEvent.RequestStories);
 	}
+
+	restart() {
+		this.socket.emit(UserEvent.VoteRestart);
+	}
 }

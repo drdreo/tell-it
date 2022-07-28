@@ -24,7 +24,6 @@ const configuration = () => (environment);
 			database: environment.database.database,
 			autoLoadEntities: true,
 			ssl: environment.production ? { rejectUnauthorized: false } : false,
-			synchronize: true
 		}),
 		ApiDataAccessModule,
 		SocketModule,

@@ -185,6 +185,12 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		this.sendTo(room, ServerEvent.VoteFinish, { votes: this.roomService.getRoomFinishVotes(room) } as ServerFinishVoteUpdate);
 	}
 
+	@SubscribeMessage(UserEvent.VoteRestart)
+	onVoteRestart(@ConnectedSocket() socket: Socket) {
+		const room = this.socketToRoom.get(socket.id);
+		this.roomService.voteRestart(room, socket.data.userID);
+	}
+
 	@SubscribeMessage(UserEvent.SubmitText)
 	obTextSubmit(@ConnectedSocket() socket: Socket, @MessageBody() { text }: UserSubmitTextMessage) {
 		const room = this.socketToRoom.get(socket.id);
@@ -204,6 +210,7 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		const room = this.socketToRoom.get(socket.id);
 		this.sendTo(room, ServerEvent.FinalStories, { stories: this.roomService.getStories(room) } as ServerFinalStories);
 	}
+
 
 	private sendTo(recipient: string, event: ServerEvent, data?: any) {
 		this.server.to(recipient).emit(event, data);

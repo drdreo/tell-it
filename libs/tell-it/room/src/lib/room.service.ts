@@ -141,4 +141,8 @@ export class RoomService implements OnDestroy {
 	fetchFinalStories() {
 		this.socketService.fetchFinalStories();
 	}
+
+	restart() {
+		this.socketService.restart();
+	}
 }

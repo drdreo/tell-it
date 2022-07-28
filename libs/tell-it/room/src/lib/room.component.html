@@ -71,6 +71,7 @@
                                [message]="story.text"
                                [ttsEnabled]="true"></tell-it-app-message>
         </ng-container>
+        <button class="button" (click)="restart()">Restart?</button>
       </ng-container>
       <ng-template #finishScreen>
         Loading final stories...

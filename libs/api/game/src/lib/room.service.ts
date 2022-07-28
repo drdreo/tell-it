@@ -149,6 +149,15 @@ export class RoomService {
 		}
 	}
 
+	voteRestart(roomName: string, userID: string) {
+		const room = this.getRoom(roomName);
+		if (room) {
+			room.voteRestart(userID);
+		} else {
+			throw new WsException(`Can not vote restart on Room[${ roomName }] because it does not exist.`);
+		}
+	}
+
 	async persistStories(stories: StoryData[]) {
 
 		try {

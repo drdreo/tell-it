@@ -85,4 +85,8 @@ export class RoomComponent implements OnInit, OnDestroy {
 	loadFinalStories() {
 		this.roomService.fetchFinalStories();
 	}
+
+	restart() {
+		this.roomService.restart();
+	}
 }

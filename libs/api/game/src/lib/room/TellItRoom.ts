@@ -12,6 +12,7 @@ export class TellItRoom extends BaseRoom {
 
 	private stories: Story[] = [];
 	private finishVotes = new Set<string>();
+	private restartVotes = new Set<string>();
 
 	constructor(public name: string, CONFIG?: RoomConfig) {
 		super(name, CONFIG);
@@ -19,9 +20,25 @@ export class TellItRoom extends BaseRoom {
 		this.logger.log(`Created!`);
 	}
 
+	restart() {
+		super.restart();
+		this.stories = [];
+		this.finishVotes.clear();
+		this.restartVotes.clear();
+		this.sendUsersUpdate();
+		this.sendResetUserStories();
+	}
+
+	sendResetUserStories(){
+		this.commands$.next({
+			name: RoomCommandName.UserStoryUpdate,
+			room: this.name,
+			data: { story: undefined }
+		});
+	}
+
 	destroy() {
 		super.destroy();
-		this.stories = [];
 	}
 
 	getStories(): StoryData[] {
@@ -117,13 +134,32 @@ export class TellItRoom extends BaseRoom {
 			this.finishVotes.add(userName);
 		}
 
-		if (this.finishVotes.size > this.users.length / 2) {
+		if (this.finishVotes.size >= this.users.length) {
 			this.gameEnded();
 		}
 	}
 
 	getFinishVotes(): string[] {
 		return [...this.finishVotes];
+	}
+
+	voteRestart(userID: string) {
+		const userName = this.users.find(user => user.id === userID)?.name;
+		if (!userName) {
+			console.error("User name not found");
+			return;
+		}
+
+		if (this.restartVotes.has(userName)) {
+			// user already voted, toggle it
+			this.restartVotes.delete(userName);
+		} else {
+			this.restartVotes.add(userName);
+		}
+
+		if (this.restartVotes.size >= this.users.length) {
+			this.restart();
+		}
 	}
 
 	private dequeueUserStory(userID: string): Story {

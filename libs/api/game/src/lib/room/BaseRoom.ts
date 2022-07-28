@@ -123,10 +123,15 @@ export class BaseRoom {
 		this.gameStatus = GameStatus.Started;
 	}
 
+	restart() {
+		this.logger.log(`restarting...`);
+		this.users.map(user => user.reset());
+		this.startTime = new Date();
+		this.gameStatus = GameStatus.Waiting;
+	}
+
 	destroy(): void {
 		this.logger.debug(`Destroy!`);
-
-		this.startTime = undefined;
 		this.sendRoomClosed();
 	}
 

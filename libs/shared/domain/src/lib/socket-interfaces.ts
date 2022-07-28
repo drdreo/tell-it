@@ -18,15 +18,16 @@ export enum ServerEvent {
 }
 
 export enum UserEvent {
-	RequestUpdate = "client:request:update",
 	JoinRoom = "client:user:join",
 	Start = "client:user:start",
 	SpectatorJoin = "client:spectator:join",
 	Leave = "client:user:leave",
 	VoteKick = "client:user:vote-kick",
 	VoteFinish = "client:user:vote-finish",
+	VoteRestart = "client:user:vote-restart",
 	SubmitText = "client:user:submit-text",
 	RequestStories = "client:request:stories",
+	RequestUpdate = "client:request:update",
 }
 
 export interface UserVoteKickMessage {
