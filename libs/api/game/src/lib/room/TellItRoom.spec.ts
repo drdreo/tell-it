@@ -134,10 +134,10 @@ describe("TellIt Room", () => {
 			room.submitText(userId2, "Second story of 2");
 			room.submitText(userId3, "Second story of 3");
 
-			expect(room.getUser(userId1).totalStories()).toEqual(1);
-			// after everyone is done, except user1 he should have 2 stories waiting
-			room.submitText(userId3, "Third story of 3");
 			expect(room.getUser(userId1).totalStories()).toEqual(2);
+			// after everyone is done, except user1 he should have 3 stories waiting
+			room.submitText(userId3, "Third story of 3");
+			expect(room.getUser(userId1).totalStories()).toEqual(3);
 		});
 
 	});
