@@ -11,6 +11,7 @@ export class StoryEntity implements StoryData {
 
 	@Column({
 		length: 50,
+		nullable: true
 	})
 	author: string;
 
