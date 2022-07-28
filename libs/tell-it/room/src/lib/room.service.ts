@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable, OnDestroy, Inject } from "@angular/core";
-import { UserOverview, RoomResponse } from "@tell-it/api-interfaces";
+import { UserOverview, RoomResponse } from "@tell-it/domain/api-interfaces";
 import { SocketService } from "@tell-it/data-access";
 import { GameStatus, StoryData } from "@tell-it/domain/game";
 import { API_URL_TOKEN } from "@tell-it/domain/tokens";

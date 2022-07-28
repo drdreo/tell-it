@@ -37,6 +37,12 @@
           Time: {{turnTimer}}
         </div>
 
+        <ul class="user-list">
+          <li *ngFor="let user of userData.users"> {{user.name}}  - {{user.queuedStories}}</li>
+        </ul>
+
+
+
         <div *ngIf="finishVotes$ | async as finishVotes" class="finish-votes">
           Finish: {{finishVotes.length }}/{{userData.users?.length}}
         </div>

@@ -1,5 +1,5 @@
 import { Logger } from "@nestjs/common";
-import { RoomConfig } from "@tell-it/api-interfaces";
+import { RoomConfig } from "@tell-it/domain/api-interfaces";
 import { CantWaitError } from "@tell-it/domain/errors";
 import { GameStatus, StoryData } from "@tell-it/domain/game";
 
@@ -132,6 +132,7 @@ export class TellItRoom extends BaseRoom {
 
 	private enqueueUserStory(userID: string, story: Story): void {
 		this.getUser(userID)?.enqueueStory(story);
+		this.sendUsersUpdate(); // to update the total numbers of queued stories
 	}
 
 	private gameEnded() {

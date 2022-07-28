@@ -1,4 +1,4 @@
-import { RoomConfig } from '@tell-it/api-interfaces';
+import { RoomConfig } from '@tell-it/domain/api-interfaces';
 
 
 export function validateConfig(config: RoomConfig): boolean {

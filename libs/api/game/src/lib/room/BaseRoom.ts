@@ -1,6 +1,6 @@
 import { Logger } from "@nestjs/common";
 import { WsException } from "@nestjs/websockets";
-import { RoomConfig, UserOverview } from "@tell-it/api-interfaces";
+import { RoomConfig, UserOverview } from "@tell-it/domain/api-interfaces";
 import { GameStatus } from "@tell-it/domain/game";
 import { mergeDeep } from "@tell-it/utils";
 import { nanoid } from "nanoid";
@@ -18,7 +18,7 @@ const defaultConfig: RoomConfig = {
 	},
 	users: {
 		min: 2,
-		max: 8
+		max: 30
 	}
 };
 
@@ -65,7 +65,7 @@ export class BaseRoom {
 
 	getUsersPreview(): UserOverview[] {
 		return [
-			...this.users.map(user => ({ ...user, kickVotes: [...user.kickVotes] }))
+			...this.users.map(user => User.getUserOverview(user))
 		];
 	}
 

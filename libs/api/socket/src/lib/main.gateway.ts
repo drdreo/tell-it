@@ -1,13 +1,12 @@
 import { Logger } from "@nestjs/common";
 import { SubscribeMessage, WebSocketGateway, WsException, OnGatewayDisconnect, WsResponse, WebSocketServer, ConnectedSocket, OnGatewayConnection, MessageBody } from "@nestjs/websockets";
-import { ServerEvent, UserEvent, ServerJoined, HomeInfo, UserVoteKickMessage, UserJoinMessage, ServerSpectatorJoined, UserSpectatorJoinMessage, UserKicked, ServerUsersUpdate, UserSubmitTextMessage, ServerStoryUpdate, ServerFinishVoteUpdate, ServerFinalStories } from "@tell-it/api-interfaces";
+import { RoomService, InvalidConfigError, RoomFullError, RoomStartedError, RoomCommand, RoomCommandName } from "@tell-it/api/game";
+import { ServerJoined, HomeInfo, UserKicked } from "@tell-it/domain/api-interfaces";
 import { CantWaitError } from "@tell-it/domain/errors";
 import { GameStatus } from "@tell-it/domain/game";
+import { ServerEvent, UserEvent, UserVoteKickMessage, UserJoinMessage, ServerSpectatorJoined, UserSpectatorJoinMessage, ServerUsersUpdate, UserSubmitTextMessage, ServerStoryUpdate, ServerFinishVoteUpdate, ServerFinalStories } from "@tell-it/domain/socket-interfaces";
 import { Server, Socket } from "socket.io";
 import { environment } from "../../../../../apps/api/src/environments/environment";
-import { RoomService } from "./room.service";
-import { InvalidConfigError, RoomFullError, RoomStartedError } from "./room/errors";
-import { RoomCommand, RoomCommandName } from "./room/RoomCommands";
 
 
 // @UseInterceptors(SentryInterceptor)

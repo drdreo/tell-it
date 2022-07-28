@@ -1,12 +1,10 @@
 import { Controller, HttpStatus, Get, Param, HttpException } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { HomeInfo, RoomResponse, StoriesResponse } from "@tell-it/api-interfaces";
-import { readFile } from "fs/promises";
-import { RoomService } from "./room.service";
+import { RoomService } from "@tell-it/api/game";
+import { HomeInfo, RoomResponse } from "@tell-it/domain/api-interfaces";
 
 @Controller()
 export class MainController {
-	constructor(private configService: ConfigService, private readonly roomService: RoomService) {}
+	constructor(private readonly roomService: RoomService) {}
 
 	@Get("/home")
 	getHomeInfo(): HomeInfo {
@@ -27,13 +25,5 @@ export class MainController {
 		}
 
 		throw new HttpException("Room does not exist!", HttpStatus.NOT_FOUND);
-	}
-
-	@Get("/stories")
-	async getStories(): Promise<StoriesResponse> {
-		const STORIES_PATH = this.configService.get('STORIES_PATH');
-		const existingStories = await readFile(STORIES_PATH);
-
-		return { stories: JSON.parse(existingStories.toString()) };
 	}
 }

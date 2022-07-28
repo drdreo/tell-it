@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@tell-it/api-interfaces": ["libs/api-interfaces/src/index.ts"],
+      "@tell-it/api/data-access": ["libs/api/data-access/src/index.ts"],
+      "@tell-it/api/game": ["libs/api/game/src/index.ts"],
       "@tell-it/api/socket": ["libs/api/socket/src/index.ts"],
       "@tell-it/data-access": ["libs/tell-it/data-access/src/index.ts"],
       "@tell-it/domain": ["libs/shared/domain/src/index.ts"],

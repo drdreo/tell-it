@@ -1,10 +1,8 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { WsException } from "@nestjs/websockets";
-import { RoomInfo } from "@tell-it/api-interfaces";
+import { ApiDataService } from "@tell-it/api/data-access";
+import { RoomInfo } from "@tell-it/domain/api-interfaces";
 import { StoryData } from "@tell-it/domain/game";
-import { ensureFile } from "fs-extra";
-import { writeFile, readFile, access } from "fs/promises";
 import { Subject } from "rxjs";
 
 import { RoomCommand, RoomCommandName } from "./room/RoomCommands";
@@ -23,7 +21,7 @@ export class RoomService {
 	private logger = new Logger(RoomService.name);
 	private destroyTimeout: NodeJS.Timeout;
 
-	constructor(private configService: ConfigService) {
+	constructor(private apiDataService: ApiDataService) {
 
 	}
 
@@ -153,31 +151,10 @@ export class RoomService {
 
 	async persistStories(stories: StoryData[]) {
 
-		const STORIES_PATH = this.configService.get("STORIES_PATH");
-
 		try {
-			await ensureFile(STORIES_PATH);
-		} catch (err) {
-			this.logger.error("Failed ensuring file:" + err);
-		}
-
-		const storyFile = (await readFile(STORIES_PATH)).toString();
-		let existingStories = [];
-
-		try {
-			if (storyFile.length) {
-				existingStories = JSON.parse(storyFile);
-			}
-
-			existingStories.push({ date: Date.now(), stories });
+			await this.apiDataService.saveStories(stories);
 		} catch (e) {
-			this.logger.error("Failed loading stories from file: " + e);
-		}
-
-		try {
-			await writeFile(STORIES_PATH, JSON.stringify(existingStories));
-		} catch (e) {
-			this.logger.error("Failed saving stories to file: " + e);
+			this.logger.error("Failed saving stories: " + e);
 		}
 	}
 

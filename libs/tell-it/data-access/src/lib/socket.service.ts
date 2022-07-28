@@ -1,7 +1,8 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable, Inject } from "@angular/core";
-import { UserEvent, UserVoteKickMessage, UserJoinMessage, HomeInfo, ServerEvent, ServerJoined, UserLeft, UserOverview, ServerGameStatusUpdate, ServerUsersUpdate, UserSubmitTextMessage, ServerStoryUpdate, ServerFinishVoteUpdate, ServerFinalStories } from "@tell-it/api-interfaces";
+import { UserLeft, HomeInfo, ServerJoined, UserOverview } from "@tell-it/domain/api-interfaces";
 import { GameStatus, StoryData } from "@tell-it/domain/game";
+import { UserEvent, UserVoteKickMessage, UserJoinMessage, ServerEvent, ServerGameStatusUpdate, ServerUsersUpdate, UserSubmitTextMessage, ServerStoryUpdate, ServerFinishVoteUpdate, ServerFinalStories } from "@tell-it/domain/socket-interfaces";
 import { API_URL_TOKEN } from "@tell-it/domain/tokens";
 import { Socket } from "ngx-socket-io";
 import { Observable, map, merge } from "rxjs";

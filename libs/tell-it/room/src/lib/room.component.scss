@@ -5,12 +5,17 @@
     width: 90%;
     height: 100%;
 
-    @include respond-to(desktop) {
-        width: 45%;
+    .story {
+        height: 30%;
     }
 
-    .story {
-        height: 50%;
+
+    @include respond-to(desktop) {
+        width: 45%;
+
+        .story {
+            height: 50%;
+        }
     }
 }
 
@@ -51,4 +56,13 @@
     position: absolute;
     top: 1rem;
     right: 1rem;
+}
+
+
+.user-list {
+    position: absolute;
+    bottom: 3rem;
+    right: 1rem;
+
+    list-style: none;
 }

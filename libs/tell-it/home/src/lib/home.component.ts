@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { roomNameValidator } from '@tell-it/utils';
-import { HomeInfo } from '@tell-it/api-interfaces';
+import { HomeInfo } from '@tell-it/domain/api-interfaces';
 import { SocketService } from '@tell-it/data-access';
 import { takeUntil, Subject, Observable } from 'rxjs';
 

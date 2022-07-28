@@ -15,6 +15,7 @@
     "build:server": "nx build api --configuration=production",
     "start:server": "nx serve api --watch",
     "start:server:prod": "node dist/apps/api/main.js",
+    "start:db": "docker run --name tell-it-DB --rm -e POSTGRES_USER=dev-user -e POSTGRES_PASSWORD=password1 -e PGDATA=/var/lib/postgresql/data/pgdata -v /tmp:/var/lib/postgresql/data -p 5432:5432 -it postgres:14-alpine",
     "test": "nx test",
     "heroku-postbuild": "npm run build:server"
   },
@@ -32,14 +33,17 @@
     "@nestjs/core": "9.0.3",
     "@nestjs/platform-express": "9.0.3",
     "@nestjs/platform-socket.io": "^9.0.3",
+    "@nestjs/typeorm": "^9.0.0",
     "@nestjs/websockets": "^9.0.3",
     "@nrwl/angular": "^14.5.0-beta.1",
-    "fs-extra": "^10.1.0",
     "nanoid": "^3.3.4",
     "ngx-socket-io": "^4.3.0",
+    "pg": "^8.7.3",
+    "pg-connection-string": "^2.5.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.0.0",
     "tslib": "^2.0.0",
+    "typeorm": "^0.3.7",
     "zone.js": "0.11.6"
   },
   "devDependencies": {

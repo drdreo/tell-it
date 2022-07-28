@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { UserOverview } from "@tell-it/api-interfaces";
+import { UserOverview } from "@tell-it/domain/api-interfaces";
 import { SocketService } from "@tell-it/data-access";
 import { GameStatus, StoryData } from "@tell-it/domain/game";
 import { Subject, takeUntil, Observable } from "rxjs";

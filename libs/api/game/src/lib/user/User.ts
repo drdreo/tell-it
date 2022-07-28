@@ -1,4 +1,4 @@
-import { UserOverview } from "@tell-it/api-interfaces";
+import { UserOverview } from "@tell-it/domain/api-interfaces";
 import { Queue } from "@tell-it/utils";
 import { Story } from "../room/Story";
 
@@ -18,7 +18,8 @@ export class User {
 			name: user.name,
 			disconnected: user.disconnected,
 			afk: user.afk,
-			kickVotes: [...user.kickVotes]
+			kickVotes: [...user.kickVotes],
+			queuedStories: user.totalStories()
 		};
 	}
 

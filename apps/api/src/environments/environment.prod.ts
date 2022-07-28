@@ -1,12 +1,15 @@
-import { join, resolve } from "path";
+import { parse as parseConnectionString} from "pg-connection-string";
 
-const STORIES_FOLDER = join(resolve(__dirname), "stories");
-const STORIES_FILE_NAME = "stories.json";
-const STORIES_PATH = join(STORIES_FOLDER, STORIES_FILE_NAME);
-
+const connectionOptions = parseConnectionString(process.env.DATABASE_URL);
 
 export const environment = {
 	production: true,
 	clientUrl: "https://tell-it.pages.dev",
-	STORIES_PATH
+	database: {
+		host: connectionOptions.host,
+		port: connectionOptions.port,
+		user: connectionOptions.user,
+		password: connectionOptions.password,
+		database: connectionOptions.database,
+	}
 };
