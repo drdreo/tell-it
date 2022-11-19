@@ -5,6 +5,7 @@ import { ApiDataAccessModule } from "@tell-it/api/data-access";
 import { GameModule } from "@tell-it/api/game";
 import { SocketModule } from "@tell-it/api/socket";
 import { environment } from "../environments/environment";
+import { HealthController } from "./health.controller";
 import { MainController } from "./main.controller";
 
 const configuration = () => (environment);
@@ -29,7 +30,7 @@ const configuration = () => (environment);
 		SocketModule,
 		GameModule
 	],
-	controllers: [MainController],
+	controllers: [MainController, HealthController],
 	providers: []
 })
 export class AppModule {}
