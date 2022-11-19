@@ -4,8 +4,8 @@
   "license": "MIT",
   "private": true,
   "engines": {
-    "npm": "8.1.0",
-    "node": "16.13.0"
+    "npm": "8.x",
+    "node": "16.x"
   },
   "scripts": {
     "ng": "nx",
@@ -35,7 +35,7 @@
     "@nestjs/platform-socket.io": "^9.0.3",
     "@nestjs/typeorm": "^9.0.0",
     "@nestjs/websockets": "^9.0.3",
-    "@nrwl/angular": "^14.8.6",
+    "@nrwl/angular": "^15.2.1",
     "nanoid": "^3.3.4",
     "ngx-socket-io": "^4.3.0",
     "pg": "^8.7.3",
@@ -47,7 +47,7 @@
     "zone.js": "0.11.6"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "14.0.6",
+    "@angular-devkit/build-angular": "^14.2.10",
     "@angular-eslint/eslint-plugin": "14.0.2",
     "@angular-eslint/eslint-plugin-template": "14.0.2",
     "@angular-eslint/template-parser": "14.0.2",
