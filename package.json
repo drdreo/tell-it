@@ -11,13 +11,12 @@
     "ng": "nx",
     "postinstall": "node apps/tell-it/decorate-angular-cli.js && ngcc --properties es2020 browser module main",
     "start": "nx serve",
-    "build:app": "nx build --configuration=production",
+    "build:app": "nx build tell-it --configuration=production",
     "build:server": "nx build api --configuration=production",
     "start:server": "nx serve api --watch",
     "start:server:prod": "node dist/apps/api/main.js",
     "start:db": "docker run --name tell-it-DB --rm -e POSTGRES_USER=dev-user -e POSTGRES_PASSWORD=password1 -e PGDATA=/var/lib/postgresql/data/pgdata -v /tmp:/var/lib/postgresql/data -p 5432:5432 -it postgres:14-alpine",
-    "test": "nx test",
-    "heroku-postbuild": "npm run build:server"
+    "test": "nx test"
   },
   "dependencies": {
     "@angular/animations": "14.0.6",
