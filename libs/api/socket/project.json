@@ -1,4 +1,5 @@
 {
+  "name": "api-socket",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/api/socket/src",
   "projectType": "library",
@@ -12,7 +13,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/api/socket"],
+      "outputs": ["{workspaceRoot}/coverage/libs/api/socket"],
       "options": {
         "jestConfig": "libs/api/socket/jest.config.ts",
         "passWithNoTests": true

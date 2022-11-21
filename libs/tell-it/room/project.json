@@ -1,11 +1,12 @@
 {
+  "name": "tell-it-room",
   "projectType": "library",
   "sourceRoot": "libs/tell-it/room/src",
   "prefix": "tell-it-app",
   "targets": {
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/tell-it/room"],
+      "outputs": ["{workspaceRoot}/coverage/libs/tell-it/room"],
       "options": {
         "jestConfig": "libs/tell-it/room/jest.config.ts",
         "passWithNoTests": true

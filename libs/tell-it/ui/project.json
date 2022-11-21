@@ -1,11 +1,12 @@
 {
+  "name": "tell-it-ui",
   "projectType": "library",
   "sourceRoot": "libs/tell-it/ui/src",
   "prefix": "tell-it-app",
   "targets": {
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/tell-it/ui"],
+      "outputs": ["{workspaceRoot}/coverage/libs/tell-it/ui"],
       "options": {
         "jestConfig": "libs/tell-it/ui/jest.config.ts",
         "passWithNoTests": true

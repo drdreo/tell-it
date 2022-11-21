@@ -1,11 +1,12 @@
 {
+  "name": "tell-it-home",
   "projectType": "library",
   "sourceRoot": "libs/tell-it/home/src",
   "prefix": "tell-it-app",
   "targets": {
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/tell-it/home"],
+      "outputs": ["{workspaceRoot}/coverage/libs/tell-it/home"],
       "options": {
         "jestConfig": "libs/tell-it/home/jest.config.ts",
         "passWithNoTests": true

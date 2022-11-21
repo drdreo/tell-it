@@ -1,4 +1,5 @@
 {
+  "name": "tell-it",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "application",
   "sourceRoot": "apps/tell-it/src",
@@ -90,7 +91,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/apps/tell-it"],
+      "outputs": ["{workspaceRoot}/coverage/apps/tell-it"],
       "options": {
         "jestConfig": "apps/tell-it/jest.config.ts",
         "passWithNoTests": true

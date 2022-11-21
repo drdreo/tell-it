@@ -1,11 +1,12 @@
 {
+  "name": "tell-it-data-access",
   "projectType": "library",
   "sourceRoot": "libs/tell-it/data-access/src",
   "prefix": "tell-it-app",
   "targets": {
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/tell-it/data-access"],
+      "outputs": ["{workspaceRoot}/coverage/libs/tell-it/data-access"],
       "options": {
         "jestConfig": "libs/tell-it/data-access/jest.config.ts",
         "passWithNoTests": true

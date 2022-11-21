@@ -1,4 +1,5 @@
 {
+  "name": "api-game",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/api/game/src",
   "projectType": "library",
@@ -12,7 +13,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/api/game"],
+      "outputs": ["{workspaceRoot}/coverage/libs/api/game"],
       "options": {
         "jestConfig": "libs/api/game/jest.config.ts",
         "passWithNoTests": true

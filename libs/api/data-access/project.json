@@ -1,4 +1,5 @@
 {
+  "name": "api-data-access",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/api/data-access/src",
   "projectType": "library",
@@ -12,7 +13,7 @@
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/api/data-access"],
+      "outputs": ["{workspaceRoot}/coverage/libs/api/data-access"],
       "options": {
         "jestConfig": "libs/api/data-access/jest.config.ts",
         "passWithNoTests": true
