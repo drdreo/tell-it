@@ -1,6 +1,6 @@
 {
   "name": "tell-it",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "license": "MIT",
   "private": true,
   "engines": {
@@ -37,7 +37,7 @@
     "@nestjs/typeorm": "^9.0.0",
     "@nestjs/websockets": "^9.0.3",
     "@nrwl/angular": "15.2.1",
-    "nanoid": "^4.0.0",
+    "nanoid": "^3.3.4",
     "ngx-socket-io": "^4.4.0",
     "pg": "^8.8.0",
     "pg-connection-string": "^2.5.0",
