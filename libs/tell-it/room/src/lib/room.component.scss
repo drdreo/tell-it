@@ -1,69 +1,80 @@
 @import '../../../../../libs/tell-it/ui/src/lib/styles';
 
+.connection-status {
+	position: absolute;
+	color: red;
+	height: 100%;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: #00000099;
+}
+
 .game-container {
 
-    width: 90%;
-    height: 100%;
+	width: 90%;
+	height: 100%;
 
-    .story {
-        height: 30%;
-    }
+	.story {
+		height: 30%;
+	}
 
 
-    @include respond-to(desktop) {
-        width: 45%;
+	@include respond-to(desktop) {
+		width: 45%;
 
-        .story {
-            height: 50%;
-        }
-    }
+		.story {
+			height: 50%;
+		}
+	}
 }
 
 .responsive-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
 
-    height: 100%;
+	height: 100%;
 
-    @include respond-to(mobile) {
-        height: 60%;
-    }
+	@include respond-to(mobile) {
+		height: 60%;
+	}
 
 }
 
 .ready-container {
-    display: flex;
-    flex-direction: column;
+	display: flex;
+	flex-direction: column;
 
-    &__message{
-        display: flex;
-        flex-direction: column;
-    }
+	&__message {
+		display: flex;
+		flex-direction: column;
+	}
 }
 
 .stories {
-    padding: 1rem;
-    height: 100%;
-    overflow-y: auto;
+	padding: 1rem;
+	height: 100%;
+	overflow-y: auto;
 
-    .story {
-        margin: 3rem 0;
-        display: block;
-    }
+	.story {
+		margin: 3rem 0;
+		display: block;
+	}
 }
 
 .turn-timer {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
 }
 
 
 .user-list {
-    position: absolute;
-    bottom: 3rem;
-    right: 1rem;
+	position: absolute;
+	bottom: 3rem;
+	right: 1rem;
 
-    list-style: none;
+	list-style: none;
 }

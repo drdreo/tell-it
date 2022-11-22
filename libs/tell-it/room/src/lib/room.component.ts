@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { UserOverview } from "@tell-it/domain/api-interfaces";
 import { SocketService } from "@tell-it/data-access";
 import { GameStatus, StoryData } from "@tell-it/domain/game";
-import { Subject, takeUntil, Observable } from "rxjs";
+import { Subject, takeUntil, Observable, fromEvent, map } from "rxjs";
 import { RoomService } from "./room.service";
 
 @Component({
@@ -27,6 +27,9 @@ export class RoomComponent implements OnInit, OnDestroy {
 	turnTimer$: Observable<number | undefined>;
 	/***/
 
+	offline$: Observable<string>;
+	disconnected$ = this.socketService.disconnected();
+
 	private unsubscribe$ = new Subject<void>();
 
 	constructor(private router: Router, private route: ActivatedRoute, private socketService: SocketService, private roomService: RoomService) {
@@ -37,6 +40,8 @@ export class RoomComponent implements OnInit, OnDestroy {
 		this.finishVotes$ = this.socketService.finishVoteUpdate();
 		this.finalStories$ = this.socketService.getFinalStories();
 		this.turnTimer$ = this.roomService.turnTime$;
+
+		this.offline$ = fromEvent(document, 'offline').pipe(map(() => 'Device offline'))
 	}
 
 	ngOnInit(): void {

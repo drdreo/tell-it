@@ -6,6 +6,6 @@ export const environment = {
 		port: 5432,
 		user: "dev-user",
 		password: "password1",
-		database: "tell-it"
+		database: "tellit"
 	}
 };
