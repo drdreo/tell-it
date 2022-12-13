@@ -4,7 +4,7 @@ const connectionOptions = parseConnectionString(process.env.DATABASE_URL);
 
 export const environment = {
 	production: true,
-	clientUrl: "https://tell-it.pages.dev",
+	clientUrl: "https://tell-it.drdreo.com",
 	database: {
 		host: connectionOptions.host,
 		port: connectionOptions.port,
