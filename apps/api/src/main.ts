@@ -6,8 +6,8 @@ import { environment } from "./environments/environment";
 
 const allowlist = [
     'http://localhost:4200',
-    'https://tell-i.pages.dev',
-    'https://tell-i.drdreo.com'
+    'https://tell-it.pages.dev',
+    'https://tell-it.drdreo.com'
 ];
 
 async function bootstrap() {
