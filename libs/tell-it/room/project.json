@@ -1,25 +1,19 @@
 {
   "name": "tell-it-room",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "libs/tell-it/room/src",
   "prefix": "tell-it-app",
   "targets": {
     "test": {
-      "executor": "@nrwl/jest:jest",
+      "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/libs/tell-it/room"],
       "options": {
-        "jestConfig": "libs/tell-it/room/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "libs/tell-it/room/jest.config.ts"
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "options": {
-        "lintFilePatterns": [
-          "libs/tell-it/room/**/*.ts",
-          "libs/tell-it/room/**/*.html"
-        ]
-      }
+      "executor": "@nx/eslint:lint"
     }
   },
   "tags": ["scope:client feature:room"]
