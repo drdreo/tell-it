@@ -6,6 +6,7 @@ import { environment } from "./environments/environment";
 
 const allowlist = [
     'http://localhost:4200',
+    'http://10.0.0.42:4200', // local network
     'https://tell-it.pages.dev',
     'https://tell-it.drdreo.com'
 ];
@@ -14,7 +15,7 @@ async function bootstrap() {
 	const app = await NestFactory.create(AppModule);  
   app.enableCors({
                   origin: (origin: string, callback: Function) => {
-                      console.log(origin);
+                      console.log({ origin });
                       if (allowlist.indexOf(origin) !== -1 || !origin) {
                           callback(null, { origin: true });
                       } else {

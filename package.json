@@ -16,7 +16,7 @@
     "migrate": "nx migrate latest",
     "migrate:run": "nx migrate --run-migrations",
     "db:migration:create": "typeorm migration:create ./apps/api/src/app/migrations/<migration-name>",
-    "db:migration:run": "typeorm migration:run -d ./apps/api/src/app/migrations/1669146694911-CreateStory.ts"
+    "db:migration:run": "typeorm migration:run -d ./apps/api/src/app/migrations/1669146694911-CreateDB.ts"
   },
   "dependencies": {
     "@angular/animations": "17.0.8",
