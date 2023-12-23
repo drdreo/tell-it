@@ -5,8 +5,8 @@ import { RouterOutlet } from "@angular/router";
     selector: "tell-it-app-root",
     templateUrl: "./app.component.html",
     standalone: true,
-    imports: [RouterOutlet],
+    imports: [RouterOutlet]
 })
 export class AppComponent {
-  constructor() {}
+    constructor() {}
 }

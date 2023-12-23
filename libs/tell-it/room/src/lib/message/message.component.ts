@@ -10,25 +10,24 @@ import { NgIf } from "@angular/common";
     imports: [NgIf]
 })
 export class MessageComponent {
+    @Input() author!: string | null;
+    @Input() message!: string | null;
+    @Input() ttsEnabled = false;
 
-	@Input() author!: string | null;
-	@Input() message!: string | null;
-	@Input() ttsEnabled = false;
+    private isReading = false;
 
-	private isReading = false;
+    tts(text: string): void {
+        if (!this.isReading) {
+            this.isReading = true;
+            const synth = window.speechSynthesis;
+            const utterThis = new SpeechSynthesisUtterance(text);
+            utterThis.pitch = 1;
+            utterThis.rate = 1;
+            synth.speak(utterThis);
 
-	tts(text: string): void {
-		if (!this.isReading) {
-			this.isReading = true;
-			const synth = window.speechSynthesis;
-			const utterThis = new SpeechSynthesisUtterance(text);
-			utterThis.pitch = 1;
-			utterThis.rate = 1;
-			synth.speak(utterThis);
-
-			utterThis.onend = () => {
-				this.isReading = false;
-			};
-		}
-	}
+            utterThis.onend = () => {
+                this.isReading = false;
+            };
+        }
+    }
 }

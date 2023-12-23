@@ -15,11 +15,11 @@ const socketConfig: SocketIoConfig = {
 const routes: Routes = [
     {
         path: "",
-        loadChildren: () => import("@tell-it/home").then(m => m.HomeModule)
+        loadComponent: () => import("@tell-it/home").then(m => m.HomeComponent)
     },
     {
         path: "room/:roomName",
-        loadChildren: () => import("@tell-it/room").then(m => m.RoomModule)
+        loadComponent: () => import("@tell-it/room").then(mod => mod.RoomComponent)
     }
 ];
 

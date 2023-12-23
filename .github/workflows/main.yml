@@ -1,35 +1,38 @@
 name: CI
 on:
-    push:
-        branches:
-            - master
-    pull_request:
+  push:
+    branches:
+      - master
+  pull_request:
 
 jobs:
-    main:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v2
-              with:
-                  fetch-depth: 0
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
-            - uses: actions/setup-node@v3
-              with:
-                  node-version: 20
+      # Cache node_modules
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: 'npm'
 
-            - name: Derive appropriate SHAs for base and head for `nx affected` commands
-              uses: nrwl/nx-set-shas@v4
-              with:
-                  main-branch-name: "master"
+      - run: npm ci
 
-            - name: Print Info
-              run: |
-                  echo "Nx BASE: ${{ env.NX_BASE }}"
-                  echo "Nx HEAD: ${{ env.NX_HEAD }}"
+      - name: Derive appropriate SHAs for base and head for `nx affected` commands
+        uses: nrwl/nx-set-shas@v4
+        with:
+          main-branch-name: "master"
 
-            # This line is needed for nx affected to work when CI is running on a PR
-            - run: git branch --track master origin/master
+      - name: Print Info
+        run: |
+          echo "Nx BASE: ${{ env.NX_BASE }}"
+          echo "Nx HEAD: ${{ env.NX_HEAD }}"
 
-            - run: npm ci
+      # This line is needed for nx affected to work when CI is running on a PR
+      - run: git branch --track master origin/master
 
-            - run: npx nx affected --target=lint,test,build --parallel=3 --ci
+      - run: npx nx format:check
+      - run: npx nx affected -t lint,test,build --parallel=3

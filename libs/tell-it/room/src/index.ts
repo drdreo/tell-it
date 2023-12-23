@@ -1,1 +1,1 @@
-export * from "./lib/room.module";
+export * from "./lib/room.component";
