@@ -1,16 +1,17 @@
 /* eslint-disable */
 export default {
-  displayName: "shared-domain",
-  preset: "../../../jest.preset.js",
-  globals: {
-    "ts-jest": {
-      tsconfig: "<rootDir>/tsconfig.spec.json",
+    displayName: "shared-domain",
+    preset: "../../../jest.preset.js",
+    globals: {},
+    testEnvironment: "node",
+    transform: {
+        "^.+\\.[tj]s$": [
+            "ts-jest",
+            {
+                tsconfig: "<rootDir>/tsconfig.spec.json"
+            }
+        ]
     },
-  },
-  testEnvironment: "node",
-  transform: {
-    "^.+\\.[tj]s$": "ts-jest",
-  },
-  moduleFileExtensions: ["ts", "js", "html"],
-  coverageDirectory: "../../../coverage/libs/shared/domain",
+    moduleFileExtensions: ["ts", "js", "html"],
+    coverageDirectory: "../../../coverage/libs/shared/domain"
 };

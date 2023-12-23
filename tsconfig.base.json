@@ -1,31 +1,31 @@
 {
-  "compileOnSave": false,
-  "compilerOptions": {
-    "rootDir": ".",
-    "sourceMap": true,
-    "declaration": false,
-    "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "importHelpers": true,
-    "target": "es2015",
-    "module": "esnext",
-    "lib": ["es2017", "dom"],
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "baseUrl": ".",
-    "paths": {
-      "@tell-it/api/data-access": ["libs/api/data-access/src/index.ts"],
-      "@tell-it/api/game": ["libs/api/game/src/index.ts"],
-      "@tell-it/api/socket": ["libs/api/socket/src/index.ts"],
-      "@tell-it/data-access": ["libs/tell-it/data-access/src/index.ts"],
-      "@tell-it/domain": ["libs/shared/domain/src/index.ts"],
-      "@tell-it/domain/*": ["libs/shared/domain/src/lib/*"],
-      "@tell-it/home": ["libs/tell-it/home/src/index.ts"],
-      "@tell-it/room": ["libs/tell-it/room/src/index.ts"],
-      "@tell-it/ui": ["libs/tell-it/ui/src/index.ts"],
-      "@tell-it/utils": ["libs/shared/utils/src/index.ts"]
-    }
-  },
-  "exclude": ["node_modules", "tmp"]
+    "compileOnSave": false,
+    "compilerOptions": {
+        "rootDir": ".",
+        "sourceMap": true,
+        "declaration": false,
+        "moduleResolution": "node",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "importHelpers": true,
+        "target": "es2021",
+        "module": "esnext",
+        "lib": ["es2017", "dom"],
+        "skipLibCheck": true,
+        "skipDefaultLibCheck": true,
+        "baseUrl": ".",
+        "paths": {
+            "@tell-it/api/data-access": ["libs/api/data-access/src/index.ts"],
+            "@tell-it/api/game": ["libs/api/game/src/index.ts"],
+            "@tell-it/api/socket": ["libs/api/socket/src/index.ts"],
+            "@tell-it/data-access": ["libs/tell-it/data-access/src/index.ts"],
+            "@tell-it/domain": ["libs/shared/domain/src/index.ts"],
+            "@tell-it/domain/*": ["libs/shared/domain/src/lib/*"],
+            "@tell-it/home": ["libs/tell-it/home/src/index.ts"],
+            "@tell-it/room": ["libs/tell-it/room/src/index.ts"],
+            "@tell-it/ui": ["libs/tell-it/ui/src/index.ts"],
+            "@tell-it/utils": ["libs/shared/utils/src/index.ts"]
+        }
+    },
+    "exclude": ["node_modules", "tmp"]
 }

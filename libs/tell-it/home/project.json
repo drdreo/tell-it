@@ -1,26 +1,20 @@
 {
-  "name": "tell-it-home",
-  "projectType": "library",
-  "sourceRoot": "libs/tell-it/home/src",
-  "prefix": "tell-it-app",
-  "targets": {
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/tell-it/home"],
-      "options": {
-        "jestConfig": "libs/tell-it/home/jest.config.ts",
-        "passWithNoTests": true
-      }
+    "name": "tell-it-home",
+    "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "library",
+    "sourceRoot": "libs/tell-it/home/src",
+    "prefix": "tell-it-app",
+    "targets": {
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/libs/tell-it/home"],
+            "options": {
+                "jestConfig": "libs/tell-it/home/jest.config.ts"
+            }
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint"
+        }
     },
-    "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "options": {
-        "lintFilePatterns": [
-          "libs/tell-it/home/**/*.ts",
-          "libs/tell-it/home/**/*.html"
-        ]
-      }
-    }
-  },
-  "tags": ["scope:client type:feature"]
+    "tags": ["scope:client type:feature"]
 }

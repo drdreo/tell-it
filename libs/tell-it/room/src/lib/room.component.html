@@ -1,96 +1,92 @@
 <div class="page-container">
-
-    <ng-container *ngIf="{
-                    user: user$ | async,
-                    users: users$ | async
-                   } as userData">
-
-        <ng-container *ngIf="{
-                        offline: offline$ | async,
-                        disconnected: disconnected$ | async
-                       } as connectionData">
-            <div class="connection-status" *ngIf="connectionData.offline || connectionData.disconnected">
-                {{connectionData.offline}}
-            {{connectionData.disconnected}}
-            </div>
-        </ng-container>
-
-        <div *ngIf="(gameStatus$ | async) === 'waiting'" class="ready-container">
-
-            Room: {{roomName}} <br>
-
-            <ul>
-                <li *ngFor="let user of userData.users">
-                    {{user.name}}
-                </li>
-            </ul>
-
-            <ng-container
-                    *ngIf="userData.user && userData.users!.length > 1 && userData.user.id === userData.users![0].id; else waitingText">
-                <div class="ready-container__message">
-                    <p>Everyone's ready?</p>
-                    <button class="button" (click)="startGame()">Start</button>
+    @if (
+        {
+            user: user$ | async,
+            users: users$ | async
+        };
+        as userData
+    ) {
+        @if (
+            {
+                offline: offline$ | async,
+                disconnected: disconnected$ | async
+            };
+            as connectionData
+        ) {
+            @if (connectionData.offline || connectionData.disconnected) {
+                <div class="connection-status">
+                    {{ connectionData.offline }}
+                    {{ connectionData.disconnected }}
                 </div>
-            </ng-container>
-
-            <ng-template #waitingText>
-                <div class="ready-container__message">
-                    Waiting for the leader to start.
-                </div>
-            </ng-template>
-
-        </div>
-
-        <div *ngIf="(gameStatus$ | async) === 'started'" class="game-container">
-
-            <div class="responsive-container">
-                <div *ngIf="turnTimer$ | async as turnTimer" class="turn-timer">
-                    Time: {{turnTimer}}
-                </div>
-
-                <ul class="user-list">
-                    <li *ngFor="let user of userData.users"> {{user.name}}  - {{user.queuedStories}}</li>
+            }
+        }
+        @if ((gameStatus$ | async) === "waiting") {
+            <div class="ready-container">
+                Room: {{ roomName }} <br />
+                <ul>
+                    @for (user of userData.users; track user.id) {
+                        <li>
+                            {{ user.name }}
+                        </li>
+                    }
                 </ul>
-
-
-                <ng-container *ngIf="finishVotes$ | async as finishVotes">
-                    <div *ngIf="finishVotes.length > 0" class="finish-votes">
-                        Finish: {{finishVotes.length }}/{{userData.users?.length}}
+                @if (userData.user && userData.users!.length > 1 && userData.user.id === userData.users![0].id) {
+                    <div class="ready-container__message">
+                        <p>Everyone's ready?</p>
+                        <button class="button" (click)="startGame()">Start</button>
                     </div>
-                </ng-container>
-
-
-                <ng-container *ngIf="story$ | async as story; else noStory">
-                    <tell-it-app-message [author]="story.author" [message]="story.text"></tell-it-app-message>
-                </ng-container>
-                <ng-template #noStory>
-                    Waiting for a story...
-                </ng-template>
-
-                <textarea #storyInput class="input story"></textarea>
-
-                <button class="button" (click)="submitText(storyInput.value); storyInput.value=''">Submit</button>
-                <button class="button warning" (click)="voteFinish()">Finish</button>
+                } @else {
+                    <div class="ready-container__message">Waiting for the leader to start.</div>
+                }
             </div>
-
-        </div>
-
-        <div *ngIf="(gameStatus$ | async) === 'ended'" class="stories">
-
-            <ng-container *ngIf="finalStories$ | async as finalStories; else finishScreen">
-                <ng-container *ngFor="let story of finalStories">
-                    <tell-it-app-message class="story"
-                                         [author]="story.author"
-                                         [message]="story.text"
-                                         [ttsEnabled]="true"></tell-it-app-message>
-                </ng-container>
-                <button class="button" (click)="restart()">Restart?</button>
-            </ng-container>
-            <ng-template #finishScreen>
-                Loading final stories...
-                <button class="button" (click)="loadFinalStories()">Load</button>
-            </ng-template>
-        </div>
-    </ng-container>
-
+        }
+        @if ((gameStatus$ | async) === "started") {
+            <div class="game-container">
+                <div class="responsive-container">
+                    @if (turnTimer$ | async; as turnTimer) {
+                        <div class="turn-timer">Time: {{ turnTimer }}</div>
+                    }
+                    <ul class="user-list">
+                        @for (user of userData.users; track user.id) {
+                            <li>{{ user.name }} - {{ user.queuedStories }}</li>
+                        }
+                    </ul>
+                    @if (finishVotes$ | async; as finishVotes) {
+                        @if (finishVotes.length > 0) {
+                            <div class="finish-votes">
+                                Finish: {{ finishVotes.length }}/{{ userData.users?.length }}
+                            </div>
+                        }
+                    }
+                    @if (story$ | async; as story) {
+                        <tell-it-app-message [author]="story.author" [message]="story.text"></tell-it-app-message>
+                    } @else if (user$ | async) {
+                        Waiting for a story...
+                    } @else {
+                        You are a spectator. TBD
+                    }
+                    <textarea #storyInput class="input story"></textarea>
+                    <button class="button" (click)="submitText(storyInput.value); storyInput.value = ''">Submit</button>
+                    <button class="button warning" (click)="voteFinish()">Finish</button>
+                </div>
+            </div>
+        }
+        @if ((gameStatus$ | async) === "ended") {
+            <div class="stories">
+                @if (finalStories$ | async; as finalStories) {
+                    @for (story of finalStories; track story.author) {
+                        <tell-it-app-message
+                            class="story"
+                            [author]="story.author"
+                            [message]="story.text"
+                            [ttsEnabled]="true"></tell-it-app-message>
+                    }
+                    <button class="button" (click)="restart()">Restart?</button>
+                } @else {
+                    Loading final stories...
+                    <button class="button" (click)="loadFinalStories()">Load</button>
+                }
+            </div>
+        }
+    }
 </div>

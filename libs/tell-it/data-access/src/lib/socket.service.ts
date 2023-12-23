@@ -3,122 +3,123 @@ import { Inject, Injectable } from "@angular/core";
 import { HomeInfo, ServerJoined, UserLeft, UserOverview } from "@tell-it/domain/api-interfaces";
 import { GameStatus, StoryData } from "@tell-it/domain/game";
 import {
-	ServerEvent,
-	ServerFinalStories,
-	ServerFinishVoteUpdate,
-	ServerGameStatusUpdate,
-	ServerStoryUpdate,
-	ServerUsersUpdate,
-	UserEvent,
-	UserJoinMessage,
-	UserSubmitTextMessage,
-	UserVoteKickMessage
+    ServerEvent,
+    ServerFinalStories,
+    ServerFinishVoteUpdate,
+    ServerGameStatusUpdate,
+    ServerStoryUpdate,
+    ServerUsersUpdate,
+    UserEvent,
+    UserJoinMessage,
+    UserSubmitTextMessage,
+    UserVoteKickMessage
 } from "@tell-it/domain/socket-interfaces";
 import { API_URL_TOKEN } from "@tell-it/domain/tokens";
 import { Socket } from "ngx-socket-io";
-import { map, merge, Observable } from "rxjs";
+import { map, merge, Observable, tap } from "rxjs";
 
 @Injectable({
-	providedIn: "root"
+    providedIn: "root"
 })
 export class SocketService {
+    constructor(
+        private http: HttpClient,
+        private socket: Socket,
+        @Inject(API_URL_TOKEN) private API_URL: string
+    ) {}
 
-	constructor(private http: HttpClient, private socket: Socket, @Inject(API_URL_TOKEN) private API_URL: string) {
-	}
+    connected(): Observable<any> {
+        return this.socket.fromEvent("connect");
+    }
 
-	connected(): Observable<any> {
-		return this.socket.fromEvent('connect');
-	}
+    disconnected(): Observable<any> {
+        return this.socket.fromEvent("disconnect");
+    }
 
-	disconnected(): Observable<any> {
-		return this.socket.fromEvent('disconnect');
-	}
+    getHomeInfo(): Observable<HomeInfo> {
+        return merge(
+            this.http.get<HomeInfo>(this.API_URL + "/home"),
+            this.socket.fromEvent<HomeInfo>(ServerEvent.Info)
+        );
+    }
 
-	getHomeInfo(): Observable<HomeInfo> {
-		return merge(
-			this.http.get<HomeInfo>(this.API_URL + "/home"),
-			this.socket.fromEvent<HomeInfo>(ServerEvent.Info)
-		);
-	}
+    join(roomName: string, userName?: string, userID?: string) {
+        this.socket.emit(UserEvent.JoinRoom, { userName, roomName, userID } as UserJoinMessage);
+    }
 
-	join(roomName: string, userName?: string, userID?: string) {
-		this.socket.emit(UserEvent.JoinRoom, { userName, roomName, userID } as UserJoinMessage);
-	}
+    joinAsSpectator(roomName: string) {
+        this.socket.emit(UserEvent.SpectatorJoin, { roomName });
+    }
 
-	joinAsSpectator(roomName: string) {
-		this.socket.emit(UserEvent.SpectatorJoin, { roomName });
-	}
+    roomJoined(): Observable<ServerJoined> {
+        return this.socket.fromEvent<ServerJoined>(ServerEvent.Joined);
+    }
 
-	roomJoined(): Observable<ServerJoined> {
-		return this.socket.fromEvent<ServerJoined>(ServerEvent.Joined);
-	}
+    roomClosed(): Observable<void> {
+        return this.socket.fromEvent<void>(ServerEvent.RoomClosed);
+    }
 
-	roomClosed(): Observable<void> {
-		return this.socket.fromEvent<void>(ServerEvent.RoomClosed);
-	}
+    // ask the server to send all relevant data again
+    requestUpdate() {
+        this.socket.emit(UserEvent.RequestUpdate);
+    }
 
-	// ask the server to send all relevant data again
-	requestUpdate() {
-		this.socket.emit(UserEvent.RequestUpdate);
-	}
+    userLeft(): Observable<UserLeft> {
+        return this.socket.fromEvent<UserLeft>(ServerEvent.UserLeft);
+    }
 
-	userLeft(): Observable<UserLeft> {
-		return this.socket.fromEvent<UserLeft>(ServerEvent.UserLeft);
-	}
+    usersUpdate(): Observable<UserOverview[]> {
+        return this.socket.fromEvent<ServerUsersUpdate>(ServerEvent.UsersUpdate).pipe(
+            tap(console.log),
+            map(data => data.users)
+        );
+    }
 
-	usersUpdate(): Observable<UserOverview[]> {
-		return this.socket.fromEvent<ServerUsersUpdate>(ServerEvent.UsersUpdate)
-			.pipe(map(data => data.users));
-	}
+    leave() {
+        this.socket.emit(UserEvent.Leave);
+    }
 
-	leave() {
-		this.socket.emit(UserEvent.Leave);
-	}
+    gameStatus(): Observable<GameStatus> {
+        return this.socket.fromEvent<ServerGameStatusUpdate>(ServerEvent.GameStatus).pipe(map(data => data.status));
+    }
 
-	gameStatus(): Observable<GameStatus> {
-		return this.socket.fromEvent<ServerGameStatusUpdate>(ServerEvent.GameStatus)
-			.pipe(map(data => data.status));
-	}
+    storyUpdate(): Observable<StoryData | undefined> {
+        return this.socket.fromEvent<ServerStoryUpdate | undefined>(ServerEvent.StoryUpdate);
+    }
 
-	storyUpdate(): Observable<StoryData | undefined> {
-		return this.socket.fromEvent<ServerStoryUpdate | undefined>(ServerEvent.StoryUpdate);
-	}
+    finishVoteUpdate(): Observable<string[]> {
+        return this.socket.fromEvent<ServerFinishVoteUpdate>(ServerEvent.VoteFinish).pipe(map(data => data.votes));
+    }
 
-	finishVoteUpdate(): Observable<string[]> {
-		return this.socket.fromEvent<ServerFinishVoteUpdate>(ServerEvent.VoteFinish)
-			.pipe(map(data => data.votes));
-	}
+    getFinalStories() {
+        return this.socket.fromEvent<ServerFinalStories>(ServerEvent.FinalStories).pipe(map(data => data.stories));
+    }
 
-	getFinalStories() {
-		return this.socket.fromEvent<ServerFinalStories>(ServerEvent.FinalStories)
-			.pipe(map(data => data.stories));
-	}
+    /********************
+     * Game Actions
+     ********************/
 
-	/********************
-	 * Game Actions
-	 ********************/
+    start() {
+        this.socket.emit(UserEvent.Start);
+    }
 
-	start() {
-		this.socket.emit(UserEvent.Start);
-	}
+    voteKick(userID: string) {
+        this.socket.emit(UserEvent.VoteKick, { kickUserID: userID } as UserVoteKickMessage);
+    }
 
-	voteKick(userID: string) {
-		this.socket.emit(UserEvent.VoteKick, { kickUserID: userID } as UserVoteKickMessage);
-	}
+    submitText(text: string) {
+        this.socket.emit(UserEvent.SubmitText, { text } as UserSubmitTextMessage);
+    }
 
-	submitText(text: string) {
-		this.socket.emit(UserEvent.SubmitText, { text } as UserSubmitTextMessage);
-	}
+    voteFinish() {
+        this.socket.emit(UserEvent.VoteFinish);
+    }
 
-	voteFinish() {
-		this.socket.emit(UserEvent.VoteFinish);
-	}
+    fetchFinalStories() {
+        this.socket.emit(UserEvent.RequestStories);
+    }
 
-	fetchFinalStories() {
-		this.socket.emit(UserEvent.RequestStories);
-	}
-
-	restart() {
-		this.socket.emit(UserEvent.VoteRestart);
-	}
+    restart() {
+        this.socket.emit(UserEvent.VoteRestart);
+    }
 }

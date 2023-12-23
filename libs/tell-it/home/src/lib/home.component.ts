@@ -1,58 +1,57 @@
-import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup, Validators, AbstractControl } from '@angular/forms';
-import { Router } from '@angular/router';
-import { roomNameValidator } from '@tell-it/utils';
-import { HomeInfo } from '@tell-it/domain/api-interfaces';
-import { SocketService } from '@tell-it/data-access';
-import { takeUntil, Subject, Observable } from 'rxjs';
+import { ChangeDetectionStrategy, Component, OnDestroy } from "@angular/core";
+import { FormControl, FormGroup, Validators, AbstractControl, ReactiveFormsModule } from "@angular/forms";
+import { Router } from "@angular/router";
+import { roomNameValidator } from "@tell-it/utils";
+import { HomeInfo } from "@tell-it/domain/api-interfaces";
+import { SocketService } from "@tell-it/data-access";
+import { takeUntil, Subject, Observable } from "rxjs";
+import { AsyncPipe } from "@angular/common";
 
 @Component({
-    selector: 'tell-it-app-home',
-    templateUrl: './home.component.html',
-    styleUrls: ['./home.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    selector: "tell-it-app-home",
+    templateUrl: "./home.component.html",
+    styleUrls: ["./home.component.scss"],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [ReactiveFormsModule, AsyncPipe]
 })
 export class HomeComponent implements OnDestroy {
-
     homeInfo$: Observable<HomeInfo>;
     loginForm = new FormGroup({
-        username: new FormControl('', {
-            updateOn: 'blur',
-            validators: [
-                Validators.required,
-                Validators.minLength(2)]
+        username: new FormControl("", {
+            updateOn: "blur",
+            validators: [Validators.required, Validators.minLength(2)]
         }),
-        room: new FormControl('', {
-            validators: [
-                Validators.required,
-                roomNameValidator(/^\w+$/i)
-            ]
+        room: new FormControl("", {
+            validators: [Validators.required, roomNameValidator(/^\w+$/i)]
         })
     });
     isJoinable = true;
     private unsubscribe$ = new Subject<void>();
 
-    constructor(private router: Router, private socketService: SocketService) {
-
+    constructor(
+        private router: Router,
+        private socketService: SocketService
+    ) {
         this.socketService.leave(); // try to leave if a user comes from a room
 
-        this.socketService.roomJoined()
+        this.socketService
+            .roomJoined()
             .pipe(takeUntil(this.unsubscribe$))
             .subscribe(({ userID, room }) => {
-                sessionStorage.setItem('playerID', userID);
-                this.router.navigate(['/room', room]);
+                sessionStorage.setItem("playerID", userID);
+                this.router.navigate(["/room", room]);
             });
 
         this.homeInfo$ = this.socketService.getHomeInfo();
-
     }
 
     get username(): AbstractControl<string | null, string | null> | null {
-        return this.loginForm.get('username');
+        return this.loginForm.get("username");
     }
 
     get room(): AbstractControl<string | null, string | null> | null {
-        return this.loginForm.get('room');
+        return this.loginForm.get("room");
     }
 
     ngOnDestroy(): void {
@@ -89,5 +88,4 @@ export class HomeComponent implements OnDestroy {
 
         this.room?.patchValue(randomName);
     }
-
 }

@@ -4,145 +4,160 @@ import { UserOverview, RoomResponse } from "@tell-it/domain/api-interfaces";
 import { SocketService } from "@tell-it/data-access";
 import { GameStatus, StoryData } from "@tell-it/domain/game";
 import { API_URL_TOKEN } from "@tell-it/domain/tokens";
-import { BehaviorSubject, Observable, Subject, takeUntil, interval, map, firstValueFrom, ReplaySubject, distinctUntilChanged, tap } from "rxjs";
+import {
+    BehaviorSubject,
+    Observable,
+    Subject,
+    takeUntil,
+    interval,
+    map,
+    firstValueFrom,
+    ReplaySubject,
+    distinctUntilChanged,
+    tap
+} from "rxjs";
 
-
-function isStoryEqual(a: StoryData | undefined, b: StoryData| undefined): boolean {
-	return  a?.author === b?.author && a?.text === b?.text;
+function isStoryEqual(a: StoryData | undefined, b: StoryData | undefined): boolean {
+    return a?.author === b?.author && a?.text === b?.text;
 }
 
 @Injectable()
 export class RoomService implements OnDestroy {
+    private _turnTimer$ = new Subject<number | undefined>();
+    turnTime$ = this._turnTimer$.asObservable();
 
+    private _users$: BehaviorSubject<UserOverview[]> = new BehaviorSubject<UserOverview[]>([]);
+    users$: Observable<UserOverview[]> = this._users$.asObservable();
 
-	private _turnTimer$ = new Subject<number | undefined>();
-	turnTime$ = this._turnTimer$.asObservable();
+    // set if the current client is a player in the room
+    user$ = this._users$.pipe(map(users => users.find(user => user.id === this.clientPlayerID)));
 
-	private _users$: BehaviorSubject<UserOverview[]> = new BehaviorSubject<UserOverview[]>([]);
-	users$: Observable<UserOverview[]> = this._users$.asObservable();
+    private _story$ = new ReplaySubject<StoryData | undefined>(1);
+    story$ = this._story$.asObservable();
+    private _gameStatus$ = new BehaviorSubject<GameStatus>(GameStatus.Waiting);
+    gameStatus$ = this._gameStatus$.asObservable();
+    private stopTurnTimer$ = new Subject<void>();
+    private unsubscribe$ = new Subject<void>();
 
-	// set if the current client is a player in the room
-	user$ = this._users$.pipe(map(users => users.find(user => user.id === this.clientPlayerID)));
+    constructor(
+        private http: HttpClient,
+        private socketService: SocketService,
+        @Inject(API_URL_TOKEN) private API_URL: string
+    ) {
+        this.socketService
+            .usersUpdate()
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe(users => {
+                this.updateUsers(users);
+            });
 
-	private _story$ = new ReplaySubject<StoryData | undefined>(1);
-	story$ = this._story$.asObservable();
-	private _gameStatus$ = new BehaviorSubject<GameStatus>(GameStatus.Waiting);
-	gameStatus$ = this._gameStatus$.asObservable();
-	private stopTurnTimer$ = new Subject<void>();
-	private unsubscribe$ = new Subject<void>();
+        this.socketService
+            .gameStatus()
+            .pipe(takeUntil(this.unsubscribe$))
+            .subscribe(status => {
+                this._gameStatus$.next(status);
+            });
 
-	constructor(private http: HttpClient, private socketService: SocketService, @Inject(API_URL_TOKEN) private API_URL: string) {
+        this.socketService
+            .storyUpdate()
+            .pipe(
+                distinctUntilChanged(isStoryEqual),
+                tap(story => console.log("Story update: ", story)),
+                takeUntil(this.unsubscribe$)
+            )
+            .subscribe(story => {
+                this._story$.next(story);
+                if (story) {
+                    if (story.text?.length > 0) {
+                        this.startTurnTimer();
+                    }
+                }
+            });
+    }
 
+    get clientPlayerID(): string | undefined {
+        return sessionStorage.getItem("playerID") || undefined;
+    }
 
-		this.socketService.usersUpdate()
-			.pipe(takeUntil(this.unsubscribe$))
-			.subscribe(users => {
-				this.updateUsers(users);
-			});
+    ngOnDestroy(): void {
+        this.unsubscribe$.next();
+        this.unsubscribe$.complete();
+    }
 
-		this.socketService.gameStatus()
-			.pipe(takeUntil(this.unsubscribe$))
-			.subscribe((status) => {
-				this._gameStatus$.next(status);
-			});
+    startGame() {
+        this.socketService.start();
+    }
 
-		this.socketService.storyUpdate()
-			.pipe(
-				distinctUntilChanged(isStoryEqual),
-				tap(story => console.log("Story update: ", story)),
-				takeUntil(this.unsubscribe$))
-			.subscribe((story) => {
-				this._story$.next(story);
-				if (story) {
-					if (story.text?.length > 0) {
-						this.startTurnTimer();
-					}
-				}
-			});
-	}
+    startTurnTimer() {
+        this.endTurnTimer();
+        const seconds = 60;
+        interval(1000)
+            .pipe(
+                map(num => seconds - num),
+                takeUntil(this.stopTurnTimer$),
+                takeUntil(this.unsubscribe$)
+            )
+            .subscribe(time => {
+                if (time < 0) {
+                    this.endTurnTimer();
+                } else {
+                    this._turnTimer$.next(time);
+                }
+            });
+    }
 
-	get clientPlayerID(): string | undefined {
-		return sessionStorage.getItem("playerID") || undefined;
-	}
+    endTurnTimer() {
+        this.stopTurnTimer$.next();
+        this._turnTimer$.next(undefined);
+    }
 
-	ngOnDestroy(): void {
-		this.unsubscribe$.next();
-		this.unsubscribe$.complete();
-	}
+    updateUsers(users: UserOverview[]) {
+        this._users$.next(users);
+    }
 
-	startGame() {
-		this.socketService.start();
-	}
+    async loadRoom(room: string): Promise<{ startTime: number }> {
+        console.log(room);
 
-	startTurnTimer() {
-		this.endTurnTimer();
-		const seconds = 60;
-		interval(1000).pipe(
-			map(num => seconds - num),
-			takeUntil(this.stopTurnTimer$),
-			takeUntil(this.unsubscribe$)
-		).subscribe(time => {
-			if (time < 0) {
-				this.endTurnTimer();
-			} else {
-				this._turnTimer$.next(time);
-			}
-		});
-	}
+        if (!room || room.length === 0) {
+            throw new Error("Room name is empty");
+        }
+        const response = await firstValueFrom(this.http.get<RoomResponse>(this.API_URL + "/room/" + room));
+        const isPlayer = response.users.find(user => user.id === this.clientPlayerID);
+        const disconnected = isPlayer?.disconnected || false;
 
-	endTurnTimer() {
-		this.stopTurnTimer$.next();
-		this._turnTimer$.next(undefined);
-	}
+        if (disconnected) {
+            console.log("Player was disconnected. Try to reconnect!");
+            // reconnect if loading site directly
+            this.socketService.join(room, undefined, this.clientPlayerID);
+        } else if (!isPlayer) {
+            if (!response.config.spectatorsAllowed) {
+                throw new Error("Not allowed to spectate!");
+            }
 
-	updateUsers(users: UserOverview[]) {
-		this._users$.next(users);
-	}
+            console.log("Joining as spectator!");
+            // if a new user just joined the table without being at the home screen, join as spectator
+            this.socketService.joinAsSpectator(room);
+        }
 
-	async loadRoom(room: string): Promise<{ startTime: number }> {
-		console.log(room);
+        this.socketService.requestUpdate();
 
-		if (!room || room.length === 0) {
-			throw new Error("Room name is empty");
-		}
-		const response = await firstValueFrom(this.http.get<RoomResponse>(this.API_URL + "/room/" + room));
-		const isPlayer = response.users.find(user => user.id === this.clientPlayerID);
-		const disconnected = isPlayer?.disconnected || false;
+        return { startTime: new Date().getTime() - new Date(response.startTime).getTime() };
+    }
 
-		if (disconnected) {
-			console.log("Player was disconnected. Try to reconnect!");
-			// reconnect if loading site directly
-			this.socketService.join(room, undefined, this.clientPlayerID);
+    submitText(text: string) {
+        this.endTurnTimer();
+        this.socketService.submitText(text);
+    }
 
-		} else if (!isPlayer) {
-			if (!response.config.spectatorsAllowed) {
-				throw new Error("Not allowed to spectate!");
-			}
+    voteFinish() {
+        this.socketService.voteFinish();
+    }
 
-			console.log("Joining as spectator!");
-			// if a new user just joined the table without being at the home screen, join as spectator
-			this.socketService.joinAsSpectator(room);
-		}
+    fetchFinalStories() {
+        this.socketService.fetchFinalStories();
+    }
 
-		this.socketService.requestUpdate();
-
-		return { startTime: new Date().getTime() - new Date(response.startTime).getTime() };
-	}
-
-	submitText(text: string) {
-		this.endTurnTimer();
-		this.socketService.submitText(text);
-	}
-
-	voteFinish() {
-		this.socketService.voteFinish();
-	}
-
-	fetchFinalStories() {
-		this.socketService.fetchFinalStories();
-	}
-
-	restart() {
-		this.socketService.restart();
-	}
+    restart() {
+        this.socketService.restart();
+    }
 }

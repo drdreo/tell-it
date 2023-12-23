@@ -1,26 +1,20 @@
 {
-  "name": "tell-it-data-access",
-  "projectType": "library",
-  "sourceRoot": "libs/tell-it/data-access/src",
-  "prefix": "tell-it-app",
-  "targets": {
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/tell-it/data-access"],
-      "options": {
-        "jestConfig": "libs/tell-it/data-access/jest.config.ts",
-        "passWithNoTests": true
-      }
+    "name": "tell-it-data-access",
+    "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "library",
+    "sourceRoot": "libs/tell-it/data-access/src",
+    "prefix": "tell-it-app",
+    "targets": {
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/libs/tell-it/data-access"],
+            "options": {
+                "jestConfig": "libs/tell-it/data-access/jest.config.ts"
+            }
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint"
+        }
     },
-    "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "options": {
-        "lintFilePatterns": [
-          "libs/tell-it/data-access/**/*.ts",
-          "libs/tell-it/data-access/**/*.html"
-        ]
-      }
-    }
-  },
-  "tags": ["scope:client type:feature"]
+    "tags": ["scope:client type:feature"]
 }

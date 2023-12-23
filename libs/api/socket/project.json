@@ -1,24 +1,20 @@
 {
-  "name": "api-socket",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/api/socket/src",
-  "projectType": "library",
-  "targets": {
-    "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["libs/api/socket/**/*.ts"]
-      }
+    "name": "api-socket",
+    "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "libs/api/socket/src",
+    "projectType": "library",
+    "targets": {
+        "lint": {
+            "executor": "@nx/eslint:lint",
+            "outputs": ["{options.outputFile}"]
+        },
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/libs/api/socket"],
+            "options": {
+                "jestConfig": "libs/api/socket/jest.config.ts"
+            }
+        }
     },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/api/socket"],
-      "options": {
-        "jestConfig": "libs/api/socket/jest.config.ts",
-        "passWithNoTests": true
-      }
-    }
-  },
-  "tags": ["scope:server type:feature"]
+    "tags": ["scope:server type:feature"]
 }

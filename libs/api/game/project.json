@@ -1,24 +1,20 @@
 {
-  "name": "api-game",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/api/game/src",
-  "projectType": "library",
-  "targets": {
-    "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
-      "options": {
-        "lintFilePatterns": ["libs/api/game/**/*.ts"]
-      }
+    "name": "api-game",
+    "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "libs/api/game/src",
+    "projectType": "library",
+    "targets": {
+        "lint": {
+            "executor": "@nx/eslint:lint",
+            "outputs": ["{options.outputFile}"]
+        },
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/libs/api/game"],
+            "options": {
+                "jestConfig": "libs/api/game/jest.config.ts"
+            }
+        }
     },
-    "test": {
-      "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/api/game"],
-      "options": {
-        "jestConfig": "libs/api/game/jest.config.ts",
-        "passWithNoTests": true
-      }
-    }
-  },
-  "tags": ["type:feature"]
+    "tags": ["type:feature"]
 }
