@@ -1,30 +1,30 @@
 {
-  "name": "shared-domain",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/shared/domain/src",
-  "projectType": "library",
-  "targets": {
-    "build": {
-      "executor": "@nrwl/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/shared/domain",
-        "main": "libs/shared/domain/src/index.ts",
-        "tsConfig": "libs/shared/domain/tsconfig.lib.json",
-        "assets": ["libs/shared/domain/*.md"]
-      }
+    "name": "shared-domain",
+    "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "libs/shared/domain/src",
+    "projectType": "library",
+    "targets": {
+        "build": {
+            "executor": "@nrwl/js:tsc",
+            "outputs": ["{options.outputPath}"],
+            "options": {
+                "outputPath": "dist/libs/shared/domain",
+                "main": "libs/shared/domain/src/index.ts",
+                "tsConfig": "libs/shared/domain/tsconfig.lib.json",
+                "assets": ["libs/shared/domain/*.md"]
+            }
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint",
+            "outputs": ["{options.outputFile}"]
+        },
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/libs/shared/domain"],
+            "options": {
+                "jestConfig": "libs/shared/domain/jest.config.ts"
+            }
+        }
     },
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
-    },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/shared/domain"],
-      "options": {
-        "jestConfig": "libs/shared/domain/jest.config.ts"
-      }
-    }
-  },
-  "tags": []
+    "tags": []
 }

@@ -1,4 +1,4 @@
-import { GameStatus, StoryData } from "@tell-it/domain/game";
+import { GameStatus, StoryData } from "./game";
 import { UserOverview } from "./api-interfaces";
 
 export enum ServerEvent {

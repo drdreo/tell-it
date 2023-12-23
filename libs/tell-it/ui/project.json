@@ -1,20 +1,20 @@
 {
-  "name": "tell-it-ui",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "projectType": "library",
-  "sourceRoot": "libs/tell-it/ui/src",
-  "prefix": "tell-it-app",
-  "targets": {
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/tell-it/ui"],
-      "options": {
-        "jestConfig": "libs/tell-it/ui/jest.config.ts"
-      }
+    "name": "tell-it-ui",
+    "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "library",
+    "sourceRoot": "libs/tell-it/ui/src",
+    "prefix": "tell-it-app",
+    "targets": {
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/libs/tell-it/ui"],
+            "options": {
+                "jestConfig": "libs/tell-it/ui/jest.config.ts"
+            }
+        },
+        "lint": {
+            "executor": "@nx/eslint:lint"
+        }
     },
-    "lint": {
-      "executor": "@nx/eslint:lint"
-    }
-  },
-  "tags": ["scope:client type:ui"]
+    "tags": ["scope:client type:ui"]
 }

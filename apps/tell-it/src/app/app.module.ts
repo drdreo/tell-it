@@ -9,36 +9,25 @@ import { environment } from "../environments/environment";
 import { AppComponent } from "./app.component";
 
 const routes: Routes = [
-  {
-    path: "",
-    loadChildren: () =>
-      import("../../../../libs/tell-it/home/src").then(
-        (m) => m.HomeModule
-      ),
-  },
-  {
-    path: "room/:roomName",
-    loadChildren: () =>
-      import("../../../../libs/tell-it/room/src").then(
-        (m) => m.RoomModule
-      ),
-  },
+    {
+        path: "",
+        loadChildren: () => import("@tell-it/home").then(m => m.HomeModule)
+    },
+    {
+        path: "room/:roomName",
+        loadChildren: () => import("@tell-it/room").then(m => m.RoomModule)
+    }
 ];
 
 const socketConfig: SocketIoConfig = {
-  url: environment.api.socketUrl,
-  options: {},
+    url: environment.api.socketUrl,
+    options: {}
 };
 
 @NgModule({
-  declarations: [AppComponent],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    RouterModule.forRoot(routes),
-    SocketIoModule.forRoot(socketConfig),
-  ],
-  providers: [{ provide: API_URL_TOKEN, useValue: environment.api.url }],
-  bootstrap: [AppComponent],
+    declarations: [AppComponent],
+    imports: [BrowserModule, HttpClientModule, RouterModule.forRoot(routes), SocketIoModule.forRoot(socketConfig)],
+    providers: [{ provide: API_URL_TOKEN, useValue: environment.api.url }],
+    bootstrap: [AppComponent]
 })
 export class AppModule {}

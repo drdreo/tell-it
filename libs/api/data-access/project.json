@@ -1,20 +1,20 @@
 {
-  "name": "api-data-access",
-  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/api/data-access/src",
-  "projectType": "library",
-  "targets": {
-    "lint": {
-      "executor": "@nx/eslint:lint",
-      "outputs": ["{options.outputFile}"]
+    "name": "api-data-access",
+    "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "libs/api/data-access/src",
+    "projectType": "library",
+    "targets": {
+        "lint": {
+            "executor": "@nx/eslint:lint",
+            "outputs": ["{options.outputFile}"]
+        },
+        "test": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{workspaceRoot}/coverage/libs/api/data-access"],
+            "options": {
+                "jestConfig": "libs/api/data-access/jest.config.ts"
+            }
+        }
     },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/libs/api/data-access"],
-      "options": {
-        "jestConfig": "libs/api/data-access/jest.config.ts"
-      }
-    }
-  },
-  "tags": ["type:feature"]
+    "tags": ["type:feature"]
 }
