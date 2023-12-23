@@ -12,7 +12,6 @@ export const roomRoutes: Route[] = [
 ];
 
 @NgModule({
-  imports: [CommonModule, RouterModule.forChild(roomRoutes)],
-  declarations: [RoomComponent, MessageComponent],
+    imports: [CommonModule, RouterModule.forChild(roomRoutes), RoomComponent, MessageComponent],
 })
 export class RoomModule {}

@@ -1,16 +1,19 @@
 import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
-import { FormControl, FormGroup, Validators, AbstractControl } from '@angular/forms';
+import { FormControl, FormGroup, Validators, AbstractControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { roomNameValidator } from '@tell-it/utils';
 import { HomeInfo } from '@tell-it/domain/api-interfaces';
 import { SocketService } from '@tell-it/data-access';
 import { takeUntil, Subject, Observable } from 'rxjs';
+import { NgIf, NgFor, AsyncPipe } from '@angular/common';
 
 @Component({
     selector: 'tell-it-app-home',
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [NgIf, NgFor, ReactiveFormsModule, AsyncPipe]
 })
 export class HomeComponent implements OnDestroy {
 

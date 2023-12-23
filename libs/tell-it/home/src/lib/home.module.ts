@@ -10,8 +10,8 @@ import { HomeComponent } from './home.component';
         RouterModule.forChild([
             { path: '', pathMatch: 'full', component: HomeComponent }
         ]),
-        ReactiveFormsModule
-    ],
-    declarations: [HomeComponent]
+        ReactiveFormsModule,
+        HomeComponent
+    ]
 })
 export class HomeModule {}
