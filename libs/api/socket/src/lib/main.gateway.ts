@@ -18,7 +18,7 @@ import {
     RoomCommand,
     RoomCommandName
 } from "@tell-it/api/game";
-import { ServerJoined, HomeInfo, UserKicked, UserOverview } from '@tell-it/domain/api-interfaces';
+import { ServerJoined, HomeInfo, UserKicked, UserOverview } from "@tell-it/domain/api-interfaces";
 import { CantWaitError } from "@tell-it/domain/errors";
 import { GameStatus } from "@tell-it/domain/game";
 import {

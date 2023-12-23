@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
 
-
 @Component({
     selector: "tell-it-app-message",
     templateUrl: "./message.component.html",
