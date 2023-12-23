@@ -5,7 +5,7 @@ import { roomNameValidator } from "@tell-it/utils";
 import { HomeInfo } from "@tell-it/domain/api-interfaces";
 import { SocketService } from "@tell-it/data-access";
 import { takeUntil, Subject, Observable } from "rxjs";
-import { NgIf, NgFor, AsyncPipe } from "@angular/common";
+import { AsyncPipe } from "@angular/common";
 
 @Component({
     selector: "tell-it-app-home",
@@ -13,7 +13,7 @@ import { NgIf, NgFor, AsyncPipe } from "@angular/common";
     styleUrls: ["./home.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgIf, NgFor, ReactiveFormsModule, AsyncPipe]
+    imports: [ReactiveFormsModule, AsyncPipe]
 })
 export class HomeComponent implements OnDestroy {
     homeInfo$: Observable<HomeInfo>;

@@ -18,7 +18,7 @@ import {
     RoomCommand,
     RoomCommandName
 } from "@tell-it/api/game";
-import { ServerJoined, HomeInfo, UserKicked } from "@tell-it/domain/api-interfaces";
+import { ServerJoined, HomeInfo, UserKicked, UserOverview } from '@tell-it/domain/api-interfaces';
 import { CantWaitError } from "@tell-it/domain/errors";
 import { GameStatus } from "@tell-it/domain/game";
 import {
@@ -357,7 +357,7 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
             case RoomCommandName.UsersUpdate:
                 if (!recipient) {
-                    this.sendUsersUpdateToSpectators(room, data.users);
+                    this.sendUsersUpdateToSpectators(room, { users: data.users });
                 }
 
                 this.sendTo(receiver, ServerEvent.UsersUpdate, { users: data.users });

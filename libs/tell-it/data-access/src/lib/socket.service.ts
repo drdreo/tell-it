@@ -16,7 +16,7 @@ import {
 } from "@tell-it/domain/socket-interfaces";
 import { API_URL_TOKEN } from "@tell-it/domain/tokens";
 import { Socket } from "ngx-socket-io";
-import { map, merge, Observable } from "rxjs";
+import { map, merge, Observable, tap } from 'rxjs';
 
 @Injectable({
 	providedIn: "root"
@@ -68,7 +68,7 @@ export class SocketService {
 
 	usersUpdate(): Observable<UserOverview[]> {
 		return this.socket.fromEvent<ServerUsersUpdate>(ServerEvent.UsersUpdate)
-			.pipe(map(data => data.users));
+			.pipe(tap(console.log),map(data => data.users));
 	}
 
 	leave() {

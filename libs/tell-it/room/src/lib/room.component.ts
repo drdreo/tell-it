@@ -6,7 +6,7 @@ import { GameStatus, StoryData } from "@tell-it/domain/game";
 import { Subject, takeUntil, Observable, fromEvent, map } from "rxjs";
 import { RoomService } from "./room.service";
 import { MessageComponent } from "./message/message.component";
-import { NgIf, NgFor, AsyncPipe } from "@angular/common";
+import { AsyncPipe } from "@angular/common";
 
 @Component({
     selector: "tell-it-app-room",
@@ -15,7 +15,7 @@ import { NgIf, NgFor, AsyncPipe } from "@angular/common";
     providers: [RoomService],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgIf, NgFor, MessageComponent, AsyncPipe]
+    imports: [MessageComponent, AsyncPipe]
 })
 export class RoomComponent implements OnInit, OnDestroy {
     /***Comes from server*/

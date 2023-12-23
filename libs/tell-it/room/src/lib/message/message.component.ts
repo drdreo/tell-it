@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, Input } from "@angular/core";
-import { NgIf } from "@angular/common";
+
 
 @Component({
     selector: "tell-it-app-message",
@@ -7,7 +7,7 @@ import { NgIf } from "@angular/common";
     styleUrls: ["./message.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgIf]
+    imports: []
 })
 export class MessageComponent {
     @Input() author!: string | null;
