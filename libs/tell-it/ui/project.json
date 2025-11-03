@@ -4,6 +4,7 @@
     "projectType": "library",
     "sourceRoot": "libs/tell-it/ui/src",
     "prefix": "tell-it-app",
+    "tags": ["scope:client type:ui"],
     "targets": {
         "test": {
             "executor": "@nx/jest:jest",
@@ -15,6 +16,5 @@
         "lint": {
             "executor": "@nx/eslint:lint"
         }
-    },
-    "tags": ["scope:client type:ui"]
+    }
 }

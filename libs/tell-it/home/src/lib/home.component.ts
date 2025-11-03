@@ -12,7 +12,6 @@ import { AsyncPipe } from "@angular/common";
     templateUrl: "./home.component.html",
     styleUrls: ["./home.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
     imports: [ReactiveFormsModule, AsyncPipe]
 })
 export class HomeComponent implements OnDestroy {

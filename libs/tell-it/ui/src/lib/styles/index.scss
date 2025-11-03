@@ -1,5 +1,3 @@
-@import './variables';
-@import './utils';
-
-@import './elements';
-
+@forward "./variables";
+@forward "./utils";
+@forward "./elements";

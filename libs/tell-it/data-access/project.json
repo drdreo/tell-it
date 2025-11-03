@@ -4,17 +4,18 @@
     "projectType": "library",
     "sourceRoot": "libs/tell-it/data-access/src",
     "prefix": "tell-it-app",
+    "tags": ["scope:client type:feature"],
     "targets": {
         "test": {
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/libs/tell-it/data-access"],
             "options": {
-                "jestConfig": "libs/tell-it/data-access/jest.config.ts"
+                "jestConfig": "libs/tell-it/data-access/jest.config.ts",
+                "tsConfig": "libs/tell-it/data-access/tsconfig.spec.json"
             }
         },
         "lint": {
             "executor": "@nx/eslint:lint"
         }
-    },
-    "tags": ["scope:client type:feature"]
+    }
 }

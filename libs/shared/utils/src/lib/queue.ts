@@ -1,37 +1,37 @@
 export class Queue<T> {
-	private store: T[] = [];
+    private store: T[] = [];
 
-	enqueue(data: T): void {
-		this.store.push(data);
-	}
+    enqueue(data: T): void {
+        this.store.push(data);
+    }
 
-	dequeue(): T | undefined {
-		if (this.isEmpty()) throw new EmptyQueueException();
+    dequeue(): T | undefined {
+        if (this.isEmpty()) throw new EmptyQueueException();
 
-		return this.store.shift();
-	}
+        return this.store.shift();
+    }
 
-	peek(): T {
-		if (this.isEmpty()) throw new EmptyQueueException();
+    peek(): T {
+        if (this.isEmpty()) throw new EmptyQueueException();
 
-		return this.store[0];
-	}
+        return this.store[0];
+    }
 
-	isEmpty(): boolean {
-		return this.size() === 0;
-	}
+    isEmpty(): boolean {
+        return this.size() === 0;
+    }
 
-	clear(): void {
-		this.store = [];
-	}
+    clear(): void {
+        this.store = [];
+    }
 
-	size() {
-		return this.store.length;
-	}
+    size() {
+        return this.store.length;
+    }
 }
 
 export class EmptyQueueException extends Error {
-	constructor() {
-		super("Queue is empty");
-	}
+    constructor() {
+        super("Queue is empty");
+    }
 }

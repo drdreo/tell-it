@@ -3,9 +3,10 @@
     "$schema": "../../../node_modules/nx/schemas/project-schema.json",
     "sourceRoot": "libs/shared/domain/src",
     "projectType": "library",
+    "tags": [],
     "targets": {
         "build": {
-            "executor": "@nrwl/js:tsc",
+            "executor": "@nx/js:tsc",
             "outputs": ["{options.outputPath}"],
             "options": {
                 "outputPath": "dist/libs/shared/domain",
@@ -22,9 +23,9 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/libs/shared/domain"],
             "options": {
-                "jestConfig": "libs/shared/domain/jest.config.ts"
+                "jestConfig": "libs/shared/domain/jest.config.ts",
+                "tsConfig": "libs/shared/domain/tsconfig.spec.json"
             }
         }
-    },
-    "tags": []
+    }
 }

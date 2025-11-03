@@ -1,12 +1,11 @@
-import { RoomConfig } from '@tell-it/domain/api-interfaces';
-
+import { RoomConfig } from "@tell-it/domain/api-interfaces";
 
 export function validateConfig(config: RoomConfig): boolean {
     const testingConfig = { ...config };
-    if (typeof testingConfig.spectatorsAllowed != 'boolean') {
+    if (typeof testingConfig.spectatorsAllowed != "boolean") {
         return false;
     }
-    if (typeof testingConfig.isPublic != 'boolean') {
+    if (typeof testingConfig.isPublic != "boolean") {
         return false;
     }
     if (isNaN(testingConfig.afk.delay)) {

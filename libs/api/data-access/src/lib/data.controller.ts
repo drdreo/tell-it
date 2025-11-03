@@ -4,10 +4,10 @@ import { StoryEntity } from "./entities/story.entity";
 
 @Controller()
 export class DataController {
-	constructor(private apiDataService: ApiDataService) {}
+    constructor(private apiDataService: ApiDataService) {}
 
-	@Get("/stories")
-	async getStories(): Promise<StoryEntity[]> {
-		return await this.apiDataService.findAllStories();
-	}
+    @Get("/stories")
+    async getStories(): Promise<StoryEntity[]> {
+        return await this.apiDataService.findAllStories();
+    }
 }

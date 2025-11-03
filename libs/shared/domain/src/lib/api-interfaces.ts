@@ -1,51 +1,50 @@
-
 export interface RoomInfo {
-	name: string;
-	started: boolean;
+    name: string;
+    started: boolean;
 }
 
 export interface HomeInfo {
-	rooms: RoomInfo[];
-	userCount: number;
+    rooms: RoomInfo[];
+    userCount: number;
 }
 
 export interface RoomResponse {
-	name: string;
-	users: UserOverview[];
-	startTime: Date;
-	config: RoomConfig;
+    name: string;
+    users: UserOverview[];
+    startTime: Date;
+    config: RoomConfig;
 }
 
 export interface ServerJoined {
-	userID: string;
-	room: string;
+    userID: string;
+    room: string;
 }
 
 export interface UserLeft {
-	userID: string;
+    userID: string;
 }
 
 export interface UserKicked {
-	kickedUser: string;
+    kickedUser: string;
 }
 
 export interface UserOverview {
-	id: string;
-	name: string;
-	disconnected: boolean;
-	afk: boolean;
-	kickVotes: string[];
-	queuedStories: number;
+    id: string;
+    name: string;
+    disconnected: boolean;
+    afk: boolean;
+    kickVotes: string[];
+    queuedStories: number;
 }
 
 export interface RoomConfig {
-	spectatorsAllowed: boolean;
-	isPublic: boolean;
-	users?: {
-		min: number;
-		max: number;
-	};
-	afk?: {
-		delay: number;
-	};
+    spectatorsAllowed: boolean;
+    isPublic: boolean;
+    users?: {
+        min: number;
+        max: number;
+    };
+    afk?: {
+        delay: number;
+    };
 }

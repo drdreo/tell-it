@@ -1,5 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
-@import "../../../libs/tell-it/ui/src/lib/styles";
+@use "../../../libs/tell-it/ui/src/lib/styles" as styles;
 
 @import url("https://fonts.googleapis.com/css2?family=Balsamiq+Sans&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@700&display=swap");
@@ -12,13 +12,13 @@ html {
 body {
     height: 100%;
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, $text-secondary, "Segoe UI",
-    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-    "Helvetica Neue", sans-serif;
+    font-family:
+        -apple-system, BlinkMacSystemFont, styles.$text-secondary, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+        "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 
-    background-color: $primary-background-color;
+    background-color: styles.$primary-background-color;
     color: white;
 }
 
@@ -87,7 +87,6 @@ h6 {
 }
 
 .scrollbar-invert {
-
     &::-webkit-scrollbar-thumb {
         background: #666666;
     }
