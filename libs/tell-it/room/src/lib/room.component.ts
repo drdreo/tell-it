@@ -14,7 +14,6 @@ import { AsyncPipe } from "@angular/common";
     styleUrls: ["./room.component.scss"],
     providers: [RoomService],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: true,
     imports: [MessageComponent, AsyncPipe]
 })
 export class RoomComponent implements OnInit, OnDestroy {
