@@ -4,6 +4,7 @@
     "projectType": "application",
     "sourceRoot": "apps/tell-it/src",
     "prefix": "tell-it-app",
+    "tags": [],
     "targets": {
         "build": {
             "executor": "@angular-devkit/build-angular:browser",
@@ -65,7 +66,8 @@
             "defaultConfiguration": "development",
             "options": {
                 "proxyConfig": "apps/tell-it/proxy.conf.json"
-            }
+            },
+            "continuous": true
         },
         "extract-i18n": {
             "executor": "@angular-devkit/build-angular:extract-i18n",
@@ -80,9 +82,9 @@
             "executor": "@nx/jest:jest",
             "outputs": ["{workspaceRoot}/coverage/apps/tell-it"],
             "options": {
-                "jestConfig": "apps/tell-it/jest.config.ts"
+                "jestConfig": "apps/tell-it/jest.config.ts",
+                "tsConfig": "apps/tell-it/tsconfig.spec.json"
             }
         }
-    },
-    "tags": []
+    }
 }
