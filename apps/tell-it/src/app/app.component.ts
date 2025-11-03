@@ -7,6 +7,4 @@ import { RouterOutlet } from "@angular/router";
     standalone: true,
     imports: [RouterOutlet]
 })
-export class AppComponent {
-    constructor() {}
-}
+export class AppComponent {}

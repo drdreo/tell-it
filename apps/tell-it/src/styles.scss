@@ -12,9 +12,9 @@ html {
 body {
     height: 100%;
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, styles.$text-secondary, "Segoe UI",
-    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-    "Helvetica Neue", sans-serif;
+    font-family:
+        -apple-system, BlinkMacSystemFont, styles.$text-secondary, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+        "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 
@@ -87,7 +87,6 @@ h6 {
 }
 
 .scrollbar-invert {
-
     &::-webkit-scrollbar-thumb {
         background: #666666;
     }

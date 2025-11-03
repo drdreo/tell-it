@@ -1,8 +1,8 @@
-@use 'sass:color';
-@use './variables' as *;
+@use "sass:color";
+@use "./variables" as *;
 
 .button {
-    padding: .5rem .75rem;
+    padding: 0.5rem 0.75rem;
     box-sizing: border-box;
 
     outline: none;
@@ -13,8 +13,9 @@
     font-size: $button-font-size;
     color: $button-color;
     background-color: $button-background-color;
-    transition: background-color .17s ease, color .17s ease;
-
+    transition:
+        background-color 0.17s ease,
+        color 0.17s ease;
 
     &:not([disabled]) {
         &:hover {
@@ -28,7 +29,7 @@
 
     &[disabled] {
         cursor: not-allowed;
-        opacity: .5;
+        opacity: 0.5;
     }
 
     &.light {
@@ -76,7 +77,6 @@
     }
 }
 
-
 .input {
     background-color: #363a49;
     outline: none;
@@ -86,7 +86,7 @@
     font-size: 16px;
     border-radius: $primary-radius;
     color: #fff;
-    transition: border-color .2s ease-in-out;
+    transition: border-color 0.2s ease-in-out;
 
     &:hover {
         border-color: $black;

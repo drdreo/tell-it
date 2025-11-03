@@ -346,7 +346,10 @@ export class MainGateway implements OnGatewayConnection, OnGatewayDisconnect {
     private handleRoomCommands({ name, data, recipient, room }: RoomCommand) {
         const receiver = recipient ? recipient : room;
 
-        recipient ? this.logger.debug("Handling command for recipient: " + recipient) : "";
+        if (recipient) {
+            this.logger.debug("Handling command for recipient: " + recipient);
+        }
+
         this.logger.verbose(`Room[${room}] - ${name}:`);
         this.logger.debug(data);
 
