@@ -7,10 +7,7 @@ describe("AppComponent", () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             imports: [AppComponent],
-            providers: [
-                provideHttpClient(withInterceptorsFromDi()),
-                provideHttpClientTesting()
-            ]
+            providers: [provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
         }).compileComponents();
     });
 
