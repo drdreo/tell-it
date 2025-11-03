@@ -1,4 +1,5 @@
-@import './variables';
+@use 'sass:color';
+@use './variables' as *;
 
 .button {
     padding: .5rem .75rem;
@@ -17,11 +18,11 @@
 
     &:not([disabled]) {
         &:hover {
-            background-color: darken(desaturate($button-background-color, 30%), 10%);
+            background-color: color.adjust(color.adjust($button-background-color, $saturation: -30%), $lightness: -10%);
         }
 
         &:active {
-            background-color: darken(desaturate($button-background-color, 40%), 20%);
+            background-color: color.adjust(color.adjust($button-background-color, $saturation: -40%), $lightness: -20%);
         }
     }
 
@@ -35,7 +36,7 @@
         background-color: $gray;
 
         &:hover {
-            background-color: transparentize($gray, 0.1);
+            background-color: color.adjust($gray, $alpha: -0.1);
         }
     }
 
@@ -44,7 +45,7 @@
         background-color: $success-color;
 
         &:hover {
-            background-color: transparentize($success-color, 0.1);
+            background-color: color.adjust($success-color, $alpha: -0.1);
         }
     }
 
@@ -53,7 +54,7 @@
         background-color: $danger-color;
 
         &:hover {
-            background-color: transparentize($danger-color, 0.1);
+            background-color: color.adjust($danger-color, $alpha: -0.1);
         }
     }
 
@@ -70,7 +71,7 @@
         color: $black;
 
         &:hover {
-            background-color: transparentize($warning-color, 0.1);
+            background-color: color.adjust($warning-color, $alpha: -0.1);
         }
     }
 }
@@ -79,7 +80,7 @@
 .input {
     background-color: #363a49;
     outline: none;
-    border: 1px solid transparentize($black, 0.25);
+    border: 1px solid color.adjust($black, $alpha: -0.25);
     padding: 10px 0.75rem;
     box-sizing: border-box;
     font-size: 16px;
@@ -89,7 +90,7 @@
 
     &:hover {
         border-color: $black;
-        background-color: transparentize($input-background-color, 0.1);
+        background-color: color.adjust($input-background-color, $alpha: -0.1);
     }
 
     &:focus {
@@ -97,7 +98,7 @@
     }
 
     &[disabled] {
-        background-color: desaturate(#363a49, 12%);
+        background-color: color.adjust(#363a49, $saturation: -12%);
     }
 }
 
@@ -109,7 +110,7 @@
     border: none;
 
     &:hover {
-        color: darken($link-color, 10);;
+        color: color.adjust($link-color, $lightness: -10%);
     }
 }
 

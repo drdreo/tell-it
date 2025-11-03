@@ -1,4 +1,5 @@
-@use "../../../../../libs/tell-it/ui/src/lib/styles";
+@use "../../../../../libs/tell-it/ui/src/lib/styles" as styles;
+@use "sass:color";
 
 .brand-logo {
     width: 200px;
@@ -23,7 +24,7 @@
         padding: 3px;
 
         font-size: 10px;
-        background-color: lighten(styles.$input-background-color, 5%);
+        background-color: color.adjust(styles.$input-background-color, $lightness: 5%);
         color: styles.$text-color-secondary;
         border: 1px solid styles.$secondary-background-color;
         border-radius: styles.$primary-radius;
