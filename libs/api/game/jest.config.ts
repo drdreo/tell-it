@@ -12,6 +12,7 @@ export default {
             }
         ]
     },
+    transformIgnorePatterns: ["node_modules/(?!nanoid)"],
     moduleFileExtensions: ["ts", "js", "html"],
     coverageDirectory: "../../../coverage/libs/api/game"
 };
