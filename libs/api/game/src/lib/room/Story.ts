@@ -1,23 +1,21 @@
 export class Story {
+    private texts: string[] = [];
 
-	private texts: string[] = [];
+    constructor(public ownerId: string) {}
 
-	constructor(public ownerId: string) {
-	}
+    addText(text: string) {
+        this.texts.push(text);
+    }
 
-	addText(text: string) {
-		this.texts.push(text);
-	}
+    getAllTexts(): string[] {
+        return this.texts;
+    }
 
-	getAllTexts(): string[] {
-		return this.texts;
-	}
+    getLatestText(): string {
+        return this.texts[this.texts.length - 1];
+    }
 
-	getLatestText(): string {
-		return this.texts[this.texts.length - 1];
-	}
-
-	serialize(): string {
-		return this.texts.join(". ");
-	}
+    serialize(): string {
+        return this.texts.join(". ");
+    }
 }

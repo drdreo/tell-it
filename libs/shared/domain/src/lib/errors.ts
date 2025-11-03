@@ -1,3 +1,1 @@
-export class CantWaitError extends Error {
-
-}
+export class CantWaitError extends Error {}

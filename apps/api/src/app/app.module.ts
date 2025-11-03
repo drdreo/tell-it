@@ -8,29 +8,29 @@ import { environment } from "../environments/environment";
 import { HealthController } from "./health.controller";
 import { MainController } from "./main.controller";
 
-const configuration = () => (environment);
+const configuration = () => environment;
 
 @Module({
-	imports: [
-		ConfigModule.forRoot({
-			load: [configuration],
-			isGlobal: true
-		}),
-		TypeOrmModule.forRoot({
-			type: "postgres",
-			host: environment.database.host,
-			port: environment.database.port,
-			username: environment.database.user,
-			password: environment.database.password,
-			database: environment.database.database,
-			autoLoadEntities: true,
-			ssl: environment.production ? { rejectUnauthorized: false } : false,
-		}),
-		ApiDataAccessModule,
-		SocketModule,
-		GameModule
-	],
-	controllers: [MainController, HealthController],
-	providers: []
+    imports: [
+        ConfigModule.forRoot({
+            load: [configuration],
+            isGlobal: true
+        }),
+        TypeOrmModule.forRoot({
+            type: "postgres",
+            host: environment.database.host,
+            port: environment.database.port,
+            username: environment.database.user,
+            password: environment.database.password,
+            database: environment.database.database,
+            autoLoadEntities: true,
+            ssl: environment.production ? { rejectUnauthorized: false } : false
+        }),
+        ApiDataAccessModule,
+        SocketModule,
+        GameModule
+    ],
+    controllers: [MainController, HealthController],
+    providers: []
 })
 export class AppModule {}
