@@ -6,7 +6,8 @@
                 <ng-icon name="bootstrapStopwatch" />
             </div>
         }
-        <ul class="user-list">
+        <ul class="story-queue-list">
+            Pending stories:
             @for (user of users(); track user.id) {
                 <li>{{ user.name }} - {{ user.queuedStories }}</li>
             }
