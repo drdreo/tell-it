@@ -2,29 +2,41 @@ $mobile: 768px;
 $desktop: 1024px;
 $fullhd: 1408px;
 
-$text-primary: "Open Sans", sans-serif;
+$text-primary: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 $text-secondary: Poppins, sans-serif;
 
-// Colors
-$black: #111;
-$dark: #1f212a;
-$white: #eee;
-$gray: #757575;
-$green: hsla(80, 40%, 50%, 1);
-$orange-dark: #da7e35;
-$yellow: #ffeb3b;
+// Modern 2025 Color Palette
+$black: #0a0a0a;
+$dark: #0f1014;
+$dark-elevated: #1a1b23;
+$white: #f8f9fa;
+$gray: #6c757d;
+$gray-light: #adb5bd;
+$green: #10b981;
+$orange-dark: #f59e0b;
+$yellow: #fbbf24;
+$purple: #8b5cf6;
+$blue: #3b82f6;
 
+// Modern semantic colors
 $primary-background-color: $dark;
-$secondary-background-color: #363a49;
-$primary-color: #5865f2;
-$success-color: #3ba55c;
-$danger-color: #ed4245;
-$warning-color: #daa520;
+$secondary-background-color: $dark-elevated;
+$card-background: #1a1b23;
+$primary-color: #6366f1;
+$primary-color-hover: #4f46e5;
+$success-color: #10b981;
+$danger-color: #ef4444;
+$warning-color: #f59e0b;
+$info-color: #3b82f6;
 
 $text-color-primary: $white;
-$text-color-secondary: #757575;
+$text-color-secondary: #9ca3af;
+$text-color-muted: #6b7280;
 
-$input-background-color: $secondary-background-color;
+$input-background-color: #1f2028;
+$input-border-color: #2d2e38;
+$input-border-hover: #3f4150;
+$input-border-focus: $primary-color;
 $button-color: $text-color-primary;
 $button-background-color: $primary-color;
 $button-font-size: inherit;

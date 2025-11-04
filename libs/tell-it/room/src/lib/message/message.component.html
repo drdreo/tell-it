@@ -1,16 +1,22 @@
 <div class="author">
-    {{ author }}
-    @if (ttsEnabled && message) {
-        <button class="tts-button" (click)="tts(message)">
-            <img alt="Play Button" src="assets/images/play-button.svg" />
+    {{ author() }}
+    @if (ttsEnabled() && message()) {
+        <button
+            class="tts-button"
+            (click)="tts(message()!)"
+            [attr.aria-label]="isReading() ? 'Stop text-to-speech' : 'Play text-to-speech'"
+            [class.reading]="isReading()">
+            <ng-icon
+                [name]="isReading() ? 'bootstrapPause' : 'bootstrapPlay'"
+                [attr.alt]="isReading() ? 'Stop Button' : 'Play Button'" />
         </button>
     }
 </div>
 
-@if (message) {
+@if (message()) {
     <div class="message">
         <div class="message-container scrollbar-invert">
-            {{ message }}
+            {{ message() }}
         </div>
     </div>
 }

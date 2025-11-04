@@ -5,16 +5,20 @@
 
 .author {
     display: flex;
-    font-size: 24px;
-    color: olivedrab;
-    font-weight: bold;
-    margin-bottom: 1rem;
+    align-items: center;
+    font-size: 1.25rem;
+    color: #9ae600;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
 
     .tts-button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
         background: none;
         border: none;
-        width: 1.5rem;
         padding: 0.25rem 0.5rem;
+        color: white;
     }
 }
 

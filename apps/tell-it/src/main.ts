@@ -1,5 +1,4 @@
-import { enableProdMode, importProvidersFrom } from "@angular/core";
-
+import { enableProdMode, importProvidersFrom, provideZonelessChangeDetection } from "@angular/core";
 import { environment } from "./environments/environment";
 import { AppComponent } from "./app/app.component";
 import { provideRouter, Routes } from "@angular/router";
@@ -29,6 +28,7 @@ if (environment.production) {
 
 bootstrapApplication(AppComponent, {
     providers: [
+        provideZonelessChangeDetection(),
         importProvidersFrom(BrowserModule, SocketIoModule.forRoot(socketConfig)),
         { provide: API_URL_TOKEN, useValue: environment.api.url },
         provideHttpClient(withInterceptorsFromDi()),
