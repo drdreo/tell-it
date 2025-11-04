@@ -18,12 +18,9 @@
         color 0.17s ease;
 
     &:not([disabled]) {
-        &:hover {
-            background-color: color.adjust(color.adjust($button-background-color, $saturation: -30%), $lightness: -10%);
-        }
-
+        &:hover,
         &:active {
-            background-color: color.adjust(color.adjust($button-background-color, $saturation: -40%), $lightness: -20%);
+            background-color: $button-background-color-hover;
         }
     }
 
