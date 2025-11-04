@@ -1,4 +1,3 @@
-/* eslint-disable */
 export default {
     displayName: "tell-it",
     preset: "../../jest.preset.js",

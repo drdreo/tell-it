@@ -12,9 +12,6 @@
             "options": {
                 "jestConfig": "libs/tell-it/ui/jest.config.ts"
             }
-        },
-        "lint": {
-            "executor": "@nx/eslint:lint"
         }
     }
 }

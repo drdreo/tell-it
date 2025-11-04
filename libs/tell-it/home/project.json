@@ -13,9 +13,6 @@
                 "jestConfig": "libs/tell-it/home/jest.config.ts",
                 "tsConfig": "libs/tell-it/home/tsconfig.spec.json"
             }
-        },
-        "lint": {
-            "executor": "@nx/eslint:lint"
         }
     }
 }

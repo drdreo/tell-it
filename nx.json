@@ -11,7 +11,7 @@
             "cache": true
         },
         "lint": {
-            "inputs": ["default", "{workspaceRoot}/.eslintrc.json"],
+            "inputs": ["default", "{workspaceRoot}/.eslintrc.json", "{workspaceRoot}/eslint.config.mjs"],
             "cache": true
         },
         "@nx/jest:jest": {
@@ -114,11 +114,20 @@
             "!{projectRoot}/tsconfig.spec.json",
             "!{projectRoot}/jest.config.[jt]s",
             "!{projectRoot}/.eslintrc.json",
-            "!{projectRoot}/src/test-setup.[jt]s"
+            "!{projectRoot}/src/test-setup.[jt]s",
+            "!{projectRoot}/eslint.config.mjs"
         ]
     },
     "nxCloudAccessToken": "YWQwMDAzOTgtZjk0MS00Zjg1LTlhZDctOTU3YWQ3YzJhNjc5fHJlYWQtd3JpdGU=",
     "parallel": 1,
     "useInferencePlugins": false,
-    "defaultBase": "master"
+    "defaultBase": "master",
+    "plugins": [
+        {
+            "plugin": "@nx/eslint/plugin",
+            "options": {
+                "targetName": "lint"
+            }
+        }
+    ]
 }
