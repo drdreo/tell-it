@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnDestroy } from "@angular/core";
+import { ChangeDetectionStrategy, Component, OnDestroy, inject } from "@angular/core";
 import { FormControl, FormGroup, Validators, AbstractControl, ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { roomNameValidator } from "@tell-it/utils";
@@ -15,6 +15,9 @@ import { AsyncPipe } from "@angular/common";
     imports: [ReactiveFormsModule, AsyncPipe]
 })
 export class HomeComponent implements OnDestroy {
+    private router = inject(Router);
+    private socketService = inject(SocketService);
+
     homeInfo$: Observable<HomeInfo>;
     loginForm = new FormGroup({
         username: new FormControl("", {
@@ -28,10 +31,7 @@ export class HomeComponent implements OnDestroy {
     isJoinable = true;
     private unsubscribe$ = new Subject<void>();
 
-    constructor(
-        private router: Router,
-        private socketService: SocketService
-    ) {
+    constructor() {
         this.socketService.leave(); // try to leave if a user comes from a room
 
         this.socketService

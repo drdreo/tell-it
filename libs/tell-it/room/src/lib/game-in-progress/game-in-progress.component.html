@@ -1,0 +1,30 @@
+<div class="game-container">
+    <div class="responsive-container">
+        @if (turnTimer()) {
+            <div class="turn-timer">
+                {{ turnTimer() }}
+                <ng-icon name="bootstrapStopwatch" />
+            </div>
+        }
+        <ul class="user-list">
+            @for (user of users(); track user.id) {
+                <li>{{ user.name }} - {{ user.queuedStories }}</li>
+            }
+        </ul>
+        @let _finishVotes = finishVotes();
+        @if (_finishVotes && _finishVotes.length > 0) {
+            <div class="finish-votes">Finish: {{ _finishVotes.length }}/{{ users()?.length }}</div>
+        }
+        @let _story = story();
+        @if (_story) {
+            <tell-it-app-message [author]="_story.author" [message]="_story.text"></tell-it-app-message>
+        } @else if (user()) {
+            Waiting for a story...
+        } @else {
+            You are a spectator. TBD
+        }
+        <textarea #storyInput class="input story-textarea"></textarea>
+        <button class="button" (click)="submitText.emit(storyInput.value); storyInput.value = ''">Submit</button>
+        <button class="button warning" (click)="voteFinish.emit()">Finish</button>
+    </div>
+</div>

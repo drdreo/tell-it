@@ -1,0 +1,65 @@
+@use "../../../../ui/src/lib/styles" as styles;
+
+:host {
+    display: contents;
+}
+
+.game-container {
+    width: 90%;
+    height: 100%;
+
+    .story {
+        height: 30%;
+    }
+
+    @include styles.respond-to(desktop) {
+        width: 45%;
+
+        .story {
+            height: 50%;
+        }
+    }
+}
+
+.responsive-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+
+    height: 100%;
+
+    @include styles.respond-to(mobile) {
+        height: 70%;
+    }
+}
+
+.turn-timer {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+
+    display: flex;
+    gap: 4px;
+
+    ng-icon {
+        font-size: 20px;
+    }
+}
+
+.user-list {
+    position: absolute;
+    bottom: 3rem;
+    right: 1rem;
+
+    list-style: none;
+}
+
+.finish-votes {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.story-textarea {
+    margin: 1rem 0;
+    min-height: 30%;
+}

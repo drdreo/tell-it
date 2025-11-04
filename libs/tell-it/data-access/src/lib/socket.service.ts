@@ -1,5 +1,5 @@
 import { HttpClient } from "@angular/common/http";
-import { Inject, Injectable } from "@angular/core";
+import { inject, Injectable } from "@angular/core";
 import { HomeInfo, ServerJoined, UserLeft, UserOverview } from "@tell-it/domain/api-interfaces";
 import { GameStatus, StoryData } from "@tell-it/domain/game";
 import {
@@ -22,11 +22,9 @@ import { map, merge, Observable, tap } from "rxjs";
     providedIn: "root"
 })
 export class SocketService {
-    constructor(
-        private http: HttpClient,
-        private socket: Socket,
-        @Inject(API_URL_TOKEN) private API_URL: string
-    ) {}
+    private http = inject(HttpClient);
+    private socket = inject(Socket);
+    private API_URL = inject(API_URL_TOKEN);
 
     connected(): Observable<any> {
         return this.socket.fromEvent("connect");

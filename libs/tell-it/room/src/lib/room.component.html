@@ -2,91 +2,51 @@
     @if (
         {
             user: user$ | async,
-            users: users$ | async
+            users: users$ | async,
+            gameStatus: gameStatus$ | async,
+            offline: offline$ | async,
+            disconnected: disconnected$ | async,
+            turnTimer: turnTimer$ | async,
+            finishVotes: finishVotes$ | async,
+            story: story$ | async,
+            finalStories: finalStories$ | async
         };
-        as userData
+        as vm
     ) {
-        @if (
-            {
-                offline: offline$ | async,
-                disconnected: disconnected$ | async
-            };
-            as connectionData
-        ) {
-            @if (connectionData.offline || connectionData.disconnected) {
-                <div class="connection-status">
-                    {{ connectionData.offline }}
-                    {{ connectionData.disconnected }}
-                </div>
+        @if (vm.offline || vm.disconnected) {
+            <div class="connection-status">
+                {{ vm.offline }}
+                {{ vm.disconnected }}
+            </div>
+        }
+
+        @switch (vm.gameStatus) {
+            @case ("waiting") {
+                <tell-it-waiting-room
+                    [roomName]="roomName"
+                    [users]="vm.users"
+                    [user]="vm.user"
+                    (startGame)="startGame()">
+                </tell-it-waiting-room>
             }
-        }
-        @if ((gameStatus$ | async) === "waiting") {
-            <div class="ready-container">
-                Room: {{ roomName }} <br />
-                <ul>
-                    @for (user of userData.users; track user.id) {
-                        <li>
-                            {{ user.name }}
-                        </li>
-                    }
-                </ul>
-                @if (userData.user && userData.users!.length > 1 && userData.user.id === userData.users![0].id) {
-                    <div class="ready-container__message">
-                        <p>Everyone's ready?</p>
-                        <button class="button" (click)="startGame()">Start</button>
-                    </div>
-                } @else {
-                    <div class="ready-container__message">Waiting for the leader to start.</div>
-                }
-            </div>
-        }
-        @if ((gameStatus$ | async) === "started") {
-            <div class="game-container">
-                <div class="responsive-container">
-                    @if (turnTimer$ | async; as turnTimer) {
-                        <div class="turn-timer">Time: {{ turnTimer }}</div>
-                    }
-                    <ul class="user-list">
-                        @for (user of userData.users; track user.id) {
-                            <li>{{ user.name }} - {{ user.queuedStories }}</li>
-                        }
-                    </ul>
-                    @if (finishVotes$ | async; as finishVotes) {
-                        @if (finishVotes.length > 0) {
-                            <div class="finish-votes">
-                                Finish: {{ finishVotes.length }}/{{ userData.users?.length }}
-                            </div>
-                        }
-                    }
-                    @if (story$ | async; as story) {
-                        <tell-it-app-message [author]="story.author" [message]="story.text"></tell-it-app-message>
-                    } @else if (user$ | async) {
-                        Waiting for a story...
-                    } @else {
-                        You are a spectator. TBD
-                    }
-                    <textarea #storyInput class="input story-textarea"></textarea>
-                    <button class="button" (click)="submitText(storyInput.value); storyInput.value = ''">Submit</button>
-                    <button class="button warning" (click)="voteFinish()">Finish</button>
-                </div>
-            </div>
-        }
-        @if ((gameStatus$ | async) === "ended") {
-            <div class="stories">
-                @if (finalStories$ | async; as finalStories) {
-                    @for (story of finalStories; track story.author) {
-                        <tell-it-app-message
-                            class="story"
-                            [author]="story.author"
-                            [message]="story.text"
-                            [ttsEnabled]="true"></tell-it-app-message>
-                    }
-                    <button class="button" (click)="restart()">Restart?</button>
-                } @else {
-                    Loading final stories...
-                    <button class="button" (click)="loadFinalStories()">Load</button>
-                }
-            </div>
+            @case ("started") {
+                <tell-it-game-in-progress
+                    [users]="vm.users"
+                    [user]="vm.user"
+                    [story]="vm.story"
+                    [turnTimer]="vm.turnTimer"
+                    [finishVotes]="vm.finishVotes"
+                    (submitText)="submitText($event)"
+                    (voteFinish)="voteFinish()">
+                </tell-it-game-in-progress>
+            }
+            @case ("ended") {
+                <tell-it-game-ended
+                    [finalStories]="vm.finalStories"
+                    (restart)="restart()"
+                    (loadFinalStories)="loadFinalStories()">
+                </tell-it-game-ended>
+            }
         }
     }
 </div>

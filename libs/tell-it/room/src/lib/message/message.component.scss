@@ -1,3 +1,5 @@
+@use '../../../../ui/src/lib/styles/variables' as vars;
+
 :host {
     display: block;
     position: relative;
@@ -19,6 +21,8 @@
         border: none;
         padding: 0.25rem 0.5rem;
         color: white;
+        font-size: 20px;
+        cursor: pointer;
     }
 }
 
@@ -38,7 +42,7 @@
     background-color: #fff;
     padding: 0.5rem 1rem;
     font-size: 1.25rem;
-    border-radius: 1rem;
+    border-radius: vars.$primary-radius;
     box-shadow:
         0 0.125rem 0.5rem rgba(255, 255, 255, 0.3),
         0 0.0625rem 0.125rem rgba(255, 255, 255, 0.2);
@@ -50,8 +54,8 @@
     position: absolute;
     width: 0;
     height: 0;
-    bottom: 100%;
-    left: 1.5em; // offset should move with padding of parent
+    top: -8px;
+    left: 16px;
     border: 0.75rem solid transparent;
     border-top: none;
 

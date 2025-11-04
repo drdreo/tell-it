@@ -1,19 +1,19 @@
 import { HttpClient } from "@angular/common/http";
-import { Injectable, OnDestroy, Inject } from "@angular/core";
-import { UserOverview, RoomResponse } from "@tell-it/domain/api-interfaces";
+import { inject, Injectable, OnDestroy } from "@angular/core";
 import { SocketService } from "@tell-it/data-access";
+import { RoomResponse, UserOverview } from "@tell-it/domain/api-interfaces";
 import { GameStatus, StoryData } from "@tell-it/domain/game";
 import { API_URL_TOKEN } from "@tell-it/domain/tokens";
 import {
     BehaviorSubject,
-    Observable,
-    Subject,
-    takeUntil,
+    distinctUntilChanged,
+    firstValueFrom,
     interval,
     map,
-    firstValueFrom,
+    Observable,
     ReplaySubject,
-    distinctUntilChanged,
+    Subject,
+    takeUntil,
     tap
 } from "rxjs";
 
@@ -23,6 +23,10 @@ function isStoryEqual(a: StoryData | undefined, b: StoryData | undefined): boole
 
 @Injectable()
 export class RoomService implements OnDestroy {
+    private http = inject(HttpClient);
+    private socketService = inject(SocketService);
+    private API_URL = inject(API_URL_TOKEN);
+
     private _turnTimer$ = new Subject<number | undefined>();
     turnTime$ = this._turnTimer$.asObservable();
 
@@ -39,11 +43,7 @@ export class RoomService implements OnDestroy {
     private stopTurnTimer$ = new Subject<void>();
     private unsubscribe$ = new Subject<void>();
 
-    constructor(
-        private http: HttpClient,
-        private socketService: SocketService,
-        @Inject(API_URL_TOKEN) private API_URL: string
-    ) {
+    constructor() {
         this.socketService
             .usersUpdate()
             .pipe(takeUntil(this.unsubscribe$))

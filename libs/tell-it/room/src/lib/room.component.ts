@@ -1,12 +1,14 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
-import { UserOverview } from "@tell-it/domain/api-interfaces";
-import { SocketService } from "@tell-it/data-access";
-import { GameStatus, StoryData } from "@tell-it/domain/game";
-import { Subject, takeUntil, Observable, fromEvent, map } from "rxjs";
-import { RoomService } from "./room.service";
-import { MessageComponent } from "./message/message.component";
 import { AsyncPipe } from "@angular/common";
+import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { ActivatedRoute, Router } from "@angular/router";
+import { SocketService } from "@tell-it/data-access";
+import { UserOverview } from "@tell-it/domain/api-interfaces";
+import { GameStatus, StoryData } from "@tell-it/domain/game";
+import { fromEvent, map, Observable, Subject, takeUntil } from "rxjs";
+import { GameEndedComponent } from "./game-ended/game-ended.component";
+import { GameInProgressComponent } from "./game-in-progress/game-in-progress.component";
+import { RoomService } from "./room.service";
+import { WaitingRoomComponent } from "./waiting-room/waiting-room.component";
 
 @Component({
     selector: "tell-it-app-room",
@@ -14,9 +16,14 @@ import { AsyncPipe } from "@angular/common";
     styleUrls: ["./room.component.scss"],
     providers: [RoomService],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [MessageComponent, AsyncPipe]
+    imports: [AsyncPipe, WaitingRoomComponent, GameInProgressComponent, GameEndedComponent]
 })
 export class RoomComponent implements OnInit, OnDestroy {
+    private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private socketService = inject(SocketService);
+    private roomService = inject(RoomService);
+
     /***Comes from server*/
     roomName!: string;
     startTime!: number;
@@ -34,12 +41,7 @@ export class RoomComponent implements OnInit, OnDestroy {
 
     private unsubscribe$ = new Subject<void>();
 
-    constructor(
-        private router: Router,
-        private route: ActivatedRoute,
-        private socketService: SocketService,
-        private roomService: RoomService
-    ) {
+    constructor() {
         this.gameStatus$ = this.roomService.gameStatus$;
         this.users$ = this.roomService.users$;
         this.user$ = this.roomService.user$;

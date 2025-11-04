@@ -1,0 +1,13 @@
+:host {
+    display: contents;
+}
+
+.ready-container {
+    display: flex;
+    flex-direction: column;
+
+    &__message {
+        display: flex;
+        flex-direction: column;
+    }
+}
