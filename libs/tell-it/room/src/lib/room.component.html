@@ -4,8 +4,8 @@
             user: user$ | async,
             users: users$ | async,
             gameStatus: gameStatus$ | async,
+            connectionState: connectionState$ | async,
             offline: offline$ | async,
-            disconnected: disconnected$ | async,
             turnTimer: turnTimer$ | async,
             finishVotes: finishVotes$ | async,
             story: story$ | async,
@@ -13,11 +13,13 @@
         };
         as vm
     ) {
-        @if (vm.offline || vm.disconnected) {
-            <div class="connection-status">
-                {{ vm.offline }}
-                {{ vm.disconnected }}
-            </div>
+        @if (vm.offline) {
+            <tell-it-connection-status [status]="'offline'" (reconnect)="reconnect()" />
+        } @else if (vm.connectionState && vm.connectionState.status !== "connected") {
+            <tell-it-connection-status
+                [status]="vm.connectionState.status"
+                [attemptNumber]="vm.connectionState.attemptNumber"
+                (reconnect)="reconnect()" />
         }
 
         @switch (vm.gameStatus) {

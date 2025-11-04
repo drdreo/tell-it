@@ -4,7 +4,8 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { SocketService } from "@tell-it/data-access";
 import { UserOverview } from "@tell-it/domain/api-interfaces";
 import { GameStatus, StoryData } from "@tell-it/domain/game";
-import { fromEvent, map, Observable, Subject, takeUntil } from "rxjs";
+import { fromEvent, map, merge, Observable, Subject, takeUntil } from "rxjs";
+import { ConnectionStatusComponent } from "./connection-status/connection-status.component";
 import { GameEndedComponent } from "./game-ended/game-ended.component";
 import { GameInProgressComponent } from "./game-in-progress/game-in-progress.component";
 import { RoomService } from "./room.service";
@@ -16,7 +17,7 @@ import { WaitingRoomComponent } from "./waiting-room/waiting-room.component";
     styleUrls: ["./room.component.scss"],
     providers: [RoomService],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [AsyncPipe, WaitingRoomComponent, GameInProgressComponent, GameEndedComponent]
+    imports: [AsyncPipe, WaitingRoomComponent, GameInProgressComponent, GameEndedComponent, ConnectionStatusComponent]
 })
 export class RoomComponent implements OnInit, OnDestroy {
     private router = inject(Router);
@@ -36,8 +37,11 @@ export class RoomComponent implements OnInit, OnDestroy {
     turnTimer$: Observable<number | undefined>;
     /***/
 
-    offline$: Observable<string>;
-    disconnected$ = this.socketService.disconnected();
+    connectionState$ = this.socketService.getConnectionState();
+    offline$ = merge(
+        fromEvent(window, "offline").pipe(map(() => true)),
+        fromEvent(window, "online").pipe(map(() => false))
+    );
 
     private unsubscribe$ = new Subject<void>();
 
@@ -49,8 +53,6 @@ export class RoomComponent implements OnInit, OnDestroy {
         this.finishVotes$ = this.socketService.finishVoteUpdate();
         this.finalStories$ = this.socketService.getFinalStories();
         this.turnTimer$ = this.roomService.turnTime$;
-
-        this.offline$ = fromEvent(document, "offline").pipe(map(() => "Device offline"));
     }
 
     ngOnInit(): void {
@@ -101,5 +103,9 @@ export class RoomComponent implements OnInit, OnDestroy {
 
     restart() {
         this.roomService.restart();
+    }
+
+    reconnect() {
+        this.socketService.connect();
     }
 }

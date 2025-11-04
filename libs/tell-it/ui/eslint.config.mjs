@@ -35,7 +35,7 @@ export default [
                     "error",
                     {
                         type: "element",
-                        prefix: "tell-it-app",
+                        prefix: "tell-it",
                         style: "kebab-case"
                     }
                 ]

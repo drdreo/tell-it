@@ -16,7 +16,12 @@ import {
 } from "@tell-it/domain/socket-interfaces";
 import { API_URL_TOKEN } from "@tell-it/domain/tokens";
 import { Socket } from "ngx-socket-io";
-import { map, merge, Observable, tap } from "rxjs";
+import { BehaviorSubject, map, merge, Observable, tap } from "rxjs";
+
+export interface ConnectionState {
+    status: "connected" | "disconnected" | "reconnecting";
+    attemptNumber: number;
+}
 
 @Injectable({
     providedIn: "root"
@@ -25,6 +30,105 @@ export class SocketService {
     private http = inject(HttpClient);
     private socket = inject(Socket);
     private API_URL = inject(API_URL_TOKEN);
+
+    private reconnectAttempts = 0;
+    private maxReconnectAttempts = 5;
+    private reconnectTimeout: any = null;
+    private connectionState$ = new BehaviorSubject<ConnectionState>({
+        status: "connected",
+        attemptNumber: 0
+    });
+
+    constructor() {
+        // Set up automatic reconnection handling
+        this.disconnected().subscribe(() => {
+            this.handleDisconnection();
+        });
+
+        this.connected().subscribe(() => {
+            this.handleReconnection();
+        });
+    }
+
+    getConnectionState(): Observable<ConnectionState> {
+        return this.connectionState$.asObservable();
+    }
+
+    private handleDisconnection(): void {
+        console.log("WebSocket disconnected");
+        this.connectionState$.next({
+            status: "reconnecting",
+            attemptNumber: 0
+        });
+        this.attemptReconnect();
+    }
+
+    private handleReconnection(): void {
+        console.log("WebSocket reconnected successfully");
+        this.reconnectAttempts = 0;
+        if (this.reconnectTimeout) {
+            clearTimeout(this.reconnectTimeout);
+            this.reconnectTimeout = null;
+        }
+        this.connectionState$.next({
+            status: "connected",
+            attemptNumber: 0
+        });
+
+        // Request updated data from server after reconnection
+        this.requestUpdate();
+    }
+
+    private attemptReconnect(): void {
+        if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+            console.log("Max reconnection attempts reached");
+            this.connectionState$.next({
+                status: "disconnected",
+                attemptNumber: this.reconnectAttempts
+            });
+            return;
+        }
+
+        this.reconnectAttempts++;
+        const backoffDelay = Math.min(1000 * Math.pow(2, this.reconnectAttempts - 1), 10000);
+
+        console.log(`Reconnection attempt ${this.reconnectAttempts} in ${backoffDelay}ms`);
+        this.connectionState$.next({
+            status: "reconnecting",
+            attemptNumber: this.reconnectAttempts
+        });
+
+        this.reconnectTimeout = setTimeout(() => {
+            if (!this.socket.ioSocket.connected) {
+                this.connect();
+                // Schedule next attempt if this one fails
+                setTimeout(() => {
+                    if (!this.socket.ioSocket.connected) {
+                        this.attemptReconnect();
+                    }
+                }, 2000);
+            }
+        }, backoffDelay);
+    }
+
+    connect(): void {
+        console.log("Manually initiating connection");
+        this.reconnectAttempts = 0; // Reset attempts on manual reconnect
+        this.connectionState$.next({
+            status: "reconnecting",
+            attemptNumber: 0
+        });
+        this.socket.connect();
+    }
+
+    disconnect(): void {
+        if (this.reconnectTimeout) {
+            clearTimeout(this.reconnectTimeout);
+            this.reconnectTimeout = null;
+        }
+        this.reconnectAttempts = 0;
+        this.socket.disconnect();
+    }
 
     connected(): Observable<any> {
         return this.socket.fromEvent("connect");
