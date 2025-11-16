@@ -17,13 +17,10 @@ function isStoryEqual(a: StoryData | undefined, b: StoryData | undefined): boole
 export class RoomService implements OnDestroy {
     private readonly socketService = inject(SocketService);
 
-    // Room state signals
     readonly users = toSignal(this.socketService.usersUpdate().pipe(takeUntilDestroyed()), { initialValue: [] });
-
     readonly gameStatus = toSignal(this.socketService.gameStatus().pipe(takeUntilDestroyed()), {
         initialValue: GameStatus.Waiting
     });
-
     readonly story = toSignal(
         this.socketService.storyUpdate().pipe(
             tap(story => console.log("Story update:", story)),
@@ -31,20 +28,16 @@ export class RoomService implements OnDestroy {
         ),
         { equal: isStoryEqual }
     );
-
     readonly finishVotes = toSignal(this.socketService.finishVoteUpdate().pipe(takeUntilDestroyed()), {
         initialValue: []
     });
-
     readonly restartVotes = toSignal(this.socketService.restartVoteUpdate().pipe(takeUntilDestroyed()), {
         initialValue: []
     });
-
     readonly finalStories = toSignal(this.socketService.getFinalStories().pipe(takeUntilDestroyed()), {
         initialValue: []
     });
 
-    // Computed values
     readonly currentPlayer = computed(() => {
         const clientId = this.socketService.clientId();
         const users = this.users();
@@ -52,13 +45,6 @@ export class RoomService implements OnDestroy {
         return users.find(user => user.id === clientId);
     });
 
-    readonly isCurrentPlayerTurn = computed(() => {
-        const story = this.story();
-        const currentPlayer = this.currentPlayer();
-        return story?.author === currentPlayer?.id;
-    });
-
-    // Turn timer state
     readonly turnTime = signal<number | undefined>(undefined);
     private turnTimerInterval: any;
 
@@ -69,12 +55,6 @@ export class RoomService implements OnDestroy {
             if (story?.text && story.text.length > 0) {
                 this.startTurnTimer();
             }
-        });
-
-        // Log game status changes
-        effect(() => {
-            const status = this.gameStatus();
-            console.log("Game status changed:", status);
         });
     }
 
@@ -106,11 +86,9 @@ export class RoomService implements OnDestroy {
             this.socketService.joinRoom(roomId);
         }
 
-        // Request updated data from server
         this.socketService.requestUpdate();
     }
 
-    // Game actions (delegates to SocketService)
     startGame(): void {
         this.socketService.start();
     }
@@ -136,7 +114,6 @@ export class RoomService implements OnDestroy {
         this.socketService.voteKick(userId);
     }
 
-    // Turn timer management
     startTurnTimer(seconds = 60): void {
         this.endTurnTimer();
         let remaining = seconds;

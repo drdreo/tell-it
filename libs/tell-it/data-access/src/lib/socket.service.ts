@@ -163,14 +163,7 @@ export class SocketService {
     }
 
     roomJoined(): Observable<JoinRoomSuccessData> {
-        return this.ws.fromMessageType<JoinRoomSuccessData>("join_room_result").pipe(
-            tap(data => {
-                // Store session data for reconnection via signals
-                console.log("Room joined - clientId:", data.clientId, "roomId:", data.roomId);
-                this.ws.clientId.set(data.clientId);
-                this.ws.roomId.set(data.roomId);
-            })
-        );
+        return this.ws.fromMessageType<JoinRoomSuccessData>("join_room_result");
     }
 
     leaveRoom(): void {
@@ -184,20 +177,12 @@ export class SocketService {
         return this.ws.fromMessageType<void>("room_closed");
     }
 
-    roomListUpdate(): Observable<RoomListData> {
-        return this.ws.fromMessageType<RoomListData>("room_list_update");
-    }
-
-    // ask the server to send all relevant data again
     requestUpdate() {
         this.sendAction({ type: "request_update" } satisfies RequestUpdateAction);
     }
 
     usersUpdate(): Observable<UserOverview[]> {
-        return this.ws.fromMessageType<UsersData>("users_update").pipe(
-            tap(data => console.log("Users update:", data)),
-            map(data => data.users)
-        );
+        return this.ws.fromMessageType<UsersData>("users_update").pipe(map(data => data.users));
     }
 
     leave() {
