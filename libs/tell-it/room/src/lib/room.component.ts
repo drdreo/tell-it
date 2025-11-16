@@ -1,10 +1,8 @@
-import { AsyncPipe } from "@angular/common";
-import { ChangeDetectionStrategy, Component, inject, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { SocketService } from "@tell-it/data-access";
-import { UserOverview } from "@tell-it/domain/api-interfaces";
-import { GameStatus, StoryData } from "@tell-it/domain/game";
-import { fromEvent, map, merge, Observable, Subject, takeUntil } from "rxjs";
+import { fromEvent, map, merge } from "rxjs";
 import { ConnectionStatusComponent } from "./connection-status/connection-status.component";
 import { GameEndedComponent } from "./game-ended/game-ended.component";
 import { GameInProgressComponent } from "./game-in-progress/game-in-progress.component";
@@ -13,73 +11,47 @@ import { WaitingRoomComponent } from "./waiting-room/waiting-room.component";
 
 @Component({
     selector: "tell-it-app-room",
+    imports: [WaitingRoomComponent, GameInProgressComponent, GameEndedComponent, ConnectionStatusComponent],
+    providers: [RoomService],
     templateUrl: "./room.component.html",
     styleUrls: ["./room.component.scss"],
-    providers: [RoomService],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [AsyncPipe, WaitingRoomComponent, GameInProgressComponent, GameEndedComponent, ConnectionStatusComponent]
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class RoomComponent implements OnInit, OnDestroy {
-    private router = inject(Router);
-    private route = inject(ActivatedRoute);
-    private socketService = inject(SocketService);
-    private roomService = inject(RoomService);
+export class RoomComponent {
+    private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
+    private readonly socketService = inject(SocketService);
+    private readonly roomService = inject(RoomService);
 
-    /***Comes from server*/
-    roomName!: string;
-    startTime!: number;
-    gameStatus$: Observable<GameStatus>;
-    users$: Observable<UserOverview[]>;
-    user$: Observable<UserOverview | undefined>;
-    story$: Observable<StoryData | undefined>;
-    finishVotes$: Observable<string[]>;
-    finalStories$: Observable<StoryData[]>;
-    turnTimer$: Observable<number | undefined>;
-    /***/
+    protected readonly roomName = signal<string>("");
+    protected readonly startTime = signal<number>(0);
 
-    connectionState$ = this.socketService.getConnectionState();
-    offline$ = merge(
-        fromEvent(window, "offline").pipe(map(() => true)),
-        fromEvent(window, "online").pipe(map(() => false))
+    protected readonly gameStatus = this.roomService.gameStatus;
+    protected readonly users = this.roomService.users;
+    protected readonly currentPlayer = this.roomService.currentPlayer;
+    protected readonly story = this.roomService.story;
+    protected readonly finishVotes = this.roomService.finishVotes;
+    protected readonly restartVotes = this.roomService.restartVotes;
+    protected readonly finalStories = this.roomService.finalStories;
+    protected readonly turnTime = this.roomService.turnTime;
+    protected readonly offline = toSignal(
+        merge(fromEvent(window, "offline").pipe(map(() => true)), fromEvent(window, "online").pipe(map(() => false))),
+        { initialValue: false }
     );
 
-    private unsubscribe$ = new Subject<void>();
+    protected readonly connectionState = this.socketService.connectionState;
 
     constructor() {
-        this.gameStatus$ = this.roomService.gameStatus$;
-        this.users$ = this.roomService.users$;
-        this.user$ = this.roomService.user$;
-        this.story$ = this.roomService.story$;
-        this.finishVotes$ = this.socketService.finishVoteUpdate();
-        this.finalStories$ = this.socketService.getFinalStories();
-        this.turnTimer$ = this.roomService.turnTime$;
-    }
-
-    ngOnInit(): void {
-        this.route.paramMap.pipe(takeUntil(this.unsubscribe$)).subscribe(async params => {
+        // Handle room parameter from route
+        this.route.paramMap.pipe(takeUntilDestroyed()).subscribe(params => {
             const room = params.get("roomName");
-            this.roomName = room || "";
-            try {
-                const { startTime } = await this.roomService.loadRoom(this.roomName);
-                this.startTime = startTime;
-            } catch (e) {
-                console.error(e);
+            if (!room || room.length === 0) {
                 this.router.navigate(["/"]);
+            } else {
+                this.roomName.set(room);
+                this.loadRoom(room);
             }
         });
-
-        // if the room is closed while players are on the page, redirect them to the home page
-        this.socketService
-            .roomClosed()
-            .pipe(takeUntil(this.unsubscribe$))
-            .subscribe(() => {
-                this.router.navigate(["/"]);
-            });
-    }
-
-    ngOnDestroy(): void {
-        this.unsubscribe$.next();
-        this.unsubscribe$.complete();
     }
 
     startGame() {
@@ -101,11 +73,18 @@ export class RoomComponent implements OnInit, OnDestroy {
         this.roomService.fetchFinalStories();
     }
 
-    restart() {
-        this.roomService.restart();
+    voteRestart() {
+        this.roomService.voteRestart();
     }
 
     reconnect() {
         this.socketService.connect();
+    }
+
+    private loadRoom(roomId: string): void {
+        console.log("Loading room:", roomId);
+        this.startTime.set(Date.now());
+
+        this.roomService.loadRoom(roomId);
     }
 }

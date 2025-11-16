@@ -1,8 +1,7 @@
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
-import { bootstrapStopwatch } from "@ng-icons/bootstrap-icons";
+import { ChangeDetectionStrategy, Component, input, output, signal, computed } from "@angular/core";
+import { bootstrapExclamationTriangle, bootstrapStopwatch } from "@ng-icons/bootstrap-icons";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { UserOverview } from "@tell-it/domain/api-interfaces";
-import { StoryData } from "@tell-it/domain/game";
+import { StoryData, UserOverview } from "@tell-it/domain";
 import { MessageComponent } from "../message/message.component";
 
 @Component({
@@ -10,7 +9,7 @@ import { MessageComponent } from "../message/message.component";
     templateUrl: "./game-in-progress.component.html",
     styleUrls: ["./game-in-progress.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    viewProviders: [provideIcons({ bootstrapStopwatch })],
+    viewProviders: [provideIcons({ bootstrapStopwatch, bootstrapExclamationTriangle })],
     imports: [MessageComponent, NgIcon]
 })
 export class GameInProgressComponent {
@@ -22,4 +21,31 @@ export class GameInProgressComponent {
 
     submitText = output<string>();
     voteFinish = output<void>();
+
+    protected readonly inputValue = signal<string>("");
+
+    protected readonly submitDisabled = computed<boolean>(() => {
+        const story = this.story();
+        const user = this.user();
+        if (story && user) {
+            return this.inputValue().trim().length === 0;
+        }
+        return true;
+    });
+
+    protected onInputChange(value: string): void {
+        this.inputValue.set(value);
+    }
+
+    protected onSubmit(input: HTMLTextAreaElement): void {
+        if (this.submitDisabled()) {
+            return; // Guard against invalid submissions
+        }
+        const value = input.value.trim();
+        if (value) {
+            this.submitText.emit(value);
+            input.value = "";
+            this.inputValue.set("");
+        }
+    }
 }

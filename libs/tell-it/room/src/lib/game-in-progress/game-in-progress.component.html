@@ -8,8 +8,13 @@
         }
         <ul class="story-queue-list">
             Pending stories:
-            @for (user of users(); track user.id) {
-                <li>{{ user.name }} - {{ user.queuedStories }}</li>
+            @for (_user of users(); track _user.id) {
+                <li>
+                    @if (_user.disconnected) {
+                        <ng-icon name="bootstrapExclamationTriangle" title="Disconnected" />
+                    }
+                    <span [class.username]="_user.id === user()?.id">{{ _user.name }}</span> - {{ _user.queuedStories }}
+                </li>
             }
         </ul>
         @let _finishVotes = finishVotes();
@@ -24,8 +29,8 @@
         } @else {
             You are a spectator. TBD
         }
-        <textarea #storyInput class="input story-textarea"></textarea>
-        <button class="button" (click)="submitText.emit(storyInput.value); storyInput.value = ''">Submit</button>
+        <textarea #storyInput class="input story-textarea" (input)="onInputChange(storyInput.value)"></textarea>
+        <button class="button" [disabled]="submitDisabled()" (click)="onSubmit(storyInput)">Submit</button>
         <button class="button warning" (click)="voteFinish.emit()">Finish</button>
     </div>
 </div>

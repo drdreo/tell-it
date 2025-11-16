@@ -1,54 +1,41 @@
 <div class="page-container">
-    @if (
-        {
-            user: user$ | async,
-            users: users$ | async,
-            gameStatus: gameStatus$ | async,
-            connectionState: connectionState$ | async,
-            offline: offline$ | async,
-            turnTimer: turnTimer$ | async,
-            finishVotes: finishVotes$ | async,
-            story: story$ | async,
-            finalStories: finalStories$ | async
-        };
-        as vm
-    ) {
-        @if (vm.offline) {
-            <tell-it-connection-status [status]="'offline'" (reconnect)="reconnect()" />
-        } @else if (vm.connectionState && vm.connectionState.status !== "connected") {
-            <tell-it-connection-status
-                [status]="vm.connectionState.status"
-                [attemptNumber]="vm.connectionState.attemptNumber"
-                (reconnect)="reconnect()" />
-        }
+    @if (offline()) {
+        <tell-it-connection-status [status]="'offline'" (reconnect)="reconnect()" />
+    } @else if (connectionState().status !== "connected") {
+        <tell-it-connection-status
+            [status]="connectionState().status"
+            [attemptNumber]="connectionState().attemptNumber"
+            (reconnect)="reconnect()" />
+    }
 
-        @switch (vm.gameStatus) {
-            @case ("waiting") {
-                <tell-it-waiting-room
-                    [roomName]="roomName"
-                    [users]="vm.users"
-                    [user]="vm.user"
-                    (startGame)="startGame()">
-                </tell-it-waiting-room>
-            }
-            @case ("started") {
-                <tell-it-game-in-progress
-                    [users]="vm.users"
-                    [user]="vm.user"
-                    [story]="vm.story"
-                    [turnTimer]="vm.turnTimer"
-                    [finishVotes]="vm.finishVotes"
-                    (submitText)="submitText($event)"
-                    (voteFinish)="voteFinish()">
-                </tell-it-game-in-progress>
-            }
-            @case ("ended") {
-                <tell-it-game-ended
-                    [finalStories]="vm.finalStories"
-                    (restart)="restart()"
-                    (loadFinalStories)="loadFinalStories()">
-                </tell-it-game-ended>
-            }
+    @switch (gameStatus()) {
+        @case ("waiting") {
+            <tell-it-waiting-room
+                [roomName]="roomName()"
+                [users]="users()"
+                [user]="currentPlayer()"
+                (startGame)="startGame()">
+            </tell-it-waiting-room>
+        }
+        @case ("started") {
+            <tell-it-game-in-progress
+                [users]="users()"
+                [user]="currentPlayer()"
+                [story]="story()"
+                [turnTimer]="turnTime()"
+                [finishVotes]="finishVotes()"
+                (submitText)="submitText($event)"
+                (voteFinish)="voteFinish()">
+            </tell-it-game-in-progress>
+        }
+        @case ("ended") {
+            <tell-it-game-ended
+                [users]="users()"
+                [finalStories]="finalStories()"
+                [restartVotes]="restartVotes()"
+                (restart)="voteRestart()"
+                (loadFinalStories)="loadFinalStories()">
+            </tell-it-game-ended>
         }
     }
 </div>
