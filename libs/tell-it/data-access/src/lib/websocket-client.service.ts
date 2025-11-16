@@ -1,7 +1,6 @@
 import { computed, effect, inject, Injectable, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { WebSocketMessage, WebSocketAction } from "@tell-it/domain/socket-interfaces";
-import { API_URL_TOKEN } from "@tell-it/domain/tokens";
+import { API_URL_TOKEN, WebSocketAction, WebSocketMessage } from "@tell-it/domain";
 import { BehaviorSubject, filter, map, Observable, ReplaySubject, tap } from "rxjs";
 import { STORAGE_CLIENT_ID, STORAGE_ROOM_ID } from "./constants";
 
@@ -25,14 +24,11 @@ export class WebSocketClient {
     readonly isConnected = computed(() => this.connectionStatus() === WebSocket.OPEN);
     readonly reconnectAttempts = signal(0);
 
-    // Message streams
     private _messages$ = new ReplaySubject<WebSocketMessage>(1);
     readonly messages$ = this._messages$.asObservable();
-    readonly successMessages$ = this.messages$.pipe(filter(msg => msg.success));
 
-    // Reconnection logic
     private maxReconnectAttempts = 5;
-    private reconnectTimeout: any = null;
+    private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
     private messageQueue: Array<{ message: any; timestamp: number }> = [];
     private readonly MESSAGE_QUEUE_TIMEOUT = 30000; // 30 seconds
     private readonly MAX_QUEUED_MESSAGES = 50;
@@ -56,11 +52,6 @@ export class WebSocketClient {
             } else {
                 sessionStorage.removeItem(STORAGE_ROOM_ID);
             }
-        });
-
-        effect(() => {
-            const status = this.connectionStatus();
-            console.log("WebSocket connection status changed:", status);
         });
     }
 

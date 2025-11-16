@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
-import { StoryData, UserOverview } from "@tell-it/domain/game";
+import { StoryData, UserOverview } from "@tell-it/domain";
 import { MessageComponent } from "../message/message.component";
 
 @Component({

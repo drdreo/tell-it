@@ -17,7 +17,7 @@ import {
     WebSocketErrorEvent,
     WebSocketSuccessEvent
 } from "@tell-it/domain";
-import { map, Observable, Subject, tap } from "rxjs";
+import { map, Observable, Subject } from "rxjs";
 import { WebSocketClient } from "./websocket-client.service";
 
 export interface ConnectionState {

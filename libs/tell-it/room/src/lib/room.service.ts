@@ -46,7 +46,7 @@ export class RoomService implements OnDestroy {
     });
 
     readonly turnTime = signal<number | undefined>(undefined);
-    private turnTimerInterval: any;
+    private turnTimerInterval: ReturnType<typeof setInterval> | undefined;
 
     constructor() {
         // Start turn timer when story updates with text
