@@ -1,11 +1,3 @@
-export function delay(delay: number) {
-    return new Promise(resolve => setTimeout(resolve, delay));
-}
-
-export function getNextIndex(currentIndex: number, array: any[]): number {
-    return currentIndex >= array.length - 1 ? 0 : currentIndex + 1;
-}
-
 export function isObject(item: any): item is { [key: string]: any } {
     return item && typeof item === "object" && !Array.isArray(item);
 }
