@@ -50,6 +50,7 @@ export type WebSocketSuccessEvent =
     | GameStatusEvent
     | StoryUpdateEvent
     | FinishVoteUpdateEvent
+    | RestartVoteUpdateEvent
     | FinalStoriesEvent
     | UserKickedEvent;
 
@@ -160,6 +161,12 @@ export type StoryUpdateEvent = {
 
 export type FinishVoteUpdateEvent = {
     type: "finish_vote_update";
+    success: true;
+    data: FinishVotesData;
+};
+
+export type RestartVoteUpdateEvent = {
+    type: "restart_vote_update";
     success: true;
     data: FinishVotesData;
 };

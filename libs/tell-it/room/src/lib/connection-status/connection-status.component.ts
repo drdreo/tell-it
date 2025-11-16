@@ -31,7 +31,7 @@ import { ConnectionState } from "@tell-it/data-access";
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConnectionStatusComponent {
-    status = input.required<"offline" | ConnectionState['status']>();
+    status = input.required<"offline" | ConnectionState["status"]>();
     attemptNumber = input<number>(1);
     reconnect = output<void>();
 

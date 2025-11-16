@@ -8,6 +8,11 @@
                 [ttsEnabled]="true"></tell-it-app-message>
         }
         <button class="button" (click)="restart.emit()">Restart?</button>
+
+        @let votes = restartVotes();
+        @if (votes && votes.length > 0) {
+            <div class="finish-votes">Restart: {{ votes.length }}/{{ users()?.length }}</div>
+        }
     } @else {
         Loading final stories...
         <button class="button" (click)="loadFinalStories.emit()">Load</button>

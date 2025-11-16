@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
-import { StoryData } from "@tell-it/domain/game";
+import { StoryData, UserOverview } from "@tell-it/domain/game";
 import { MessageComponent } from "../message/message.component";
 
 @Component({
@@ -10,7 +10,9 @@ import { MessageComponent } from "../message/message.component";
     imports: [MessageComponent]
 })
 export class GameEndedComponent {
+    readonly users = input<UserOverview[] | null | undefined>([]);
     readonly finalStories = input<StoryData[] | null>([]);
+    readonly restartVotes = input<string[] | null | undefined>(null);
     readonly restart = output<void>();
     readonly loadFinalStories = output<void>();
 }

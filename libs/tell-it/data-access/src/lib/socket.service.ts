@@ -6,6 +6,7 @@ import {
     GameStatus,
     GameStatusData,
     JoinRoomSuccessData,
+    RequestUpdateAction,
     RoomConfig,
     RoomListData,
     StoryData,
@@ -189,7 +190,7 @@ export class SocketService {
 
     // ask the server to send all relevant data again
     requestUpdate() {
-        this.sendAction({ type: "request_update" });
+        this.sendAction({ type: "request_update" } satisfies RequestUpdateAction);
     }
 
     usersUpdate(): Observable<UserOverview[]> {
@@ -216,6 +217,10 @@ export class SocketService {
 
     finishVoteUpdate(): Observable<string[]> {
         return this.ws.fromMessageType<FinishVotesData>("finish_vote_update").pipe(map(data => data.votes));
+    }
+
+    restartVoteUpdate(): Observable<string[]> {
+        return this.ws.fromMessageType<FinishVotesData>("restart_vote_update").pipe(map(data => data.votes));
     }
 
     getFinalStories() {

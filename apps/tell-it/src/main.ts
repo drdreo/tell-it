@@ -13,7 +13,7 @@ const routes: Routes = [
     },
     {
         path: "room/:roomName",
-        loadComponent: () => import("@tell-it/room").then(mod => mod.RoomComponent)
+        loadComponent: () => import("@tell-it/room").then(m => m.RoomComponent)
     }
 ];
 

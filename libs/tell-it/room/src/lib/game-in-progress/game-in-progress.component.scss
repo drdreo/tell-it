@@ -52,6 +52,12 @@
     right: 1rem;
 
     list-style: none;
+
+    li {
+        .username {
+            color: #daa420;
+        }
+    }
 }
 
 .finish-votes {

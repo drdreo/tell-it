@@ -1,8 +1,8 @@
 import { computed, effect, inject, Injectable, OnDestroy, signal } from "@angular/core";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { SocketService } from "@tell-it/data-access";
 import { GameStatus, StoryData } from "@tell-it/domain";
-import { filter, map, Observable, Subject, takeUntil, tap } from "rxjs";
+import { tap } from "rxjs";
 
 function isStoryEqual(a: StoryData | undefined, b: StoryData | undefined): boolean {
     return a?.author === b?.author && a?.text === b?.text;
@@ -16,29 +16,31 @@ function isStoryEqual(a: StoryData | undefined, b: StoryData | undefined): boole
 @Injectable()
 export class RoomService implements OnDestroy {
     private readonly socketService = inject(SocketService);
-    private readonly destroy$ = new Subject<void>();
 
     // Room state signals
-    readonly users = toSignal(this.socketService.usersUpdate().pipe(takeUntil(this.destroy$)), { initialValue: [] });
+    readonly users = toSignal(this.socketService.usersUpdate().pipe(takeUntilDestroyed()), { initialValue: [] });
 
-    readonly gameStatus = toSignal(this.socketService.gameStatus().pipe(takeUntil(this.destroy$)), {
+    readonly gameStatus = toSignal(this.socketService.gameStatus().pipe(takeUntilDestroyed()), {
         initialValue: GameStatus.Waiting
     });
 
     readonly story = toSignal(
         this.socketService.storyUpdate().pipe(
-            filter((story): story is StoryData => story !== undefined),
             tap(story => console.log("Story update:", story)),
-            takeUntil(this.destroy$)
+            takeUntilDestroyed()
         ),
         { equal: isStoryEqual }
     );
 
-    readonly finishVotes = toSignal(this.socketService.finishVoteUpdate().pipe(takeUntil(this.destroy$)), {
+    readonly finishVotes = toSignal(this.socketService.finishVoteUpdate().pipe(takeUntilDestroyed()), {
         initialValue: []
     });
 
-    readonly finalStories = toSignal(this.socketService.getFinalStories().pipe(takeUntil(this.destroy$)), {
+    readonly restartVotes = toSignal(this.socketService.restartVoteUpdate().pipe(takeUntilDestroyed()), {
+        initialValue: []
+    });
+
+    readonly finalStories = toSignal(this.socketService.getFinalStories().pipe(takeUntilDestroyed()), {
         initialValue: []
     });
 
@@ -78,8 +80,6 @@ export class RoomService implements OnDestroy {
 
     ngOnDestroy(): void {
         this.endTurnTimer();
-        this.destroy$.next();
-        this.destroy$.complete();
     }
 
     /**

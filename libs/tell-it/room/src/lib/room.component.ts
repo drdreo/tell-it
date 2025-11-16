@@ -31,6 +31,7 @@ export class RoomComponent {
     protected readonly currentPlayer = this.roomService.currentPlayer;
     protected readonly story = this.roomService.story;
     protected readonly finishVotes = this.roomService.finishVotes;
+    protected readonly restartVotes = this.roomService.restartVotes;
     protected readonly finalStories = this.roomService.finalStories;
     protected readonly turnTime = this.roomService.turnTime;
     protected readonly offline = toSignal(

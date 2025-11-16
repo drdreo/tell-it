@@ -68,6 +68,8 @@ export class HomeComponent {
             const redirect = confirm("Game still in progress. Rejoin?");
             if (redirect) {
                 this.navigateToRoom(roomId);
+            } else {
+                this.socketService.leaveRoom();
             }
         });
     }

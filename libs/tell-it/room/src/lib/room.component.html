@@ -30,7 +30,9 @@
         }
         @case ("ended") {
             <tell-it-game-ended
+                [users]="users()"
                 [finalStories]="finalStories()"
+                [restartVotes]="restartVotes()"
                 (restart)="voteRestart()"
                 (loadFinalStories)="loadFinalStories()">
             </tell-it-game-ended>
