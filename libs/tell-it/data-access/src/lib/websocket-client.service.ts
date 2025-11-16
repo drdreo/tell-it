@@ -1,8 +1,8 @@
 import { computed, effect, inject, Injectable, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { WebSocketMessage } from "@tell-it/domain/socket-interfaces";
+import { WebSocketMessage, WebSocketAction } from "@tell-it/domain/socket-interfaces";
 import { API_URL_TOKEN } from "@tell-it/domain/tokens";
-import { BehaviorSubject, filter, map, Observable, ReplaySubject, Subject, tap } from "rxjs";
+import { BehaviorSubject, filter, map, Observable, ReplaySubject, tap } from "rxjs";
 import { STORAGE_CLIENT_ID, STORAGE_ROOM_ID } from "./constants";
 
 /**
@@ -18,8 +18,8 @@ export class WebSocketClient {
     private API_URL = inject(API_URL_TOKEN);
     private ws: WebSocket | null = null;
 
-    readonly clientId = signal<string | null>(sessionStorage.getItem("tell-it-clientId"));
-    readonly roomId = signal<string | null>(sessionStorage.getItem("tell-it-roomId"));
+    readonly clientId = signal<string | null>(sessionStorage.getItem(STORAGE_CLIENT_ID));
+    readonly roomId = signal<string | null>(sessionStorage.getItem(STORAGE_ROOM_ID));
     private _connectionStatus$ = new BehaviorSubject<number>(WebSocket.CLOSED);
     readonly connectionStatus = toSignal(this._connectionStatus$, { initialValue: WebSocket.CLOSED });
     readonly isConnected = computed(() => this.connectionStatus() === WebSocket.OPEN);
@@ -28,7 +28,7 @@ export class WebSocketClient {
     // Message streams
     private _messages$ = new ReplaySubject<WebSocketMessage>(1);
     readonly messages$ = this._messages$.asObservable();
-    readonly successMessages$ = this.messages$.pipe(filter(msg => msg.success !== false));
+    readonly successMessages$ = this.messages$.pipe(filter(msg => msg.success));
 
     // Reconnection logic
     private maxReconnectAttempts = 5;
@@ -131,14 +131,14 @@ export class WebSocketClient {
 
         if (clientId && roomId && this.ws) {
             console.log("Attempting to reconnect to previous session:", { clientId, roomId });
-            const message = {
+            const action: WebSocketAction = {
                 type: "reconnect",
                 data: {
                     roomId,
                     clientId
                 }
             };
-            this.send(message);
+            this.send(action);
         }
     }
 

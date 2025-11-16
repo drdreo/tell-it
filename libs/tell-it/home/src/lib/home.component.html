@@ -26,17 +26,15 @@
     <h4 class="brand-title">Tell It</h4>
 
     <form class="form" [formGroup]="loginForm" (ngSubmit)="joinRoom()">
-        <input class="input username" placeholder="Name" formControlName="username" required data-cy="username" />
+        <input class="input username" placeholder="Name" formControlName="username" required />
         <div class="room__wrapper">
-            <input class="input room" placeholder="Room" formControlName="room" required data-cy="room" />
+            <input class="input room" placeholder="Room" formControlName="room" required />
             <button class="generate" (click)="generateRoomName()" type="button">Generate</button>
         </div>
         @if (isJoinable) {
-            <button class="button join" type="submit" [disabled]="loginForm.invalid" data-cy="join_button">Join</button>
+            <button class="button join" type="submit" [disabled]="loginForm.invalid">Join</button>
         } @else {
-            <button class="button join" type="button" data-cy="spectate_button" (click)="spectateRoom()">
-                Spectate
-            </button>
+            <button class="button join" type="button" (click)="spectateRoom()">Spectate</button>
         }
     </form>
 

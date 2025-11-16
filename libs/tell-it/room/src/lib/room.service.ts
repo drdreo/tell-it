@@ -140,11 +140,11 @@ export class RoomService implements OnDestroy {
         if (disconnected) {
             console.log("Player was disconnected. Try to reconnect!");
             // reconnect if loading site directly
-            this.socketService.join(room, undefined);
+            this.socketService.joinRoom(room, undefined);
         } else if (!isPlayer && currentUsers.length > 0) {
             console.log("Joining as spectator!");
             // if a new user just joined the table without being at the home screen, join as spectator
-            this.socketService.joinAsSpectator(room);
+            this.socketService.joinRoom(room);
         }
 
         // Request updated data from server

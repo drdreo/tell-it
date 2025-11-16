@@ -26,7 +26,9 @@ export class HomeComponent {
     protected readonly isConnected = this.socketService.isConnected;
 
     // Convert homeInfo Observable to signal
-    protected readonly homeInfo = toSignal(this.socketService.getHomeInfo(), { initialValue: { rooms: [], userCount: 0 } });
+    protected readonly homeInfo = toSignal(this.socketService.getHomeInfo(), {
+        initialValue: { rooms: [], userCount: 0 }
+    });
 
     // Control whether user can join as player or only spectate
     protected readonly isJoinable = true;
@@ -49,15 +51,14 @@ export class HomeComponent {
             });
 
         // Handle reconnection to existing room
-        this.socketService
-            .reconnected$
-            .pipe(takeUntilDestroyed())
-            .subscribe(({ roomId }) => {
-                console.log("Reconnected to room:", roomId);
-                // TODO: Show notification and offer to rejoin
-                // For now, auto-navigate back
+        this.socketService.reconnected$.pipe(takeUntilDestroyed()).subscribe(({ roomId }) => {
+            console.log("Reconnected to room:", roomId);
+            // TODO: Show notification and offer to rejoin
+            const redirect = confirm("Game still in progress. Rejoin?");
+            if (redirect) {
                 this.navigateToRoom(roomId);
-            });
+            }
+        });
     }
 
     onRoomClick(name: string) {
@@ -74,10 +75,10 @@ export class HomeComponent {
     }
 
     spectateRoom() {
-        if (this.loginForm.valid) {
+        if (this.loginForm.controls.room.valid) {
             const { room } = this.loginForm.value;
             if (room) {
-                this.gameService.joinAsSpectator(room);
+                this.gameService.joinRoom(room);
             }
         }
     }

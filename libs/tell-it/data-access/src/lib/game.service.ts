@@ -51,11 +51,6 @@ export class GameService {
             this.router.navigate(["/"]);
         });
 
-        // Handle user left
-        this.socketService.userLeft().subscribe(({ userID }) => {
-            console.log("User left:", userID);
-        });
-
         // Start turn timer when story updates with text
         effect(() => {
             const story = this.story();
@@ -72,17 +67,13 @@ export class GameService {
     }
 
     // Room actions
-    joinRoom(roomName: string, userName: string): void {
-        this.socketService.join(roomName, userName);
-    }
-
-    joinAsSpectator(roomName: string): void {
-        this.socketService.joinAsSpectator(roomName);
+    joinRoom(roomName: string, userName?: string): void {
+        this.socketService.joinRoom(roomName, userName);
     }
 
     leaveRoom(): void {
         this.endTurnTimer();
-        this.socketService.leave();
+        this.socketService.leaveRoom();
     }
 
     requestRoomList(): void {

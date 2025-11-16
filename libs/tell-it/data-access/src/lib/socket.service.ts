@@ -1,22 +1,19 @@
-import { inject, Injectable, computed, effect } from "@angular/core";
+import { inject, Injectable, computed } from "@angular/core";
 import { Router } from "@angular/router";
 import { HomeInfo, UserLeft, UserOverview } from "@tell-it/domain/api-interfaces";
 import { GameStatus, StoryData } from "@tell-it/domain/game";
 import {
-    MessageType,
-    WebSocketMessage,
-    UsersUpdateData,
+    WebSocketAction,
+    WebSocketErrorEvent,
+    WebSocketSuccessEvent,
+    JoinRoomSuccessData,
+    RoomListData,
+    UsersData,
     GameStatusData,
-    StoryUpdateData,
-    FinishVoteUpdateData,
+    StoryData_Event,
+    FinishVotesData,
     FinalStoriesData,
-    UserLeftData,
-    SubmitTextData,
-    VoteKickData,
-    RoomListUpdateData,
-    GetRoomListResultData,
-    JoinRoomResult,
-    ReconnectResult
+    UserIdData
 } from "@tell-it/domain/socket-interfaces";
 import { map, Observable, Subject, tap } from "rxjs";
 import { WebSocketClient } from "./websocket-client.service";
@@ -47,27 +44,16 @@ export class SocketService {
     }));
 
     // Specific event subjects
-    joined$ = new Subject<JoinRoomResult>();
-    reconnected$ = new Subject<ReconnectResult>();
+    joined$ = new Subject<JoinRoomSuccessData>();
+    reconnected$ = new Subject<JoinRoomSuccessData>();
 
     constructor() {
         this.ws.messages$.subscribe(msg => {
-            if (
-                (msg.type === "error" ||
-                    msg.type === "create_room_result" ||
-                    msg.type === "join_room_result" ||
-                    msg.type === "leave_room_result" ||
-                    msg.type === "add_bot_result" ||
-                    msg.type === "reconnect_result") &&
-                !msg.success
-            ) {
+            if (!msg.success) {
                 this.handleErrorMessage(msg);
+            } else {
+                this.handleSuccessMessage(msg);
             }
-        });
-
-        // Handle successful join/reconnect events
-        this.ws.successMessages$.subscribe(msg => {
-            this.handleSuccessMessage(msg);
         });
 
         // Auto-connect on service initialization
@@ -75,21 +61,10 @@ export class SocketService {
     }
 
     /**
-     * Helper to listen for specific message types from Golang backend
+     * Helper to send WebSocket actions with proper typing
      */
-    private fromMessage<T>(messageType: MessageType): Observable<T> {
-        return this.ws.fromMessageType<T>(messageType);
-    }
-
-    /**
-     * Helper to send messages to Golang backend
-     */
-    private sendMessage(type: MessageType, data?: any): void {
-        const message: WebSocketMessage = {
-            type,
-            ...(data !== undefined && { data })
-        };
-        this.ws.send(message);
+    private sendAction(action: WebSocketAction): void {
+        this.ws.send(action);
     }
 
     private handleErrorMessage(message: WebSocketErrorEvent) {
@@ -111,20 +86,16 @@ export class SocketService {
 
     private handleSuccessMessage(event: WebSocketSuccessEvent): void {
         switch (event.type) {
-            case MessageType.LeaveRoomResult:
+            case "leave_room_result":
                 this.router.navigate(["/"]); // Navigate to home
                 break;
-            case MessageType.JoinRoomResult:
-                if (event.data) {
-                    this.handleJoinRoom(event.data);
-                    this.joined$.next(event.data);
-                }
+            case "join_room_result":
+                this.handleJoinRoom(event.data);
+                this.joined$.next(event.data);
                 break;
-            case MessageType.ReconnectResult:
-                if (event.data) {
-                    this.handleJoinRoom(event.data);
-                    this.reconnected$.next(event.data);
-                }
+            case "reconnect_result":
+                this.handleJoinRoom(event.data);
+                this.reconnected$.next(event.data);
                 break;
         }
     }
@@ -132,12 +103,7 @@ export class SocketService {
     /**
      * Handle join/reconnect room data
      */
-    private handleJoinRoom(data: JoinRoomResult): void {
-        if (!data) {
-            console.warn("Received join_room_result with no data");
-            return;
-        }
-
+    private handleJoinRoom(data: JoinRoomSuccessData): void {
         if (!data.clientId) {
             console.warn("join_room_result message missing clientId:", data);
             return;
@@ -163,11 +129,11 @@ export class SocketService {
     }
 
     getRoomList(): void {
-        this.sendMessage(MessageType.GetRoomList, { gameType: "tellit" });
+        this.sendAction({ type: "get_room_list", data: { gameType: "tellit" } });
     }
 
     getHomeInfo(): Observable<HomeInfo> {
-        return this.fromMessage<GetRoomListResultData>(MessageType.RoomListUpdate).pipe(
+        return this.ws.fromMessageType<RoomListData>("room_list_update").pipe(
             map(data => ({
                 rooms: data.map(({ roomId, started }) => ({
                     name: roomId,
@@ -178,12 +144,12 @@ export class SocketService {
         );
     }
 
-    join(roomName: string, userName?: string) {
-        const message = {
+    joinRoom(roomName: string, userName?: string) {
+        this.sendAction({
             type: "join_room",
             data: {
+                gameType: "tellit",
                 roomId: roomName,
-                gameType: "tellit" as const,
                 playerName: userName || "Spectator",
                 options: {
                     spectatorsAllowed: false,
@@ -193,22 +159,11 @@ export class SocketService {
                     afkDelay: 30000
                 }
             }
-        };
-
-        this.ws.send(message);
+        });
     }
 
-    joinAsSpectator(roomName: string) {
-        // Spectator join for Golang backend
-        const message = {
-            type: "join_spectator",
-            data: { room: roomName }
-        };
-        this.ws.send(message);
-    }
-
-    roomJoined(): Observable<JoinRoomResult> {
-        return this.fromMessage<JoinRoomResult>(MessageType.JoinRoomResult).pipe(
+    roomJoined(): Observable<JoinRoomSuccessData> {
+        return this.ws.fromMessageType<JoinRoomSuccessData>("join_room_result").pipe(
             tap(data => {
                 // Store session data for reconnection via signals
                 console.log("Room joined - clientId:", data.clientId, "roomId:", data.roomId);
@@ -218,56 +173,54 @@ export class SocketService {
         );
     }
 
+    leaveRoom(): void {
+        this.sendAction({ type: "leave_room" });
+        this.leave();
+    }
+
     roomClosed(): Observable<void> {
         // Note: Room closed handling might be different in Golang backend
         // May come as a disconnect or special message type
         return this.ws.fromMessageType<void>("room_closed");
     }
 
-    roomListUpdate(): Observable<RoomListUpdateData> {
-        return this.fromMessage<RoomListUpdateData>(MessageType.RoomListUpdate);
+    roomListUpdate(): Observable<RoomListData> {
+        return this.ws.fromMessageType<RoomListData>("room_list_update");
     }
 
     // ask the server to send all relevant data again
     requestUpdate() {
-        this.sendMessage(MessageType.RequestUpdate);
-    }
-
-    userLeft(): Observable<UserLeft> {
-        return this.fromMessage<UserLeftData>(MessageType.UserLeft).pipe(map(data => ({ userID: data.userID })));
+        this.sendAction({ type: "request_update" });
     }
 
     usersUpdate(): Observable<UserOverview[]> {
-        return this.fromMessage<UsersUpdateData>(MessageType.UsersUpdate).pipe(
+        return this.ws.fromMessageType<UsersData>("users_update").pipe(
             tap(data => console.log("Users update:", data)),
             map(data => data.users)
         );
     }
 
     leave() {
-        // Clear session data via signals
         this.ws.clientId.set(null);
         this.ws.roomId.set(null);
-
-        this.disconnect();
     }
 
     gameStatus(): Observable<GameStatus> {
-        return this.fromMessage<GameStatusData>(MessageType.GameStatus).pipe(map(data => data.status));
+        return this.ws.fromMessageType<GameStatusData>("game_status").pipe(map(data => data.status));
     }
 
     storyUpdate(): Observable<StoryData | undefined> {
-        return this.fromMessage<StoryUpdateData>(MessageType.StoryUpdate).pipe(
-            map(data => (data ? { text: data.text, author: data.author } : undefined))
-        );
+        return this.ws
+            .fromMessageType<StoryData_Event>("story_update")
+            .pipe(map(data => (data ? { text: data.text, author: data.author } : undefined)));
     }
 
     finishVoteUpdate(): Observable<string[]> {
-        return this.fromMessage<FinishVoteUpdateData>(MessageType.FinishVoteUpdate).pipe(map(data => data.votes));
+        return this.ws.fromMessageType<FinishVotesData>("finish_vote_update").pipe(map(data => data.votes));
     }
 
     getFinalStories() {
-        return this.fromMessage<FinalStoriesData>(MessageType.FinalStories).pipe(map(data => data.stories));
+        return this.ws.fromMessageType<FinalStoriesData>("final_stories").pipe(map(data => data.stories));
     }
 
     /********************
@@ -275,26 +228,26 @@ export class SocketService {
      ********************/
 
     start() {
-        this.sendMessage(MessageType.Start);
+        this.sendAction({ type: "start" });
     }
 
     voteKick(userID: string) {
-        this.sendMessage(MessageType.VoteKick, { kickUserID: userID } as VoteKickData);
+        this.sendAction({ type: "vote_kick", data: { kickUserID: userID } });
     }
 
     submitText(text: string) {
-        this.sendMessage(MessageType.SubmitText, { text } as SubmitTextData);
+        this.sendAction({ type: "submit_text", data: { text } });
     }
 
     voteFinish() {
-        this.sendMessage(MessageType.VoteFinish);
+        this.sendAction({ type: "vote_finish" });
     }
 
     fetchFinalStories() {
-        this.sendMessage(MessageType.RequestStories);
+        this.sendAction({ type: "request_stories" });
     }
 
     restart() {
-        this.sendMessage(MessageType.VoteRestart);
+        this.sendAction({ type: "vote_restart" });
     }
 }

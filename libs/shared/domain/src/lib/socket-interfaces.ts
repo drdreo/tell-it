@@ -1,173 +1,294 @@
-import { GameStatus, StoryData } from "./game";
 import { UserOverview } from "./api-interfaces";
+import { GameStatus, StoryData } from "./game";
 
-// Message types matching Golang backend
-export enum MessageType {
-    // Server generic messages
-    Welcome = "welcome",
-    CreateRoomResult = "create_room_result",
-    JoinRoomResult = "join_room_result",
-    RoomListUpdate = "room_list_update",
-    GetRoomListResult = "get_room_list_result",
-    LeaveRoomResult = "leave_room_result",
-    ReconnectResult = "reconnect_result",
-    ClientJoined = "client_joined",
-    ClientLeft = "client_left",
-    RoomClosed = "room_closed",
-    Error = "error",
+/**
+ * WebSocket Message Types
+ * All messages from server and actions to server
+ */
 
-    // Server game messages
-    UsersUpdate = "users_update",
-    GameStatus = "game_status",
-    StoryUpdate = "story_update",
-    FinishVoteUpdate = "finish_vote_update",
-    FinalStories = "final_stories",
-    UserLeft = "user_left",
-    UserKicked = "user_kicked",
-
-    // Client messages
-    ConnectionHandshake = "connection_handshake",
-    Reconnect = "reconnect",
-    Start = "start",
-    SubmitText = "submit_text",
-    VoteFinish = "vote_finish",
-    VoteRestart = "vote_restart",
-    VoteKick = "vote_kick",
-    RequestStories = "request_stories",
-    RequestUpdate = "request_update",
-    GetRoomList = "get_room_list"
-}
-
-// Generic message wrapper for Golang backend
-export interface WebSocketMessage<T = any> {
-    type: string;
-    success?: boolean;
-    data?: T;
-    error?: string;
-}
-
-// Client message data structures
-export interface VoteKickData {
-    kickUserID: string;
-}
-
-export interface SubmitTextData {
-    text: string;
-}
-
-export interface JoinRoomResult {
+// Reusable data type aliases
+export type RoomListData = {
     roomId: string;
-    clientId: string;
-}
+    playerCount: number;
+    started: boolean;
+}[];
 
-export interface ReconnectResult {
-    roomId: string;
-    clientId: string;
-    gameType: string;
-}
-
-export interface JoinRoomData {
-    gameType: "tellit";
-    playerName: string;
-    options?: {
-        spectatorsAllowed?: boolean;
-        isPublic?: boolean;
-        minUsers?: number;
-        maxUsers?: number;
-        afkDelay?: number;
-    };
-}
-
-export interface ReconnectData {
-    room: string;
-    clientId: string;
-}
-
-// Server message data structures
-export interface JoinedData {
-    userID: string;
-    room: string;
-}
-
-export interface UsersUpdateData {
+export type UsersData = {
     users: UserOverview[];
-}
+};
 
-export interface GameStatusData {
+export type GameStatusData = {
     status: GameStatus;
-}
+};
 
-export interface StoryUpdateData {
+export type StoryData_Event = {
     text: string;
     author: string;
-}
+};
 
-export interface FinishVoteUpdateData {
+export type FinishVotesData = {
     votes: string[];
-}
+};
 
-export interface FinalStoriesData {
+export type FinalStoriesData = {
     stories: StoryData[];
-}
+};
 
-export interface UserLeftData {
-    userID: string;
-}
+export type UserIdData = {
+    clientId: string;
+};
 
-export interface UserKickedData {
-    kickedUser: string;
-}
+export type WebSocketSuccessEvent =
+    | WelcomeEvent
+    | JoinRoomSuccessEvent
+    | LeaveRoomSuccessEvent
+    | ReconnectSuccessEvent
+    | RoomListUpdateEvent
+    | ClientJoinedEvent
+    | ClientLeftEvent
+    | RoomClosedEvent
+    // Game-specific events
+    | UsersUpdateEvent
+    | GameStatusEvent
+    | StoryUpdateEvent
+    | FinishVoteUpdateEvent
+    | FinalStoriesEvent
+    | UserKickedEvent;
 
-export interface JoinRoomResultData {
+export type WebSocketErrorEvent =
+    | ErrorEvent
+    | CreateRoomFailureEvent
+    | JoinRoomFailureEvent
+    | LeaveRoomFailureEvent
+    | ReconnectFailureEvent;
+
+export type WebSocketMessage = WebSocketSuccessEvent | WebSocketErrorEvent;
+
+export type WebSocketAction =
+    | JoinRoomAction
+    | JoinSpectatorAction
+    | LeaveRoomAction
+    | ReconnectAction
+    | GetRoomListAction
+    | StartGameAction
+    | SubmitTextAction
+    | VoteFinishAction
+    | VoteRestartAction
+    | VoteKickAction
+    | RequestStoriesAction
+    | RequestUpdateAction;
+
+/**
+ * Success Events
+ */
+export type WelcomeEvent = {
+    type: "welcome";
+    success: true;
+    data: {
+        message: string;
+    };
+};
+
+export type JoinRoomSuccessData = {
     roomId: string;
-    gameType: string;
-    clients: number;
-}
+    clientId: string;
+};
+export type JoinRoomSuccessEvent = {
+    type: "join_room_result";
+    success: true;
+    data: JoinRoomSuccessData;
+};
 
-export interface RoomListUpdateData {
-    roomId: string;
-    playerCount: number;
-    started: boolean;
-}
+export type LeaveRoomSuccessEvent = {
+    type: "leave_room_result";
+    success: true;
+    data: null;
+};
 
-export type GetRoomListResultData = Array<{
-    roomId: string;
-    playerCount: number;
-    started: boolean;
-}>;
+export type ReconnectSuccessEvent = {
+    type: "reconnect_result";
+    success: true;
+    data: JoinRoomSuccessData;
+};
 
-export interface UserSubmitTextMessage {
-    text: string;
-}
+export type RoomListUpdateEvent = {
+    type: "room_list_update";
+    success: true;
+    data: RoomListData;
+};
 
-export interface UserJoinMessage {
-    roomName: string;
-    userName: string;
-    userID?: string;
-}
+export type ClientJoinedEvent = {
+    type: "client_joined";
+    success: true;
+    data: {
+        clientId: string;
+    };
+};
 
-export interface UserSpectatorJoinMessage {
-    roomName: string;
-}
+export type ClientLeftEvent = {
+    type: "client_left";
+    success: true;
+    data: UserIdData;
+};
 
-export interface ServerSpectatorJoined {
-    room: string;
-}
+export type RoomClosedEvent = {
+    type: "room_closed";
+    success: true;
+    data: {
+        roomId: string;
+    };
+};
 
-export interface ServerGameStatusUpdate {
-    status: GameStatus;
-}
+/**
+ * Game-specific Success Events
+ */
+export type UsersUpdateEvent = {
+    type: "users_update";
+    success: true;
+    data: UsersData;
+};
 
-export interface ServerUsersUpdate {
-    users: UserOverview[];
-}
+export type GameStatusEvent = {
+    type: "game_status";
+    success: true;
+    data: GameStatusData;
+};
 
-export type ServerStoryUpdate = StoryData;
+export type StoryUpdateEvent = {
+    type: "story_update";
+    success: true;
+    data: StoryData_Event;
+};
 
-export interface ServerFinishVoteUpdate {
-    votes: string[];
-}
+export type FinishVoteUpdateEvent = {
+    type: "finish_vote_update";
+    success: true;
+    data: FinishVotesData;
+};
 
-export interface ServerFinalStories {
-    stories: StoryData[];
-}
+export type FinalStoriesEvent = {
+    type: "final_stories";
+    success: true;
+    data: FinalStoriesData;
+};
+
+export type UserKickedEvent = {
+    type: "user_kicked";
+    success: true;
+    data: {
+        kickedUser: string;
+    };
+};
+
+/**
+ * Error Events
+ */
+export type CreateRoomFailureEvent = {
+    type: "create_room_result";
+    success: false;
+    error: string;
+};
+
+export type JoinRoomFailureEvent = {
+    type: "join_room_result";
+    success: false;
+    error: string;
+};
+
+export type LeaveRoomFailureEvent = {
+    type: "leave_room_result";
+    success: false;
+    error: string;
+};
+
+export type ReconnectFailureEvent = {
+    type: "reconnect_result";
+    success: false;
+    error: string;
+};
+
+export type ErrorEvent = {
+    type: "error";
+    success: false;
+    error: string;
+};
+
+/**
+ * Client Actions
+ */
+export type JoinRoomAction = {
+    type: "join_room";
+    data: {
+        gameType: "tellit";
+        roomId: string | undefined;
+        playerName: string;
+        options?: {
+            spectatorsAllowed?: boolean;
+            isPublic?: boolean;
+            minUsers?: number;
+            maxUsers?: number;
+            afkDelay?: number;
+        };
+    };
+};
+
+export type JoinSpectatorAction = {
+    type: "join_spectator";
+    data: {
+        room: string;
+    };
+};
+
+export type LeaveRoomAction = {
+    type: "leave_room";
+};
+
+export type ReconnectAction = {
+    type: "reconnect";
+    data: {
+        roomId: string;
+        clientId: string;
+    };
+};
+
+
+export type GetRoomListAction = {
+    type: "get_room_list";
+    data: {
+        gameType: "tellit";
+    };
+};
+
+export type StartGameAction = {
+    type: "start";
+};
+
+export type SubmitTextAction = {
+    type: "submit_text";
+    data: {
+        text: string;
+    };
+};
+
+export type VoteFinishAction = {
+    type: "vote_finish";
+};
+
+export type VoteRestartAction = {
+    type: "vote_restart";
+};
+
+export type VoteKickAction = {
+    type: "vote_kick";
+    data: {
+        kickUserID: string;
+    };
+};
+
+export type RequestStoriesAction = {
+    type: "request_stories";
+};
+
+export type RequestUpdateAction = {
+    type: "request_update";
+};
