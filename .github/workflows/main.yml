@@ -9,22 +9,28 @@ jobs:
     main:
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v2
+            - uses: actions/checkout@v4
               with:
                   fetch-depth: 0
 
-            # Cache node_modules
-            - uses: actions/setup-node@v3
+            - name: Install pnpm
+              uses: pnpm/action-setup@v4
               with:
-                  node-version: 20
-                  cache: "npm"
+                version: 10
 
-            - run: npm ci
+            # Setup Node.js and enable pnpm caching
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 24
+                  cache: 'pnpm'
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
 
             - name: Derive appropriate SHAs for base and head for `nx affected` commands
               uses: nrwl/nx-set-shas@v4
               with:
-                  main-branch-name: "master"
+                  main-branch-name: 'master'
 
             - name: Print Info
               run: |
@@ -35,5 +41,8 @@ jobs:
             - run: git branch --track master origin/master
               if: ${{ github.ref != 'refs/heads/master' }}
 
-            - run: npx nx format:check
-            - run: npx nx affected -t lint,test,build --parallel=3
+            - name: Check formatting
+              run: pnpm exec nx format:check
+
+            - name: Lint, Test & Build affected projects
+              run: pnpm exec nx affected -t lint,test,build --parallel=3
