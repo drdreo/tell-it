@@ -1,5 +1,5 @@
 <div class="page-container">
-    @if (homeInfo$ | async; as homeInfo) {
+    @if (homeInfo(); as homeInfo) {
         <div class="overview">
             <div class="overview__total-users" data-cy="overview_online">
                 Online: <span>{{ homeInfo.userCount }}</span>
@@ -41,17 +41,17 @@
     </form>
 
     <div class="form__error">
-        @if (username?.invalid && username?.dirty) {
+        @if (loginForm.controls.username.invalid && loginForm.controls.username.dirty) {
             <div>
-                @if (username?.errors?.minlength) {
+                @if (loginForm.controls.username.errors?.["minlength"]) {
                     <div>Name must be at least 2 characters long.</div>
                 }
             </div>
         }
 
-        @if (room?.invalid && (room?.dirty || room?.touched)) {
+        @if (loginForm.controls.room.invalid && (loginForm.controls.room.dirty || loginForm.controls.room.touched)) {
             <div>
-                @if (room?.errors?.["forbiddenName"]) {
+                @if (loginForm.controls.room.errors?.["forbiddenName"]) {
                     <div>Room name is invalid!</div>
                 }
             </div>

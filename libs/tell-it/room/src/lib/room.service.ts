@@ -1,13 +1,10 @@
-import { HttpClient } from "@angular/common/http";
 import { inject, Injectable, OnDestroy } from "@angular/core";
 import { SocketService } from "@tell-it/data-access";
-import { RoomResponse, UserOverview } from "@tell-it/domain/api-interfaces";
+import { UserOverview } from "@tell-it/domain/api-interfaces";
 import { GameStatus, StoryData } from "@tell-it/domain/game";
-import { API_URL_TOKEN } from "@tell-it/domain/tokens";
 import {
     BehaviorSubject,
     distinctUntilChanged,
-    firstValueFrom,
     interval,
     map,
     Observable,
@@ -23,9 +20,7 @@ function isStoryEqual(a: StoryData | undefined, b: StoryData | undefined): boole
 
 @Injectable()
 export class RoomService implements OnDestroy {
-    private http = inject(HttpClient);
     private socketService = inject(SocketService);
-    private API_URL = inject(API_URL_TOKEN);
 
     private _turnTimer$ = new Subject<number | undefined>();
     turnTime$ = this._turnTimer$.asObservable();
@@ -115,33 +110,50 @@ export class RoomService implements OnDestroy {
         this._users$.next(users);
     }
 
+    /**
+     * Get room updates for a specific room from the socket connection.
+     * Useful for tracking room state changes (player count, started status).
+     */
+    getRoomUpdates(roomId: string) {
+        return this.socketService.roomListUpdate().pipe(
+            map(update => (update.roomId === roomId ? update : null)),
+            tap(update => {
+                if (update) {
+                    console.log("Room update:", update);
+                }
+            })
+        );
+    }
+
     async loadRoom(room: string): Promise<{ startTime: number }> {
-        console.log(room);
+        console.log("Loading room:", room);
 
         if (!room || room.length === 0) {
             throw new Error("Room name is empty");
         }
-        const response = await firstValueFrom(this.http.get<RoomResponse>(this.API_URL + "/room/" + room));
-        const isPlayer = response.users.find(user => user.id === this.clientPlayerID);
+
+        // Check if the current user is already in the room
+        const currentUsers = this._users$.value;
+        const isPlayer = currentUsers.find(user => user.id === this.clientPlayerID);
         const disconnected = isPlayer?.disconnected || false;
 
         if (disconnected) {
             console.log("Player was disconnected. Try to reconnect!");
             // reconnect if loading site directly
-            this.socketService.join(room, undefined, this.clientPlayerID);
-        } else if (!isPlayer) {
-            if (!response.config.spectatorsAllowed) {
-                throw new Error("Not allowed to spectate!");
-            }
-
+            this.socketService.join(room, undefined);
+        } else if (!isPlayer && currentUsers.length > 0) {
             console.log("Joining as spectator!");
             // if a new user just joined the table without being at the home screen, join as spectator
             this.socketService.joinAsSpectator(room);
         }
 
+        // Request updated data from server
         this.socketService.requestUpdate();
 
-        return { startTime: new Date().getTime() - new Date(response.startTime).getTime() };
+        // Since we no longer have startTime from HTTP response,
+        // we'll track it from when the room is loaded
+        // If you need the actual game start time, it should come from a socket message
+        return { startTime: 0 };
     }
 
     submitText(text: string) {

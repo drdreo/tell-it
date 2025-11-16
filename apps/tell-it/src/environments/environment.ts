@@ -5,15 +5,9 @@
 export const environment = {
     production: false,
     api: {
-        url: "http://localhost:3333",
-        socketUrl: "http://localhost:3333"
+        url: "http://localhost:6969"
     }
     // api: {
-    // 	url: "http://localhost:3333",
-    // 	socketUrl: "http://localhost:3333"
-    // },
-    api: {
-        url: "http://10.0.0.42:3333",
-        socketUrl: "http://10.0.0.42:3333"
-    }
+    //     url: "http://10.0.0.42:8080",
+    // }
 };

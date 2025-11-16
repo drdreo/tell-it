@@ -1,90 +1,93 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, inject } from "@angular/core";
-import { FormControl, FormGroup, Validators, AbstractControl, ReactiveFormsModule } from "@angular/forms";
+import { ChangeDetectionStrategy, Component, effect, inject } from "@angular/core";
+import { FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { roomNameValidator } from "@tell-it/utils";
-import { HomeInfo } from "@tell-it/domain/api-interfaces";
-import { SocketService } from "@tell-it/data-access";
-import { takeUntil, Subject, Observable } from "rxjs";
-import { AsyncPipe } from "@angular/common";
+import { GameService, SocketService } from "@tell-it/data-access";
 
 @Component({
     selector: "tell-it-app-home",
     templateUrl: "./home.component.html",
     styleUrls: ["./home.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [ReactiveFormsModule, AsyncPipe]
+    imports: [ReactiveFormsModule]
 })
-export class HomeComponent implements OnDestroy {
-    private router = inject(Router);
-    private socketService = inject(SocketService);
+export class HomeComponent {
+    private readonly router = inject(Router);
+    private readonly gameService = inject(GameService);
+    private readonly socketService = inject(SocketService);
+    private readonly fb = inject(FormBuilder);
 
-    homeInfo$: Observable<HomeInfo>;
-    loginForm = new FormGroup({
-        username: new FormControl("", {
-            updateOn: "blur",
-            validators: [Validators.required, Validators.minLength(2)]
-        }),
-        room: new FormControl("", {
-            validators: [Validators.required, roomNameValidator(/^\w+$/i)]
-        })
+    loginForm = this.fb.group({
+        username: ["", [Validators.required, Validators.minLength(2)]],
+        room: ["", [Validators.required, roomNameValidator(/^\w+$/i)]]
     });
-    isJoinable = true;
-    private unsubscribe$ = new Subject<void>();
+
+    protected readonly isConnected = this.socketService.isConnected;
+
+    // Convert homeInfo Observable to signal
+    protected readonly homeInfo = toSignal(this.socketService.getHomeInfo(), { initialValue: { rooms: [], userCount: 0 } });
+
+    // Control whether user can join as player or only spectate
+    protected readonly isJoinable = true;
 
     constructor() {
-        this.socketService.leave(); // try to leave if a user comes from a room
+        // Request room list when connected
+        effect(() => {
+            const isConnected = this.isConnected();
+            if (isConnected) {
+                this.gameService.requestRoomList();
+            }
+        });
 
+        // Handle successful room join
         this.socketService
             .roomJoined()
-            .pipe(takeUntil(this.unsubscribe$))
-            .subscribe(({ userID, room }) => {
-                sessionStorage.setItem("playerID", userID);
-                this.router.navigate(["/room", room]);
+            .pipe(takeUntilDestroyed())
+            .subscribe(({ roomId }) => {
+                this.navigateToRoom(roomId);
             });
 
-        this.homeInfo$ = this.socketService.getHomeInfo();
-    }
-
-    get username(): AbstractControl<string | null, string | null> | null {
-        return this.loginForm.get("username");
-    }
-
-    get room(): AbstractControl<string | null, string | null> | null {
-        return this.loginForm.get("room");
-    }
-
-    ngOnDestroy(): void {
-        this.unsubscribe$.next();
-        this.unsubscribe$.complete();
+        // Handle reconnection to existing room
+        this.socketService
+            .reconnected$
+            .pipe(takeUntilDestroyed())
+            .subscribe(({ roomId }) => {
+                console.log("Reconnected to room:", roomId);
+                // TODO: Show notification and offer to rejoin
+                // For now, auto-navigate back
+                this.navigateToRoom(roomId);
+            });
     }
 
     onRoomClick(name: string) {
-        this.room?.patchValue(name);
-    }
-
-    start(): void {
-        this.socketService.start();
+        this.loginForm.patchValue({ room: name });
     }
 
     joinRoom() {
-        const username = this.username?.value;
-        const roomName = this.room?.value;
-        if (this.loginForm.valid && username && roomName) {
-            this.socketService.join(roomName, username);
+        if (this.loginForm.valid) {
+            const { username, room } = this.loginForm.value;
+            if (username && room) {
+                this.gameService.joinRoom(room, username);
+            }
         }
     }
 
     spectateRoom() {
-        const roomName = this.room?.value;
-
-        if (this.loginForm.valid && roomName) {
-            this.socketService.joinAsSpectator(roomName);
+        if (this.loginForm.valid) {
+            const { room } = this.loginForm.value;
+            if (room) {
+                this.gameService.joinAsSpectator(room);
+            }
         }
     }
 
     generateRoomName(): void {
-        const randomName = Math.random().toString(36).substring(8);
+        const randomName = Math.random().toString(36).substring(2, 8).toUpperCase();
+        this.loginForm.patchValue({ room: randomName });
+    }
 
-        this.room?.patchValue(randomName);
+    private navigateToRoom(roomId: string): void {
+        this.router.navigate(["/room", roomId]);
     }
 }

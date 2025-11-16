@@ -4,13 +4,8 @@ import { AppComponent } from "./app/app.component";
 import { provideRouter, Routes } from "@angular/router";
 import { withInterceptorsFromDi, provideHttpClient } from "@angular/common/http";
 import { BrowserModule, bootstrapApplication } from "@angular/platform-browser";
-import { SocketIoConfig, SocketIoModule } from "ngx-socket-io";
 import { API_URL_TOKEN } from "@tell-it/domain/tokens";
 
-const socketConfig: SocketIoConfig = {
-    url: environment.api.socketUrl,
-    options: {}
-};
 const routes: Routes = [
     {
         path: "",
@@ -29,7 +24,7 @@ if (environment.production) {
 bootstrapApplication(AppComponent, {
     providers: [
         provideZonelessChangeDetection(),
-        importProvidersFrom(BrowserModule, SocketIoModule.forRoot(socketConfig)),
+        importProvidersFrom(BrowserModule),
         { provide: API_URL_TOKEN, useValue: environment.api.url },
         provideHttpClient(withInterceptorsFromDi()),
         provideRouter(routes)

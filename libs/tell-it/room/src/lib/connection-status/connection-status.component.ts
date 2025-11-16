@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import { ConnectionState } from "@tell-it/data-access";
 
 @Component({
     selector: "tell-it-connection-status",
@@ -26,11 +27,11 @@ import { ChangeDetectionStrategy, Component, input, output } from "@angular/core
             </div>
         </div>
     `,
-    styleUrl: './connection-status.component.scss',
+    styleUrl: "./connection-status.component.scss",
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConnectionStatusComponent {
-    status = input.required<"offline" | "reconnecting" | "disconnected">();
+    status = input.required<"offline" | ConnectionState['status']>();
     attemptNumber = input<number>(1);
     reconnect = output<void>();
 

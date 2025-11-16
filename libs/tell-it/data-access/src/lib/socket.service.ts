@@ -1,22 +1,25 @@
-import { HttpClient } from "@angular/common/http";
-import { inject, Injectable } from "@angular/core";
-import { HomeInfo, ServerJoined, UserLeft, UserOverview } from "@tell-it/domain/api-interfaces";
+import { inject, Injectable, computed, effect } from "@angular/core";
+import { Router } from "@angular/router";
+import { HomeInfo, UserLeft, UserOverview } from "@tell-it/domain/api-interfaces";
 import { GameStatus, StoryData } from "@tell-it/domain/game";
 import {
-    ServerEvent,
-    ServerFinalStories,
-    ServerFinishVoteUpdate,
-    ServerGameStatusUpdate,
-    ServerStoryUpdate,
-    ServerUsersUpdate,
-    UserEvent,
-    UserJoinMessage,
-    UserSubmitTextMessage,
-    UserVoteKickMessage
+    MessageType,
+    WebSocketMessage,
+    UsersUpdateData,
+    GameStatusData,
+    StoryUpdateData,
+    FinishVoteUpdateData,
+    FinalStoriesData,
+    UserLeftData,
+    SubmitTextData,
+    VoteKickData,
+    RoomListUpdateData,
+    GetRoomListResultData,
+    JoinRoomResult,
+    ReconnectResult
 } from "@tell-it/domain/socket-interfaces";
-import { API_URL_TOKEN } from "@tell-it/domain/tokens";
-import { Socket } from "ngx-socket-io";
-import { BehaviorSubject, map, merge, Observable, tap } from "rxjs";
+import { map, Observable, Subject, tap } from "rxjs";
+import { WebSocketClient } from "./websocket-client.service";
 
 export interface ConnectionState {
     status: "connected" | "disconnected" | "reconnecting";
@@ -27,174 +30,244 @@ export interface ConnectionState {
     providedIn: "root"
 })
 export class SocketService {
-    private http = inject(HttpClient);
-    private socket = inject(Socket);
-    private API_URL = inject(API_URL_TOKEN);
+    private router = inject(Router);
+    private ws = inject(WebSocketClient);
 
-    private reconnectAttempts = 0;
-    private maxReconnectAttempts = 5;
-    private reconnectTimeout: any = null;
-    private connectionState$ = new BehaviorSubject<ConnectionState>({
-        status: "connected",
-        attemptNumber: 0
-    });
+    // Expose WebSocket client signals
+    readonly clientId = this.ws.clientId;
+    readonly roomId = this.ws.roomId;
+    readonly connectionStatus = this.ws.connectionStatus;
+    readonly isConnected = this.ws.isConnected;
+    readonly reconnectAttempts = this.ws.reconnectAttempts;
+
+    // Computed connection state for backward compatibility
+    readonly connectionState = computed<ConnectionState>(() => ({
+        status: this.isConnected() ? "connected" : this.reconnectAttempts() > 0 ? "reconnecting" : "disconnected",
+        attemptNumber: this.reconnectAttempts()
+    }));
+
+    // Specific event subjects
+    joined$ = new Subject<JoinRoomResult>();
+    reconnected$ = new Subject<ReconnectResult>();
 
     constructor() {
-        // Set up automatic reconnection handling
-        this.disconnected().subscribe(() => {
-            this.handleDisconnection();
+        this.ws.messages$.subscribe(msg => {
+            if (
+                (msg.type === "error" ||
+                    msg.type === "create_room_result" ||
+                    msg.type === "join_room_result" ||
+                    msg.type === "leave_room_result" ||
+                    msg.type === "add_bot_result" ||
+                    msg.type === "reconnect_result") &&
+                !msg.success
+            ) {
+                this.handleErrorMessage(msg);
+            }
         });
 
-        this.connected().subscribe(() => {
-            this.handleReconnection();
+        // Handle successful join/reconnect events
+        this.ws.successMessages$.subscribe(msg => {
+            this.handleSuccessMessage(msg);
         });
+
+        // Auto-connect on service initialization
+        this.ws.connect();
     }
 
-    getConnectionState(): Observable<ConnectionState> {
-        return this.connectionState$.asObservable();
+    /**
+     * Helper to listen for specific message types from Golang backend
+     */
+    private fromMessage<T>(messageType: MessageType): Observable<T> {
+        return this.ws.fromMessageType<T>(messageType);
     }
 
-    private handleDisconnection(): void {
-        console.log("WebSocket disconnected");
-        this.connectionState$.next({
-            status: "reconnecting",
-            attemptNumber: 0
-        });
-        this.attemptReconnect();
+    /**
+     * Helper to send messages to Golang backend
+     */
+    private sendMessage(type: MessageType, data?: any): void {
+        const message: WebSocketMessage = {
+            type,
+            ...(data !== undefined && { data })
+        };
+        this.ws.send(message);
     }
 
-    private handleReconnection(): void {
-        console.log("WebSocket reconnected successfully");
-        this.reconnectAttempts = 0;
-        if (this.reconnectTimeout) {
-            clearTimeout(this.reconnectTimeout);
-            this.reconnectTimeout = null;
+    private handleErrorMessage(message: WebSocketErrorEvent) {
+        console.error("Game error:", message.error);
+        switch (message.type) {
+            case "error":
+                console.error("Socket error:", message.error);
+                // this.notificationService.notify(message.error, { autoClose: 3500 });
+                break;
+            case "reconnect_result":
+                this.clientId.set(null);
+                this.roomId.set(null);
+                this.router.navigate(["/"]);
+                break;
+            default:
+                console.log("Unknown room message type:", message.type);
         }
-        this.connectionState$.next({
-            status: "connected",
-            attemptNumber: 0
-        });
-
-        // Request updated data from server after reconnection
-        this.requestUpdate();
     }
 
-    private attemptReconnect(): void {
-        if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-            console.log("Max reconnection attempts reached");
-            this.connectionState$.next({
-                status: "disconnected",
-                attemptNumber: this.reconnectAttempts
-            });
+    private handleSuccessMessage(event: WebSocketSuccessEvent): void {
+        switch (event.type) {
+            case MessageType.LeaveRoomResult:
+                this.router.navigate(["/"]); // Navigate to home
+                break;
+            case MessageType.JoinRoomResult:
+                if (event.data) {
+                    this.handleJoinRoom(event.data);
+                    this.joined$.next(event.data);
+                }
+                break;
+            case MessageType.ReconnectResult:
+                if (event.data) {
+                    this.handleJoinRoom(event.data);
+                    this.reconnected$.next(event.data);
+                }
+                break;
+        }
+    }
+
+    /**
+     * Handle join/reconnect room data
+     */
+    private handleJoinRoom(data: JoinRoomResult): void {
+        if (!data) {
+            console.warn("Received join_room_result with no data");
             return;
         }
 
-        this.reconnectAttempts++;
-        const backoffDelay = Math.min(1000 * Math.pow(2, this.reconnectAttempts - 1), 10000);
+        if (!data.clientId) {
+            console.warn("join_room_result message missing clientId:", data);
+            return;
+        }
 
-        console.log(`Reconnection attempt ${this.reconnectAttempts} in ${backoffDelay}ms`);
-        this.connectionState$.next({
-            status: "reconnecting",
-            attemptNumber: this.reconnectAttempts
-        });
+        if (!data.roomId) {
+            console.warn("join_room_result message missing roomId:", data);
+            return;
+        }
 
-        this.reconnectTimeout = setTimeout(() => {
-            if (!this.socket.ioSocket.connected) {
-                this.connect();
-                // Schedule next attempt if this one fails
-                setTimeout(() => {
-                    if (!this.socket.ioSocket.connected) {
-                        this.attemptReconnect();
-                    }
-                }, 2000);
-            }
-        }, backoffDelay);
+        console.log("Joined room:", data.roomId, "with clientId:", data.clientId);
+        this.ws.clientId.set(data.clientId);
+        this.ws.roomId.set(data.roomId);
     }
 
     connect(): void {
         console.log("Manually initiating connection");
-        this.reconnectAttempts = 0; // Reset attempts on manual reconnect
-        this.connectionState$.next({
-            status: "reconnecting",
-            attemptNumber: 0
-        });
-        this.socket.connect();
+        this.ws.connect();
     }
 
     disconnect(): void {
-        if (this.reconnectTimeout) {
-            clearTimeout(this.reconnectTimeout);
-            this.reconnectTimeout = null;
-        }
-        this.reconnectAttempts = 0;
-        this.socket.disconnect();
+        this.ws.disconnect();
     }
 
-    connected(): Observable<any> {
-        return this.socket.fromEvent("connect");
-    }
-
-    disconnected(): Observable<any> {
-        return this.socket.fromEvent("disconnect");
+    getRoomList(): void {
+        this.sendMessage(MessageType.GetRoomList, { gameType: "tellit" });
     }
 
     getHomeInfo(): Observable<HomeInfo> {
-        return merge(
-            this.http.get<HomeInfo>(this.API_URL + "/home"),
-            this.socket.fromEvent<HomeInfo>(ServerEvent.Info)
+        return this.fromMessage<GetRoomListResultData>(MessageType.RoomListUpdate).pipe(
+            map(data => ({
+                rooms: data.map(({ roomId, started }) => ({
+                    name: roomId,
+                    started
+                })),
+                userCount: data.reduce((sum, { playerCount }) => sum + playerCount, 0)
+            }))
         );
     }
 
-    join(roomName: string, userName?: string, userID?: string) {
-        this.socket.emit(UserEvent.JoinRoom, { userName, roomName, userID } as UserJoinMessage);
+    join(roomName: string, userName?: string) {
+        const message = {
+            type: "join_room",
+            data: {
+                roomId: roomName,
+                gameType: "tellit" as const,
+                playerName: userName || "Spectator",
+                options: {
+                    spectatorsAllowed: false,
+                    isPublic: true,
+                    minUsers: 2,
+                    maxUsers: 8,
+                    afkDelay: 30000
+                }
+            }
+        };
+
+        this.ws.send(message);
     }
 
     joinAsSpectator(roomName: string) {
-        this.socket.emit(UserEvent.SpectatorJoin, { roomName });
+        // Spectator join for Golang backend
+        const message = {
+            type: "join_spectator",
+            data: { room: roomName }
+        };
+        this.ws.send(message);
     }
 
-    roomJoined(): Observable<ServerJoined> {
-        return this.socket.fromEvent<ServerJoined>(ServerEvent.Joined);
+    roomJoined(): Observable<JoinRoomResult> {
+        return this.fromMessage<JoinRoomResult>(MessageType.JoinRoomResult).pipe(
+            tap(data => {
+                // Store session data for reconnection via signals
+                console.log("Room joined - clientId:", data.clientId, "roomId:", data.roomId);
+                this.ws.clientId.set(data.clientId);
+                this.ws.roomId.set(data.roomId);
+            })
+        );
     }
 
     roomClosed(): Observable<void> {
-        return this.socket.fromEvent<void>(ServerEvent.RoomClosed);
+        // Note: Room closed handling might be different in Golang backend
+        // May come as a disconnect or special message type
+        return this.ws.fromMessageType<void>("room_closed");
+    }
+
+    roomListUpdate(): Observable<RoomListUpdateData> {
+        return this.fromMessage<RoomListUpdateData>(MessageType.RoomListUpdate);
     }
 
     // ask the server to send all relevant data again
     requestUpdate() {
-        this.socket.emit(UserEvent.RequestUpdate);
+        this.sendMessage(MessageType.RequestUpdate);
     }
 
     userLeft(): Observable<UserLeft> {
-        return this.socket.fromEvent<UserLeft>(ServerEvent.UserLeft);
+        return this.fromMessage<UserLeftData>(MessageType.UserLeft).pipe(map(data => ({ userID: data.userID })));
     }
 
     usersUpdate(): Observable<UserOverview[]> {
-        return this.socket.fromEvent<ServerUsersUpdate>(ServerEvent.UsersUpdate).pipe(
-            tap(console.log),
+        return this.fromMessage<UsersUpdateData>(MessageType.UsersUpdate).pipe(
+            tap(data => console.log("Users update:", data)),
             map(data => data.users)
         );
     }
 
     leave() {
-        this.socket.emit(UserEvent.Leave);
+        // Clear session data via signals
+        this.ws.clientId.set(null);
+        this.ws.roomId.set(null);
+
+        this.disconnect();
     }
 
     gameStatus(): Observable<GameStatus> {
-        return this.socket.fromEvent<ServerGameStatusUpdate>(ServerEvent.GameStatus).pipe(map(data => data.status));
+        return this.fromMessage<GameStatusData>(MessageType.GameStatus).pipe(map(data => data.status));
     }
 
     storyUpdate(): Observable<StoryData | undefined> {
-        return this.socket.fromEvent<ServerStoryUpdate | undefined>(ServerEvent.StoryUpdate);
+        return this.fromMessage<StoryUpdateData>(MessageType.StoryUpdate).pipe(
+            map(data => (data ? { text: data.text, author: data.author } : undefined))
+        );
     }
 
     finishVoteUpdate(): Observable<string[]> {
-        return this.socket.fromEvent<ServerFinishVoteUpdate>(ServerEvent.VoteFinish).pipe(map(data => data.votes));
+        return this.fromMessage<FinishVoteUpdateData>(MessageType.FinishVoteUpdate).pipe(map(data => data.votes));
     }
 
     getFinalStories() {
-        return this.socket.fromEvent<ServerFinalStories>(ServerEvent.FinalStories).pipe(map(data => data.stories));
+        return this.fromMessage<FinalStoriesData>(MessageType.FinalStories).pipe(map(data => data.stories));
     }
 
     /********************
@@ -202,26 +275,26 @@ export class SocketService {
      ********************/
 
     start() {
-        this.socket.emit(UserEvent.Start);
+        this.sendMessage(MessageType.Start);
     }
 
     voteKick(userID: string) {
-        this.socket.emit(UserEvent.VoteKick, { kickUserID: userID } as UserVoteKickMessage);
+        this.sendMessage(MessageType.VoteKick, { kickUserID: userID } as VoteKickData);
     }
 
     submitText(text: string) {
-        this.socket.emit(UserEvent.SubmitText, { text } as UserSubmitTextMessage);
+        this.sendMessage(MessageType.SubmitText, { text } as SubmitTextData);
     }
 
     voteFinish() {
-        this.socket.emit(UserEvent.VoteFinish);
+        this.sendMessage(MessageType.VoteFinish);
     }
 
     fetchFinalStories() {
-        this.socket.emit(UserEvent.RequestStories);
+        this.sendMessage(MessageType.RequestStories);
     }
 
     restart() {
-        this.socket.emit(UserEvent.VoteRestart);
+        this.sendMessage(MessageType.VoteRestart);
     }
 }
