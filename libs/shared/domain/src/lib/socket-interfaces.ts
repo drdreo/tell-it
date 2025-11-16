@@ -1,12 +1,10 @@
-import { UserOverview } from "./api-interfaces";
-import { GameStatus, StoryData } from "./game";
+import { GameStatus, StoryData, UserOverview } from "./game";
 
 /**
  * WebSocket Message Types
  * All messages from server and actions to server
  */
 
-// Reusable data type aliases
 export type RoomListData = {
     roomId: string;
     playerCount: number;
@@ -250,7 +248,6 @@ export type ReconnectAction = {
         clientId: string;
     };
 };
-
 
 export type GetRoomListAction = {
     type: "get_room_list";

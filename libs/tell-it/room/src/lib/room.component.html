@@ -31,7 +31,7 @@
         @case ("ended") {
             <tell-it-game-ended
                 [finalStories]="finalStories()"
-                (restart)="restart()"
+                (restart)="voteRestart()"
                 (loadFinalStories)="loadFinalStories()">
             </tell-it-game-ended>
         }

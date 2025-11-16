@@ -1,9 +1,11 @@
-import { ChangeDetectionStrategy, Component, effect, inject } from "@angular/core";
-import { FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
-import { Router } from "@angular/router";
+import { ChangeDetectionStrategy, Component, effect, inject, Signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { Router } from "@angular/router";
+import { SocketService } from "@tell-it/data-access";
 import { roomNameValidator } from "@tell-it/utils";
-import { GameService, SocketService } from "@tell-it/data-access";
+import { map } from "rxjs";
+import { HomeInfo } from "./domain";
 
 @Component({
     selector: "tell-it-app-home",
@@ -14,7 +16,6 @@ import { GameService, SocketService } from "@tell-it/data-access";
 })
 export class HomeComponent {
     private readonly router = inject(Router);
-    private readonly gameService = inject(GameService);
     private readonly socketService = inject(SocketService);
     private readonly fb = inject(FormBuilder);
 
@@ -25,10 +26,20 @@ export class HomeComponent {
 
     protected readonly isConnected = this.socketService.isConnected;
 
-    // Convert homeInfo Observable to signal
-    protected readonly homeInfo = toSignal(this.socketService.getHomeInfo(), {
-        initialValue: { rooms: [], userCount: 0 }
-    });
+    protected readonly homeInfo: Signal<HomeInfo> = toSignal(
+        this.socketService.roomList$().pipe(
+            map(data => ({
+                rooms: data.map(({ roomId, started }) => ({
+                    name: roomId,
+                    started
+                })),
+                userCount: data.reduce((sum, { playerCount }) => sum + playerCount, 0)
+            }))
+        ),
+        {
+            initialValue: { rooms: [], userCount: 0 }
+        }
+    );
 
     // Control whether user can join as player or only spectate
     protected readonly isJoinable = true;
@@ -38,7 +49,7 @@ export class HomeComponent {
         effect(() => {
             const isConnected = this.isConnected();
             if (isConnected) {
-                this.gameService.requestRoomList();
+                this.socketService.getRoomList();
             }
         });
 
@@ -69,7 +80,7 @@ export class HomeComponent {
         if (this.loginForm.valid) {
             const { username, room } = this.loginForm.value;
             if (username && room) {
-                this.gameService.joinRoom(room, username);
+                this.socketService.joinRoom(room, username);
             }
         }
     }
@@ -78,7 +89,7 @@ export class HomeComponent {
         if (this.loginForm.controls.room.valid) {
             const { room } = this.loginForm.value;
             if (room) {
-                this.gameService.joinRoom(room);
+                this.socketService.joinRoom(room);
             }
         }
     }

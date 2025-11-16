@@ -1,20 +1,21 @@
-import { inject, Injectable, computed } from "@angular/core";
+import { computed, inject, Injectable } from "@angular/core";
 import { Router } from "@angular/router";
-import { HomeInfo, UserLeft, UserOverview } from "@tell-it/domain/api-interfaces";
-import { GameStatus, StoryData } from "@tell-it/domain/game";
 import {
+    FinalStoriesData,
+    FinishVotesData,
+    GameStatus,
+    GameStatusData,
+    JoinRoomSuccessData,
+    RoomConfig,
+    RoomListData,
+    StoryData,
+    StoryData_Event,
+    UserOverview,
+    UsersData,
     WebSocketAction,
     WebSocketErrorEvent,
-    WebSocketSuccessEvent,
-    JoinRoomSuccessData,
-    RoomListData,
-    UsersData,
-    GameStatusData,
-    StoryData_Event,
-    FinishVotesData,
-    FinalStoriesData,
-    UserIdData
-} from "@tell-it/domain/socket-interfaces";
+    WebSocketSuccessEvent
+} from "@tell-it/domain";
 import { map, Observable, Subject, tap } from "rxjs";
 import { WebSocketClient } from "./websocket-client.service";
 
@@ -58,6 +59,12 @@ export class SocketService {
 
         // Auto-connect on service initialization
         this.ws.connect();
+
+        // Handle room closed - navigate to home
+        this.roomClosed().subscribe(() => {
+            console.log("Room closed, navigating to home");
+            this.router.navigate(["/"]);
+        });
     }
 
     /**
@@ -132,16 +139,8 @@ export class SocketService {
         this.sendAction({ type: "get_room_list", data: { gameType: "tellit" } });
     }
 
-    getHomeInfo(): Observable<HomeInfo> {
-        return this.ws.fromMessageType<RoomListData>("room_list_update").pipe(
-            map(data => ({
-                rooms: data.map(({ roomId, started }) => ({
-                    name: roomId,
-                    started
-                })),
-                userCount: data.reduce((sum, { playerCount }) => sum + playerCount, 0)
-            }))
-        );
+    roomList$(): Observable<RoomListData> {
+        return this.ws.fromMessageType<RoomListData>("room_list_update");
     }
 
     joinRoom(roomName: string, userName?: string) {
@@ -157,7 +156,7 @@ export class SocketService {
                     minUsers: 2,
                     maxUsers: 8,
                     afkDelay: 30000
-                }
+                } satisfies RoomConfig
             }
         });
     }
@@ -247,7 +246,7 @@ export class SocketService {
         this.sendAction({ type: "request_stories" });
     }
 
-    restart() {
+    voteRestart() {
         this.sendAction({ type: "vote_restart" });
     }
 }

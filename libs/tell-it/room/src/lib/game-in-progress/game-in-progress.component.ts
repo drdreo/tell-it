@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 import { bootstrapStopwatch } from "@ng-icons/bootstrap-icons";
 import { NgIcon, provideIcons } from "@ng-icons/core";
-import { UserOverview } from "@tell-it/domain/api-interfaces";
-import { StoryData } from "@tell-it/domain/game";
+import { StoryData, UserOverview } from "@tell-it/domain";
 import { MessageComponent } from "../message/message.component";
 
 @Component({

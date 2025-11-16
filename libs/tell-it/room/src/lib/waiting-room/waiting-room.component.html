@@ -1,17 +1,14 @@
-@let _user = user();
-@let _users = users();
-
 <div class="ready-container">
     Room: {{ roomName() }} <br />
     <ul>
-        @for (user of _users; track user.id) {
+        @for (user of users(); track user.id) {
             <li>
                 {{ user.name }}
             </li>
         }
     </ul>
 
-    @if (_user && _users && _users.length > 1 && _user.id === _users[0].id) {
+    @if (isLeader()) {
         <div class="ready-container__message">
             <p>Everyone's ready?</p>
             <button class="button" (click)="startGame.emit()">Start</button>

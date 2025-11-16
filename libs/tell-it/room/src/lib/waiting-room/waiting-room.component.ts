@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, output, input } from "@angular/core";
-import { UserOverview } from "@tell-it/domain/api-interfaces";
+import { ChangeDetectionStrategy, Component, computed, input, output } from "@angular/core";
+import { UserOverview } from "@tell-it/domain";
 
 @Component({
     selector: "tell-it-waiting-room",
@@ -13,4 +13,10 @@ export class WaitingRoomComponent {
     readonly users = input<UserOverview[] | null | undefined>([]);
     readonly user = input<UserOverview | null | undefined>(null);
     readonly startGame = output<void>();
+
+    isLeader = computed(() => {
+        const user = this.user();
+        const users = this.users();
+        return user && users && users.length > 1 && user.id === users[0].id;
+    });
 }

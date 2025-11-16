@@ -1,175 +1,161 @@
-import { inject, Injectable, OnDestroy } from "@angular/core";
+import { computed, effect, inject, Injectable, OnDestroy, signal } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { SocketService } from "@tell-it/data-access";
-import { UserOverview } from "@tell-it/domain/api-interfaces";
-import { GameStatus, StoryData } from "@tell-it/domain/game";
-import {
-    BehaviorSubject,
-    distinctUntilChanged,
-    interval,
-    map,
-    Observable,
-    ReplaySubject,
-    Subject,
-    takeUntil,
-    tap
-} from "rxjs";
+import { GameStatus, StoryData } from "@tell-it/domain";
+import { filter, map, Observable, Subject, takeUntil, tap } from "rxjs";
 
 function isStoryEqual(a: StoryData | undefined, b: StoryData | undefined): boolean {
     return a?.author === b?.author && a?.text === b?.text;
 }
 
+/**
+ * RoomService manages room-specific state and lifecycle.
+ * This is a room-scoped service that should be provided at the room component level.
+
+ */
 @Injectable()
 export class RoomService implements OnDestroy {
-    private socketService = inject(SocketService);
+    private readonly socketService = inject(SocketService);
+    private readonly destroy$ = new Subject<void>();
 
-    private _turnTimer$ = new Subject<number | undefined>();
-    turnTime$ = this._turnTimer$.asObservable();
+    // Room state signals
+    readonly users = toSignal(this.socketService.usersUpdate().pipe(takeUntil(this.destroy$)), { initialValue: [] });
 
-    private _users$: BehaviorSubject<UserOverview[]> = new BehaviorSubject<UserOverview[]>([]);
-    users$: Observable<UserOverview[]> = this._users$.asObservable();
+    readonly gameStatus = toSignal(this.socketService.gameStatus().pipe(takeUntil(this.destroy$)), {
+        initialValue: GameStatus.Waiting
+    });
 
-    // set if the current client is a player in the room
-    user$ = this._users$.pipe(map(users => users.find(user => user.id === this.clientPlayerID)));
+    readonly story = toSignal(
+        this.socketService.storyUpdate().pipe(
+            filter((story): story is StoryData => story !== undefined),
+            tap(story => console.log("Story update:", story)),
+            takeUntil(this.destroy$)
+        ),
+        { equal: isStoryEqual }
+    );
 
-    private _story$ = new ReplaySubject<StoryData | undefined>(1);
-    story$ = this._story$.asObservable();
-    private _gameStatus$ = new BehaviorSubject<GameStatus>(GameStatus.Waiting);
-    gameStatus$ = this._gameStatus$.asObservable();
-    private stopTurnTimer$ = new Subject<void>();
-    private unsubscribe$ = new Subject<void>();
+    readonly finishVotes = toSignal(this.socketService.finishVoteUpdate().pipe(takeUntil(this.destroy$)), {
+        initialValue: []
+    });
+
+    readonly finalStories = toSignal(this.socketService.getFinalStories().pipe(takeUntil(this.destroy$)), {
+        initialValue: []
+    });
+
+    // Computed values
+    readonly currentPlayer = computed(() => {
+        const clientId = this.socketService.clientId();
+        const users = this.users();
+        if (!clientId || !users) return undefined;
+        return users.find(user => user.id === clientId);
+    });
+
+    readonly isCurrentPlayerTurn = computed(() => {
+        const story = this.story();
+        const currentPlayer = this.currentPlayer();
+        return story?.author === currentPlayer?.id;
+    });
+
+    // Turn timer state
+    readonly turnTime = signal<number | undefined>(undefined);
+    private turnTimerInterval: any;
 
     constructor() {
-        this.socketService
-            .usersUpdate()
-            .pipe(takeUntil(this.unsubscribe$))
-            .subscribe(users => {
-                this.updateUsers(users);
-            });
+        // Start turn timer when story updates with text
+        effect(() => {
+            const story = this.story();
+            if (story?.text && story.text.length > 0) {
+                this.startTurnTimer();
+            }
+        });
 
-        this.socketService
-            .gameStatus()
-            .pipe(takeUntil(this.unsubscribe$))
-            .subscribe(status => {
-                this._gameStatus$.next(status);
-            });
-
-        this.socketService
-            .storyUpdate()
-            .pipe(
-                distinctUntilChanged(isStoryEqual),
-                tap(story => console.log("Story update: ", story)),
-                takeUntil(this.unsubscribe$)
-            )
-            .subscribe(story => {
-                this._story$.next(story);
-                if (story) {
-                    if (story.text?.length > 0) {
-                        this.startTurnTimer();
-                    }
-                }
-            });
-    }
-
-    get clientPlayerID(): string | undefined {
-        return sessionStorage.getItem("playerID") || undefined;
+        // Log game status changes
+        effect(() => {
+            const status = this.gameStatus();
+            console.log("Game status changed:", status);
+        });
     }
 
     ngOnDestroy(): void {
-        this.unsubscribe$.next();
-        this.unsubscribe$.complete();
-    }
-
-    startGame() {
-        this.socketService.start();
-    }
-
-    startTurnTimer() {
         this.endTurnTimer();
-        const seconds = 60;
-        interval(1000)
-            .pipe(
-                map(num => seconds - num),
-                takeUntil(this.stopTurnTimer$),
-                takeUntil(this.unsubscribe$)
-            )
-            .subscribe(time => {
-                if (time < 0) {
-                    this.endTurnTimer();
-                } else {
-                    this._turnTimer$.next(time);
-                }
-            });
-    }
-
-    endTurnTimer() {
-        this.stopTurnTimer$.next();
-        this._turnTimer$.next(undefined);
-    }
-
-    updateUsers(users: UserOverview[]) {
-        this._users$.next(users);
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     /**
-     * Get room updates for a specific room from the socket connection.
-     * Useful for tracking room state changes (player count, started status).
+     * Load and initialize the room
      */
-    getRoomUpdates(roomId: string) {
-        return this.socketService.roomListUpdate().pipe(
-            map(update => (update.roomId === roomId ? update : null)),
-            tap(update => {
-                if (update) {
-                    console.log("Room update:", update);
-                }
-            })
-        );
-    }
+    async loadRoom(roomId: string): Promise<void> {
+        console.log("Loading room:", roomId);
 
-    async loadRoom(room: string): Promise<{ startTime: number }> {
-        console.log("Loading room:", room);
-
-        if (!room || room.length === 0) {
+        if (!roomId || roomId.length === 0) {
             throw new Error("Room name is empty");
         }
 
         // Check if the current user is already in the room
-        const currentUsers = this._users$.value;
-        const isPlayer = currentUsers.find(user => user.id === this.clientPlayerID);
+        const currentUsers = this.users();
+        const clientId = this.socketService.clientId();
+        const isPlayer = currentUsers.find(user => user.id === clientId);
         const disconnected = isPlayer?.disconnected || false;
 
         if (disconnected) {
-            console.log("Player was disconnected. Try to reconnect!");
-            // reconnect if loading site directly
-            this.socketService.joinRoom(room, undefined);
+            console.log("Player was disconnected. Attempting to reconnect!");
+            this.socketService.joinRoom(roomId, undefined);
         } else if (!isPlayer && currentUsers.length > 0) {
             console.log("Joining as spectator!");
-            // if a new user just joined the table without being at the home screen, join as spectator
-            this.socketService.joinRoom(room);
+            this.socketService.joinRoom(roomId);
         }
 
         // Request updated data from server
         this.socketService.requestUpdate();
-
-        // Since we no longer have startTime from HTTP response,
-        // we'll track it from when the room is loaded
-        // If you need the actual game start time, it should come from a socket message
-        return { startTime: 0 };
     }
 
-    submitText(text: string) {
+    // Game actions (delegates to SocketService)
+    startGame(): void {
+        this.socketService.start();
+    }
+
+    submitText(text: string): void {
         this.endTurnTimer();
         this.socketService.submitText(text);
     }
 
-    voteFinish() {
+    voteFinish(): void {
         this.socketService.voteFinish();
     }
 
-    fetchFinalStories() {
+    fetchFinalStories(): void {
         this.socketService.fetchFinalStories();
     }
 
-    restart() {
-        this.socketService.restart();
+    voteRestart(): void {
+        this.socketService.voteRestart();
+    }
+
+    voteKick(userId: string): void {
+        this.socketService.voteKick(userId);
+    }
+
+    // Turn timer management
+    startTurnTimer(seconds = 60): void {
+        this.endTurnTimer();
+        let remaining = seconds;
+
+        this.turnTimerInterval = setInterval(() => {
+            remaining--;
+            if (remaining < 0) {
+                this.endTurnTimer();
+            } else {
+                this.turnTime.set(remaining);
+            }
+        }, 1000);
+    }
+
+    endTurnTimer(): void {
+        if (this.turnTimerInterval) {
+            clearInterval(this.turnTimerInterval);
+            this.turnTimerInterval = undefined;
+        }
+        this.turnTime.set(undefined);
     }
 }
