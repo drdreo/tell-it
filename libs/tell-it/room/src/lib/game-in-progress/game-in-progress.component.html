@@ -1,11 +1,21 @@
 <div class="game-container">
     <div class="responsive-container">
-        @if (turnTimer()) {
+        <div class="game-header">
             <div class="turn-timer">
-                {{ turnTimer() }}
-                <ng-icon name="bootstrapStopwatch" />
+                @if (turnTimer()) {
+                    <ng-icon name="bootstrapStopwatch" />
+                    {{ turnTimer() }}
+                }
             </div>
-        }
+            @let _finishVotes = finishVotes();
+            <div class="finish-votes" [class.has-votes]="_finishVotes && _finishVotes.length > 0">
+                @if (_finishVotes && _finishVotes.length > 0) {
+                    <ng-icon name="bootstrapCheck" />
+                    Finish: {{ _finishVotes.length }}/{{ users()?.length }}
+                }
+            </div>
+        </div>
+
         <ul class="story-queue-list">
             Pending stories:
             @for (_user of users(); track _user.id) {
@@ -17,20 +27,33 @@
                 </li>
             }
         </ul>
-        @let _finishVotes = finishVotes();
-        @if (_finishVotes && _finishVotes.length > 0) {
-            <div class="finish-votes">Finish: {{ _finishVotes.length }}/{{ users()?.length }}</div>
-        }
-        @let _story = story();
-        @if (_story) {
-            <tell-it-app-message [author]="_story.author" [message]="_story.text"></tell-it-app-message>
-        } @else if (user()) {
-            Waiting for a story...
-        } @else {
-            You are a spectator. TBD
-        }
-        <textarea #storyInput class="input story-textarea" (input)="onInputChange(storyInput.value)"></textarea>
-        <button class="button" [disabled]="submitDisabled()" (click)="onSubmit(storyInput)">Submit</button>
-        <button class="button warning" (click)="voteFinish.emit()">Finish</button>
+
+        <div class="story-content">
+            @let _story = story();
+            @if (_story) {
+                <tell-it-app-message [author]="_story.author" [message]="_story.text"></tell-it-app-message>
+            } @else if (user()) {
+                <div class="waiting-message">Waiting for a story...</div>
+            } @else {
+                <div class="waiting-message">You are a spectator. TBD</div>
+            }
+        </div>
+
+        <textarea
+            #storyInput
+            class="input story-textarea"
+            (input)="onInputChange(storyInput.value)"
+            placeholder="Continue the story in your way..."></textarea>
+
+        <div class="actions">
+            <button class="button submit-btn" [disabled]="submitDisabled()" (click)="onSubmit(storyInput)">
+                <ng-icon name="bootstrapSend" />
+                Submit
+            </button>
+            <button class="button warning" (click)="voteFinish.emit()">
+                <ng-icon name="bootstrapCheck" />
+                Finish
+            </button>
+        </div>
     </div>
 </div>

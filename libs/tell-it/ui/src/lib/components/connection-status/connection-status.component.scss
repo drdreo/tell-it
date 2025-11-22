@@ -1,4 +1,4 @@
-@use "../../../../ui/src/lib/styles" as variables;
+@use "../../styles" as variables;
 
 .overlay {
     position: fixed;
@@ -23,10 +23,6 @@
     color: #333;
     max-width: 400px;
     pointer-events: all;
-}
-
-.status-box.notification {
-    padding: 16px 24px;
 }
 
 .spinner {
@@ -64,4 +60,22 @@ p {
     font-size: 0.85rem;
     color: #999;
     margin-top: 8px;
+}
+
+.status-indicator {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    cursor: default;
+
+    &.connected {
+        color: white;
+    }
 }

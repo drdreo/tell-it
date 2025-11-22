@@ -1,5 +1,10 @@
 import { ChangeDetectionStrategy, Component, input, output, signal, computed } from "@angular/core";
-import { bootstrapExclamationTriangle, bootstrapStopwatch } from "@ng-icons/bootstrap-icons";
+import {
+    bootstrapExclamationTriangle,
+    bootstrapSend,
+    bootstrapCheck,
+    bootstrapStopwatch
+} from "@ng-icons/bootstrap-icons";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { StoryData, UserOverview } from "@tell-it/domain";
 import { MessageComponent } from "../message/message.component";
@@ -9,7 +14,7 @@ import { MessageComponent } from "../message/message.component";
     templateUrl: "./game-in-progress.component.html",
     styleUrls: ["./game-in-progress.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    viewProviders: [provideIcons({ bootstrapStopwatch, bootstrapExclamationTriangle })],
+    viewProviders: [provideIcons({ bootstrapStopwatch, bootstrapCheck, bootstrapSend, bootstrapExclamationTriangle })],
     imports: [MessageComponent, NgIcon]
 })
 export class GameInProgressComponent {
@@ -27,10 +32,17 @@ export class GameInProgressComponent {
     protected readonly submitDisabled = computed<boolean>(() => {
         const story = this.story();
         const user = this.user();
-        if (story && user) {
-            return this.inputValue().trim().length === 0;
+        if (!user) {
+            return true;
         }
-        return true;
+        const users = this.users() ?? [];
+
+        const someoneHasStories = users.some(({ id, queuedStories }) => id !== user.id && queuedStories > 0);
+        if (!story && someoneHasStories) {
+            return true;
+        }
+
+        return this.inputValue().trim().length === 0;
     });
 
     protected onInputChange(value: string): void {

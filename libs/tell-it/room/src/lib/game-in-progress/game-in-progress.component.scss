@@ -24,7 +24,9 @@
 .responsive-container {
     display: flex;
     flex-direction: column;
-    justify-content: space-evenly;
+    gap: 1rem;
+    padding-top: 4rem; // Space for fixed header
+    padding-bottom: 1rem;
 
     height: 100%;
 
@@ -33,16 +35,43 @@
     }
 }
 
-.turn-timer {
+.game-header {
     position: absolute;
     top: 1rem;
     right: 1rem;
+    left: 1rem;
 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    min-height: 2rem;
+}
+
+.turn-timer {
     display: flex;
     gap: 4px;
 
     ng-icon {
         font-size: 20px;
+    }
+}
+
+.finish-votes {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+    font-weight: 500;
+    color: #daa420;
+
+    &.has-votes {
+        opacity: 1;
+    }
+
+    ng-icon {
+        font-size: 16px;
     }
 }
 
@@ -60,12 +89,43 @@
     }
 }
 
-.finish-votes {
-    text-align: center;
-    margin-bottom: 1rem;
+.story-content {
+    flex: 1;
+    min-height: 0; // Allow flex item to shrink
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    tell-it-app-message {
+        flex: 1;
+        min-height: 0; // Allow flex item to shrink
+        display: flex;
+        flex-direction: column;
+    }
+
+    .waiting-message {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1;
+        color: #888;
+        font-style: italic;
+        padding: 2rem;
+    }
 }
 
 .story-textarea {
-    margin: 1rem 0;
-    min-height: 30%;
+    flex-shrink: 0;
+    min-height: 150px;
+    resize: vertical;
+}
+
+.actions {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+
+    .submit-btn {
+        flex-grow: 1;
+    }
 }

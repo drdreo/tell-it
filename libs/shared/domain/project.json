@@ -14,14 +14,6 @@
                 "tsConfig": "libs/shared/domain/tsconfig.lib.json",
                 "assets": ["libs/shared/domain/*.md"]
             }
-        },
-        "test": {
-            "executor": "@nx/jest:jest",
-            "outputs": ["{workspaceRoot}/coverage/libs/shared/domain"],
-            "options": {
-                "jestConfig": "libs/shared/domain/jest.config.ts",
-                "tsConfig": "libs/shared/domain/tsconfig.spec.json"
-            }
         }
     }
 }
