@@ -1,24 +1,27 @@
 <div class="game-container">
     <div class="responsive-container">
         <div class="game-header">
-            <div class="turn-timer">
-                @if (turnTimer()) {
-                    <ng-icon name="bootstrapStopwatch" />
-                    {{ turnTimer() }}
-                }
+            <div class="turn-timer" [class.has-timer]="turnTimer()" title="Time left for the turn">
+                <ng-icon name="bootstrapStopwatch" />
+                <span>{{ turnTimer() || "" }}</span>
             </div>
-            @let _finishVotes = finishVotes();
-            <div class="finish-votes" [class.has-votes]="_finishVotes && _finishVotes.length > 0">
-                @if (_finishVotes && _finishVotes.length > 0) {
-                    <ng-icon name="bootstrapCheck" />
-                    Finish: {{ _finishVotes.length }}/{{ users()?.length }}
-                }
-            </div>
-        </div>
 
-        <div class="story-queue-section">
-            <div class="story-queue-label">Pending stories:</div>
-            <tell-it-app-user-list [users]="users()" [user]="user()" [showQueue]="true" />
+            <div class="user-queue-indicator">
+                <tell-it-app-queue-indicator [users]="users()" [user]="user()" />
+            </div>
+
+            @let _finishVotes = finishVotes();
+            <div
+                class="finish-votes"
+                [class.has-votes]="_finishVotes && _finishVotes.length > 0"
+                title="Votes to finish the story">
+                <ng-icon name="bootstrapCheck" />
+                <span
+                    >{{ _finishVotes && _finishVotes.length > 0 ? _finishVotes.length : "0" }}/{{
+                        users()?.length
+                    }}</span
+                >
+            </div>
         </div>
 
         <div class="story-content">
