@@ -29,8 +29,22 @@
         } @else {
             You are a spectator. TBD
         }
-        <textarea #storyInput class="input story-textarea" (input)="onInputChange(storyInput.value)"></textarea>
-        <button class="button" [disabled]="submitDisabled()" (click)="onSubmit(storyInput)">Submit</button>
-        <button class="button warning" (click)="voteFinish.emit()">Finish</button>
+
+        <textarea
+            #storyInput
+            class="input story-textarea"
+            (input)="onInputChange(storyInput.value)"
+            placeholder="Continue the story in your way..."></textarea>
+
+        <div class="actions">
+            <button class="button submit-btn" [disabled]="submitDisabled()" (click)="onSubmit(storyInput)">
+                <ng-icon name="bootstrapSend" />
+                Submit
+            </button>
+            <button class="button warning" (click)="voteFinish.emit()">
+                <ng-icon name="bootstrapCheck" />
+                Finish
+            </button>
+        </div>
     </div>
 </div>
