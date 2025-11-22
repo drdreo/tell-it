@@ -1,7 +1,7 @@
 <div class="stories">
     @if (finalStories()) {
         @for (story of finalStories(); track story.author) {
-            <tell-it-app-story class="story" [story]="story"[ttsEnabled]="true" />
+            <tell-it-app-story class="story" [story]="story" [ttsEnabled]="true" />
         }
         <button class="button" (click)="restart.emit()">Restart?</button>
 

@@ -1,26 +1,17 @@
-<div class="author">
-    {{ author() }}
-    @if (ttsEnabled() && message()) {
-        <button
-            class="tts-button"
-            (click)="tts(message()!)"
-            [attr.aria-label]="
-                isLoadingTts() ? 'Loading...' : isReading() ? 'Stop text-to-speech' : 'Play text-to-speech'
-            "
-            [class.reading]="isReading()"
-            [class.loading]="isLoadingTts()"
-            [disabled]="isLoadingTts()">
-            <ng-icon
-                [name]="isLoadingTts() ? 'bootstrapHourglassSplit' : isReading() ? 'bootstrapPause' : 'bootstrapPlay'"
-                [attr.alt]="isLoadingTts() ? 'Loading' : isReading() ? 'Stop Button' : 'Play Button'" />
-        </button>
-    }
-</div>
+<tell-it-story-author-header
+    [author]="author()"
+    [wordCount]="stats().words"
+    [turnCount]="stats().turns"
+    [ttsEnabled]="ttsEnabled()"
+    [hasMessage]="!!message()"
+    [isLoadingTts]="isLoadingTts()"
+    [isReading]="isReading()"
+    [statsExpanded]="statsExpanded()"
+    (statsToggle)="toggleStatsExpanded()"
+    (ttsClick)="tts(message()!)" />
 
-@if (message()) {
-    <div class="message">
-        <div class="message-container scrollbar-invert">
-            {{ message() }}
-        </div>
-    </div>
+@if (statsExpanded()) {
+    <tell-it-story-stats-panel [stats]="stats()" />
 }
+
+<tell-it-story-message [message]="message()" />

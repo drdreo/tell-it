@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
-import { bootstrapHourglassSplit, bootstrapPause, bootstrapPlay } from "@ng-icons/bootstrap-icons";
-import { NgIcon, provideIcons } from "@ng-icons/core";
 import { TtsService } from "@tell-it/data-access";
 import { StoryData } from "@tell-it/domain";
+import { StoryAuthorHeaderComponent } from "./story-author-header.component";
+import { StoryMessageComponent } from "./story-message.component";
+import { StoryStatsPanelComponent } from "./story-stats-panel.component";
 
 const useAISpeech = true;
 
@@ -11,8 +12,7 @@ const useAISpeech = true;
     templateUrl: "./story.component.html",
     styleUrls: ["./story.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [NgIcon],
-    viewProviders: [provideIcons({ bootstrapPlay, bootstrapPause, bootstrapHourglassSplit })]
+    imports: [StoryAuthorHeaderComponent, StoryStatsPanelComponent, StoryMessageComponent]
 })
 export class StoryComponent {
     private readonly ttsService = inject(TtsService);
@@ -25,6 +25,11 @@ export class StoryComponent {
 
     isLoadingTts = signal(false);
     isReading = this.ttsService.isReading;
+    statsExpanded = signal(false);
+
+    toggleStatsExpanded(): void {
+        this.statsExpanded.update(expanded => !expanded);
+    }
 
     async tts(text: string): Promise<void> {
         // If already reading, stop it (works for both AI and native speech)

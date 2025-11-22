@@ -28,7 +28,7 @@ type StoryData_Stats = {
 export type StoryData_Event = {
     text: string;
     author: string;
-    stats: StoryData_Stats
+    stats: StoryData_Stats;
 };
 
 export type FinishVotesData = {
