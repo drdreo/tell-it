@@ -1,10 +1,10 @@
 ignoredBuiltDependencies:
-  - '@parcel/watcher'
-  - lmdb
-  - msgpackr-extract
-  - unrs-resolver
+    - "@parcel/watcher"
+    - lmdb
+    - msgpackr-extract
+    - unrs-resolver
 
 onlyBuiltDependencies:
-  - '@swc/core'
-  - esbuild
-  - nx
+    - "@swc/core"
+    - esbuild
+    - nx
