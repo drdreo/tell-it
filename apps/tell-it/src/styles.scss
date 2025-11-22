@@ -87,6 +87,8 @@ h6 {
 }
 
 .scrollbar-invert {
+    padding-right: 5px;
+
     &::-webkit-scrollbar-thumb {
         background: #666666;
     }

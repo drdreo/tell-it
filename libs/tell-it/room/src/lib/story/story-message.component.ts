@@ -20,14 +20,12 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
         .message {
             max-height: 35vh;
 
-            // layout
             display: flex;
             position: relative;
 
-            // looks
             color: black;
             background-color: #fff;
-            padding: 0.5rem 1rem;
+            padding: 0.5rem 0.5rem 0.5rem 1rem;
             font-size: 1.25rem;
             border-radius: 3px;
             box-shadow:
@@ -36,7 +34,6 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
         }
 
         .message::before {
-            // layout
             content: "";
             position: absolute;
             width: 0;
@@ -46,7 +43,6 @@ import { ChangeDetectionStrategy, Component, input } from "@angular/core";
             border: 0.75rem solid transparent;
             border-top: none;
 
-            // looks
             border-bottom-color: #fff;
             filter: drop-shadow(0 -0.0625rem 0.0625rem rgba(255, 255, 255, 0.1));
         }
