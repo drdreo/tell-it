@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/cor
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute, Router } from "@angular/router";
 import { SocketService } from "@tell-it/data-access";
+import { ConnectionStatusComponent } from "@tell-it/ui";
 import { fromEvent, map, merge } from "rxjs";
-import { ConnectionStatusComponent } from "./connection-status/connection-status.component";
 import { GameEndedComponent } from "./game-ended/game-ended.component";
 import { GameInProgressComponent } from "./game-in-progress/game-in-progress.component";
 import { RoomService } from "./room.service";

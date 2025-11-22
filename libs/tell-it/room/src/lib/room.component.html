@@ -1,12 +1,8 @@
 <div class="page-container">
-    @if (offline()) {
-        <tell-it-connection-status [status]="'offline'" (reconnect)="reconnect()" />
-    } @else if (connectionState().status !== "connected") {
-        <tell-it-connection-status
-            [status]="connectionState().status"
-            [attemptNumber]="connectionState().attemptNumber"
-            (reconnect)="reconnect()" />
-    }
+    <tell-it-connection-status
+        [status]="offline() ? 'offline' : connectionState().status"
+        [attemptNumber]="connectionState().attemptNumber"
+        (reconnect)="reconnect()" />
 
     @switch (gameStatus()) {
         @case ("waiting") {

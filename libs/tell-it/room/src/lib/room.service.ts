@@ -1,7 +1,7 @@
 import { computed, effect, inject, Injectable, OnDestroy, signal } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { SocketService } from "@tell-it/data-access";
-import { GameStatus, StoryData } from "@tell-it/domain";
+import { GameStatus, StoryData, UserOverview } from "@tell-it/domain";
 import { tap } from "rxjs";
 
 function isStoryEqual(a: StoryData | undefined, b: StoryData | undefined): boolean {
@@ -17,9 +17,9 @@ function isStoryEqual(a: StoryData | undefined, b: StoryData | undefined): boole
 export class RoomService implements OnDestroy {
     private readonly socketService = inject(SocketService);
 
-    readonly users = toSignal(this.socketService.usersUpdate().pipe(takeUntilDestroyed()), { initialValue: [] });
+    readonly users = toSignal(this.socketService.usersUpdate().pipe(takeUntilDestroyed()), { initialValue: [] as UserOverview[]  });
     readonly gameStatus = toSignal(this.socketService.gameStatus().pipe(takeUntilDestroyed()), {
-        initialValue: GameStatus.Waiting
+        initialValue: GameStatus.Waiting as GameStatus
     });
     readonly story = toSignal(
         this.socketService.storyUpdate().pipe(
@@ -75,13 +75,13 @@ export class RoomService implements OnDestroy {
         // Check if the current user is already in the room
         const currentUsers = this.users();
         const clientId = this.socketService.clientId();
-        const isPlayer = currentUsers.find(user => user.id === clientId);
+        const isPlayer = currentUsers?.find(user => user.id === clientId);
         const disconnected = isPlayer?.disconnected || false;
 
         if (disconnected) {
             console.log("Player was disconnected. Attempting to reconnect!");
             this.socketService.joinRoom(roomId, undefined);
-        } else if (!isPlayer && currentUsers.length > 0) {
+        } else if (!isPlayer && currentUsers && currentUsers.length > 0) {
             console.log("Joining as spectator!");
             this.socketService.joinRoom(roomId);
         }

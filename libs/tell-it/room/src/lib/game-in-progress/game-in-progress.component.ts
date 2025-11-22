@@ -27,10 +27,17 @@ export class GameInProgressComponent {
     protected readonly submitDisabled = computed<boolean>(() => {
         const story = this.story();
         const user = this.user();
-        if (story && user) {
-            return this.inputValue().trim().length === 0;
+        if (!user) {
+            return true;
         }
-        return true;
+        const users = this.users() ?? [];
+
+        const someoneHasStories = users.some(({ id, queuedStories }) => id !== user.id && queuedStories > 0);
+        if (!story && someoneHasStories) {
+            return true;
+        }
+
+        return this.inputValue().trim().length === 0;
     });
 
     protected onInputChange(value: string): void {
