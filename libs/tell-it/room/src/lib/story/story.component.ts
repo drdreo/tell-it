@@ -26,6 +26,13 @@ export class StoryComponent {
     isLoadingTts = signal(false);
     isReading = this.ttsService.isReading;
     statsExpanded = signal(false);
+    hasAudioCached = computed(() => {
+        const message = this.message();
+        if (!message) {
+            return false;
+        }
+        return this.ttsService.isAudioCached(message);
+    });
 
     toggleStatsExpanded(): void {
         this.statsExpanded.update(expanded => !expanded);
@@ -52,5 +59,16 @@ export class StoryComponent {
         } else {
             this.ttsService.nativeSpeech(text);
         }
+    }
+
+    downloadAudio(): void {
+        const message = this.message();
+        if (!message) {
+            return;
+        }
+        const author = this.author();
+        const timestamp = new Date().toISOString().replace(/:/g, "-");
+        const filename = `tell-it_${author}_${timestamp}.wav`;
+        this.ttsService.downloadCachedAudio(message, filename);
     }
 }

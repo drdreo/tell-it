@@ -7,6 +7,7 @@ export class TtsService {
     private readonly http = inject(HttpClient);
     private readonly workerUrl = "https://tts.drdreo.workers.dev";
     private currentAudio: HTMLAudioElement | null = null;
+    private readonly audioCache = signal(new Map<string, Blob>());
 
     isReading = signal(false);
 
@@ -25,25 +26,38 @@ export class TtsService {
             this.stopSynthesizedSpeech();
             return;
         }
-        const requestBody = {
-            audioConfig: {
-                audioEncoding: "LINEAR16",
-                pitch: 0,
-                speakingRate: 1
-            },
-            input: {
-                text: text
-            },
-            voice: {
-                languageCode: "en-GB",
-                name: "en-GB-Chirp3-HD-Achernar"
+
+        let audioBlob: Blob;
+
+        // check cache, otherwise generate new TTS
+        const cachedAudio = this.audioCache().get(text);
+        if (cachedAudio) {
+            audioBlob = cachedAudio;
+        } else {
+            const requestBody = {
+                audioConfig: {
+                    audioEncoding: "LINEAR16",
+                    pitch: 0,
+                    speakingRate: 1
+                },
+                input: {
+                    text: text
+                },
+                voice: {
+                    languageCode: "en-GB",
+                    name: "en-GB-Chirp3-HD-Achernar"
+                }
+            };
+
+            const response = await firstValueFrom(
+                this.http.post<{ audioContent: string }>(this.workerUrl, requestBody)
+            );
+
+            if (!response?.audioContent) {
+                return;
             }
-        };
 
-        const response = await firstValueFrom(this.http.post<{ audioContent: string }>(this.workerUrl, requestBody));
-
-        if (response?.audioContent) {
-            // 2. Decode the Base64 audio data
+            // Decode the Base64 audio data
             const audioContent = response.audioContent;
             const binaryString = window.atob(audioContent);
             const len = binaryString.length;
@@ -52,28 +66,35 @@ export class TtsService {
                 bytes[i] = binaryString.charCodeAt(i);
             }
 
-            // 3. Create a Blob and an Audio URL
-            const audioBlob = new Blob([bytes.buffer], { type: "audio/wav" }); // LINEAR16 is a WAV format
-            const audioUrl = URL.createObjectURL(audioBlob);
-
-            // 4. Play the audio
-            this.currentAudio = new Audio(audioUrl);
-            this.isReading.set(true);
-
-            this.currentAudio.onended = () => {
-                this.isReading.set(false);
-                this.currentAudio = null;
-                URL.revokeObjectURL(audioUrl); // Clean up the object URL
-            };
-
-            this.currentAudio.onerror = () => {
-                this.isReading.set(false);
-                this.currentAudio = null;
-                URL.revokeObjectURL(audioUrl); // Clean up the object URL
-            };
-
-            await this.currentAudio.play();
+            // Create a Blob and cache it
+            audioBlob = new Blob([bytes.buffer], { type: "audio/wav" }); // LINEAR16 is a WAV format
+            this.audioCache.update(cache => {
+                const newCache = new Map(cache);
+                newCache.set(text, audioBlob);
+                return newCache;
+            });
         }
+
+        // Create an Audio URL and play
+        const audioUrl = URL.createObjectURL(audioBlob);
+        this.currentAudio = new Audio(audioUrl);
+        this.isReading.set(true);
+
+        const resetAudio = (url: string) => {
+            this.isReading.set(false);
+            this.currentAudio = null;
+            URL.revokeObjectURL(url);
+        };
+
+        this.currentAudio.onended = () => {
+            resetAudio(audioUrl);
+        };
+
+        this.currentAudio.onerror = () => {
+            resetAudio(audioUrl);
+        };
+
+        await this.currentAudio.play();
     }
 
     nativeSpeech(text: string) {
@@ -93,5 +114,25 @@ export class TtsService {
         utterThis.onend = () => {
             this.isReading.set(false);
         };
+    }
+
+    isAudioCached(text: string): boolean {
+        return this.audioCache().has(text);
+    }
+
+    downloadCachedAudio(text: string, filename = "story-audio.wav"): void {
+        const cachedAudio = this.audioCache().get(text);
+        if (!cachedAudio) {
+            return;
+        }
+
+        const audioUrl = URL.createObjectURL(cachedAudio);
+        const link = document.createElement("a");
+        link.href = audioUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(audioUrl);
     }
 }

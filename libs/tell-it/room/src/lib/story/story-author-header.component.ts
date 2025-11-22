@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
-import { bootstrapHourglassSplit, bootstrapPause, bootstrapPlay } from "@ng-icons/bootstrap-icons";
+import { ChangeDetectionStrategy, Component, input, output, signal } from "@angular/core";
+import { bootstrapDownload, bootstrapHourglassSplit, bootstrapPause, bootstrapPlay } from "@ng-icons/bootstrap-icons";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 
 @Component({
@@ -16,25 +16,37 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
                 <span class="badge-text">{{ wordCount() }} words</span>
             </button>
             @if (ttsEnabled() && hasMessage()) {
-                <button
-                    class="tts-button"
-                    (click)="ttsClick.emit()"
-                    [attr.aria-label]="
-                        isLoadingTts() ? 'Loading...' : isReading() ? 'Stop text-to-speech' : 'Play text-to-speech'
-                    "
-                    [class.reading]="isReading()"
-                    [class.loading]="isLoadingTts()"
-                    [disabled]="isLoadingTts()">
-                    <ng-icon
-                        [name]="
-                            isLoadingTts()
-                                ? 'bootstrapHourglassSplit'
-                                : isReading()
-                                  ? 'bootstrapPause'
-                                  : 'bootstrapPlay'
+                <div class="tts-container">
+                    <button
+                        class="icon-button"
+                        (click)="ttsClick.emit()"
+                        [attr.aria-label]="
+                            isLoadingTts() ? 'Loading...' : isReading() ? 'Stop text-to-speech' : 'Play text-to-speech'
                         "
-                        [attr.aria-label]="isLoadingTts() ? 'Loading' : isReading() ? 'Stop Button' : 'Play Button'" />
-                </button>
+                        [class.reading]="isReading()"
+                        [class.loading]="isLoadingTts()"
+                        [disabled]="isLoadingTts()">
+                        <ng-icon
+                            [name]="
+                                isLoadingTts()
+                                    ? 'bootstrapHourglassSplit'
+                                    : isReading()
+                                      ? 'bootstrapPause'
+                                      : 'bootstrapPlay'
+                            "
+                            [attr.aria-label]="
+                                isLoadingTts() ? 'Loading' : isReading() ? 'Stop Button' : 'Play Button'
+                            " />
+                    </button>
+                    <button
+                        class="icon-button"
+                        (click)="downloadClick.emit()"
+                        [attr.aria-label]="'Download story audio'"
+                        [disabled]="!isDownloadButtonEnabled()"
+                        title="Download story audio">
+                        <ng-icon name="bootstrapDownload" [attr.aria-label]="'Download Icon'" />
+                    </button>
+                </div>
             }
         </div>
     `,
@@ -81,7 +93,13 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
                 }
             }
 
-            .tts-button {
+            .tts-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+
+            .icon-button {
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -91,7 +109,7 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
                 color: white;
                 font-size: 20px;
                 cursor: pointer;
-                transition: opacity 0.2s ease;
+                transition: all 0.2s ease;
 
                 &.loading {
                     cursor: wait;
@@ -102,8 +120,19 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
                     }
                 }
 
+                &:hover:not(:disabled) {
+                    color: #9ae600;
+                    transform: translateY(-1px);
+                }
+
+                &:active {
+                    transform: translateY(0);
+                }
+
                 &:disabled {
                     cursor: not-allowed;
+                    opacity: 0.3;
+                    pointer-events: none;
                 }
             }
         }
@@ -119,7 +148,7 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
     `,
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [NgIcon],
-    viewProviders: [provideIcons({ bootstrapPlay, bootstrapPause, bootstrapHourglassSplit })]
+    viewProviders: [provideIcons({ bootstrapPlay, bootstrapPause, bootstrapHourglassSplit, bootstrapDownload })]
 })
 export class StoryAuthorHeaderComponent {
     author = input.required<string>();
@@ -130,7 +159,9 @@ export class StoryAuthorHeaderComponent {
     isLoadingTts = input(false);
     isReading = input(false);
     statsExpanded = input(false);
+    isDownloadButtonEnabled = input(false);
 
     statsToggle = output<void>();
     ttsClick = output<void>();
+    downloadClick = output<void>();
 }
