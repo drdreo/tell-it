@@ -7,7 +7,7 @@ export class TtsService {
     private readonly http = inject(HttpClient);
     private readonly workerUrl = "https://tts.drdreo.workers.dev";
     private currentAudio: HTMLAudioElement | null = null;
-    private readonly audioCache = new Map<string, Blob>();
+    private readonly audioCache = signal(new Map<string, Blob>());
 
     isReading = signal(false);
 
@@ -30,7 +30,7 @@ export class TtsService {
         let audioBlob: Blob;
 
         // Check if we have this text cached
-        const cachedAudio = this.audioCache.get(text);
+        const cachedAudio = this.audioCache().get(text);
         if (cachedAudio) {
             audioBlob = cachedAudio;
         } else {
@@ -69,7 +69,11 @@ export class TtsService {
 
             // Create a Blob and cache it
             audioBlob = new Blob([bytes.buffer], { type: "audio/wav" }); // LINEAR16 is a WAV format
-            this.audioCache.set(text, audioBlob);
+            this.audioCache.update(cache => {
+                const newCache = new Map(cache);
+                newCache.set(text, audioBlob);
+                return newCache;
+            });
         }
 
         // Create an Audio URL and play
@@ -109,5 +113,25 @@ export class TtsService {
         utterThis.onend = () => {
             this.isReading.set(false);
         };
+    }
+
+    isAudioCached(text: string): boolean {
+        return this.audioCache().has(text);
+    }
+
+    downloadCachedAudio(text: string, filename = "story-audio.wav"): void {
+        const cachedAudio = this.audioCache().get(text);
+        if (!cachedAudio) {
+            return;
+        }
+
+        const audioUrl = URL.createObjectURL(cachedAudio);
+        const link = document.createElement("a");
+        link.href = audioUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(audioUrl);
     }
 }
