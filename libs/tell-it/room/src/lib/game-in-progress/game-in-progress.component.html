@@ -31,7 +31,7 @@
         <div class="story-content">
             @let _story = story();
             @if (_story) {
-                <tell-it-app-message [author]="_story.author" [message]="_story.text"></tell-it-app-message>
+                <tell-it-app-story [story]="_story" />
             } @else if (user()) {
                 <div class="waiting-message">Waiting for a story...</div>
             } @else {

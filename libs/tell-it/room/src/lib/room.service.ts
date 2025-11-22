@@ -2,7 +2,6 @@ import { computed, effect, inject, Injectable, OnDestroy, signal } from "@angula
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import { SocketService } from "@tell-it/data-access";
 import { GameStatus, StoryData, UserOverview } from "@tell-it/domain";
-import { tap } from "rxjs";
 
 function isStoryEqual(a: StoryData | undefined, b: StoryData | undefined): boolean {
     return a?.author === b?.author && a?.text === b?.text;
@@ -23,13 +22,7 @@ export class RoomService implements OnDestroy {
     readonly gameStatus = toSignal(this.socketService.gameStatus().pipe(takeUntilDestroyed()), {
         initialValue: GameStatus.Waiting as GameStatus
     });
-    readonly story = toSignal(
-        this.socketService.storyUpdate().pipe(
-            tap(story => console.log("Story update:", story)),
-            takeUntilDestroyed()
-        ),
-        { equal: isStoryEqual }
-    );
+    readonly story = toSignal(this.socketService.storyUpdate().pipe(takeUntilDestroyed()), { equal: isStoryEqual });
     readonly finishVotes = toSignal(this.socketService.finishVoteUpdate().pipe(takeUntilDestroyed()), {
         initialValue: []
     });

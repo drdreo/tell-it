@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
 import { StoryData, UserOverview } from "@tell-it/domain";
-import { MessageComponent } from "../message/message.component";
+import { StoryComponent } from "../story/story.component";
 
 @Component({
     selector: "tell-it-game-ended",
     templateUrl: "./game-ended.component.html",
     styleUrls: ["./game-ended.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [MessageComponent]
+    imports: [StoryComponent]
 })
 export class GameEndedComponent {
     readonly users = input<UserOverview[] | null | undefined>([]);

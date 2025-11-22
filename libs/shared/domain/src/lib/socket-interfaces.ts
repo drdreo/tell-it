@@ -19,9 +19,16 @@ export type GameStatusData = {
     status: GameStatus;
 };
 
+type StoryData_Stats = {
+    avgReadingTime: number;
+    words: number;
+    turns: number;
+};
+
 export type StoryData_Event = {
     text: string;
     author: string;
+    stats: StoryData_Stats
 };
 
 export type FinishVotesData = {
