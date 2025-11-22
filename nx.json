@@ -1,8 +1,5 @@
 {
     "$schema": "./node_modules/nx/schemas/nx-schema.json",
-    "cli": {
-        "packageManager": "npm"
-    },
     "defaultProject": "tell-it",
     "targetDefaults": {
         "build": {
