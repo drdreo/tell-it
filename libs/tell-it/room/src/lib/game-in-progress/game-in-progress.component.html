@@ -18,14 +18,7 @@
 
         <ul class="story-queue-list">
             Pending stories:
-            @for (_user of users(); track _user.id) {
-                <li>
-                    @if (_user.disconnected) {
-                        <ng-icon name="bootstrapExclamationTriangle" title="Disconnected" />
-                    }
-                    <span [class.username]="_user.id === user()?.id">{{ _user.name }}</span> - {{ _user.queuedStories }}
-                </li>
-            }
+            <tell-it-app-user-list [users]="users()" [user]="user()" [showQueue]="true" />
         </ul>
 
         <div class="story-content">

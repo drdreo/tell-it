@@ -7,6 +7,7 @@ import {
 } from "@ng-icons/bootstrap-icons";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { StoryData, UserOverview } from "@tell-it/domain";
+import { TellItUserListComponent } from "@tell-it/ui";
 import { StoryComponent } from "../story/story.component";
 
 @Component({
@@ -15,7 +16,7 @@ import { StoryComponent } from "../story/story.component";
     styleUrls: ["./game-in-progress.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
     viewProviders: [provideIcons({ bootstrapStopwatch, bootstrapCheck, bootstrapSend, bootstrapExclamationTriangle })],
-    imports: [StoryComponent, NgIcon]
+    imports: [StoryComponent, NgIcon, TellItUserListComponent]
 })
 export class GameInProgressComponent {
     readonly users = input<UserOverview[] | null | undefined>([]);
