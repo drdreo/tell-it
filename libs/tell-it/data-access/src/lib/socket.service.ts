@@ -195,9 +195,7 @@ export class SocketService {
     }
 
     storyUpdate(): Observable<StoryData | undefined> {
-        return this.ws
-            .fromMessageType<StoryData_Event>("story_update")
-            .pipe(map(data => (data ? { text: data.text, author: data.author } : undefined)));
+        return this.ws.fromMessageType<StoryData_Event>("story_update");
     }
 
     finishVoteUpdate(): Observable<string[]> {

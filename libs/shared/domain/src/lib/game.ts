@@ -4,9 +4,16 @@ export enum GameStatus {
     Ended = "ended"
 }
 
+export type StoryStats = {
+    avgReadingTime: number;
+    words: number;
+    turns: number;
+};
+
 export type StoryData = {
     text: string;
     author: string;
+    stats: StoryStats;
 };
 
 export type UserOverview = {

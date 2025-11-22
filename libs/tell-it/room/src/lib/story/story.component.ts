@@ -1,27 +1,35 @@
-import { ChangeDetectionStrategy, Component, inject, input, signal } from "@angular/core";
-import { bootstrapHourglassSplit, bootstrapPause, bootstrapPlay } from "@ng-icons/bootstrap-icons";
-import { NgIcon, provideIcons } from "@ng-icons/core";
+import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from "@angular/core";
 import { TtsService } from "@tell-it/data-access";
+import { StoryData } from "@tell-it/domain";
+import { StoryAuthorHeaderComponent } from "./story-author-header.component";
+import { StoryMessageComponent } from "./story-message.component";
+import { StoryStatsPanelComponent } from "./story-stats-panel.component";
 
 const useAISpeech = true;
 
 @Component({
-    selector: "tell-it-app-message",
-    templateUrl: "./message.component.html",
-    styleUrls: ["./message.component.scss"],
+    selector: "tell-it-app-story",
+    templateUrl: "./story.component.html",
+    styleUrls: ["./story.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [NgIcon],
-    viewProviders: [provideIcons({ bootstrapPlay, bootstrapPause, bootstrapHourglassSplit })]
+    imports: [StoryAuthorHeaderComponent, StoryStatsPanelComponent, StoryMessageComponent]
 })
-export class MessageComponent {
+export class StoryComponent {
     private readonly ttsService = inject(TtsService);
 
-    author = input<string | null>(null);
-    message = input<string | null>(null);
+    story = input.required<StoryData>();
+    author = computed(() => this.story().author);
+    message = computed(() => this.story().text);
+    stats = computed(() => this.story().stats);
     ttsEnabled = input(false);
 
+    isLoadingTts = signal(false);
     isReading = this.ttsService.isReading;
-    protected readonly isLoadingTts = signal(false);
+    statsExpanded = signal(false);
+
+    toggleStatsExpanded(): void {
+        this.statsExpanded.update(expanded => !expanded);
+    }
 
     async tts(text: string): Promise<void> {
         // If already reading, stop it (works for both AI and native speech)

@@ -6,101 +6,117 @@
 
 .game-container {
     width: 90%;
-    height: 100%;
-
-    .story {
-        height: 30%;
-    }
+    max-width: 100%;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
 
     @include styles.respond-to(desktop) {
         width: 45%;
-
-        .story {
-            height: 50%;
-        }
+        max-width: 800px;
+        height: 100vh; // Desktop can use regular vh
     }
 }
 
 .responsive-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding-top: 4rem; // Space for fixed header
-    padding-bottom: 1rem;
-
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding: 0.75rem;
     height: 100%;
+    min-height: 0;
+    overflow: hidden;
 
-    @include styles.respond-to(mobile) {
-        height: 70%;
+    @include styles.respond-to(desktop) {
+        gap: 1rem;
+        padding: 1rem;
     }
 }
 
 .game-header {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    left: 1rem;
-
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 1rem;
+    flex-shrink: 0;
     min-height: 2rem;
+    padding: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .turn-timer {
     display: flex;
-    gap: 4px;
+    gap: 0.25rem;
+    font-size: 0.85rem;
+    min-width: 3rem;
+    opacity: 0.3;
+
+    &.has-timer {
+        opacity: 1;
+    }
 
     ng-icon {
-        font-size: 20px;
+        font-size: 1rem;
+    }
+
+    span {
+        display: inline-block;
+        min-width: 1.5rem;
+    }
+}
+
+.user-queue-indicator {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+    flex: 1;
+    justify-content: center;
+    max-width: 300px;
+
+    @include styles.respond-to(desktop) {
+        gap: 0.375rem;
     }
 }
 
 .finish-votes {
     display: flex;
-    align-items: center;
-    gap: 4px;
-    opacity: 0;
-    transition: opacity 0.2s ease-in-out;
+    gap: 0.25rem;
     font-weight: 500;
     color: #daa420;
+    font-size: 0.85rem;
+    min-width: 3.5rem;
+    justify-content: flex-end;
 
-    &.has-votes {
-        opacity: 1;
+    &:not(.has-votes) {
+        opacity: 0.3;
     }
 
     ng-icon {
-        font-size: 16px;
+        font-size: 1rem;
     }
-}
 
-.story-queue-list {
-    position: absolute;
-    bottom: 3rem;
-    right: 1rem;
-
-    list-style: none;
-
-    li {
-        .username {
-            color: #daa420;
-        }
+    span {
+        display: inline-block;
+        min-width: 2rem;
+        text-align: left;
     }
 }
 
 .story-content {
-    flex: 1;
-    min-height: 0; // Allow flex item to shrink
+    // This takes up all available space
+    grid-row: 3;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
 
-    tell-it-app-message {
+    tell-it-app-story {
         flex: 1;
-        min-height: 0; // Allow flex item to shrink
+        min-height: 0;
         display: flex;
         flex-direction: column;
+        overflow-y: auto;
     }
 
     .waiting-message {
@@ -111,21 +127,43 @@
         color: #888;
         font-style: italic;
         padding: 2rem;
+        text-align: center;
     }
 }
 
-.story-textarea {
+.input-section {
+    // Fixed at bottom
+    grid-row: 4;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
     flex-shrink: 0;
-    min-height: 150px;
+}
+
+.story-textarea {
+    width: 100%;
+    min-height: 80px;
+    max-height: 150px;
     resize: vertical;
+    padding: 0.75rem;
+    box-sizing: border-box;
+
+    @include styles.respond-to(desktop) {
+        min-height: 100px;
+        max-height: 200px;
+    }
 }
 
 .actions {
     display: flex;
-    gap: 5px;
+    gap: 0.5rem;
     flex-shrink: 0;
 
     .submit-btn {
-        flex-grow: 1;
+        flex: 1;
+    }
+
+    button {
+        white-space: nowrap;
     }
 }

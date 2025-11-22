@@ -1,0 +1,17 @@
+<tell-it-story-author-header
+    [author]="author()"
+    [wordCount]="stats().words"
+    [turnCount]="stats().turns"
+    [ttsEnabled]="ttsEnabled()"
+    [hasMessage]="!!message()"
+    [isLoadingTts]="isLoadingTts()"
+    [isReading]="isReading()"
+    [statsExpanded]="statsExpanded()"
+    (statsToggle)="toggleStatsExpanded()"
+    (ttsClick)="tts(message()!)" />
+
+@if (statsExpanded()) {
+    <tell-it-story-stats-panel [stats]="stats()" />
+}
+
+<tell-it-story-message [message]="message()" />

@@ -1,12 +1,6 @@
 <div class="ready-container">
     Room: {{ roomName() }} <br />
-    <ul>
-        @for (user of users(); track user.id) {
-            <li>
-                {{ user.name }}
-            </li>
-        }
-    </ul>
+    <tell-it-app-user-list [users]="users()" [user]="user()" />
 
     @if (isLeader()) {
         <div class="ready-container__message">
