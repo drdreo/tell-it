@@ -1,9 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
-import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Router } from "@angular/router";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, ParamMap, Router } from "@angular/router";
 import { SocketService } from "@tell-it/data-access";
 import { ConnectionStatusComponent } from "@tell-it/ui";
-import { fromEvent, map, merge } from "rxjs";
 import { GameEndedComponent } from "./game-ended/game-ended.component";
 import { GameInProgressComponent } from "./game-in-progress/game-in-progress.component";
 import { RoomService } from "./room.service";
@@ -34,16 +33,12 @@ export class RoomComponent {
     protected readonly restartVotes = this.roomService.restartVotes;
     protected readonly finalStories = this.roomService.finalStories;
     protected readonly turnTime = this.roomService.turnTime;
-    protected readonly offline = toSignal(
-        merge(fromEvent(window, "offline").pipe(map(() => true)), fromEvent(window, "online").pipe(map(() => false))),
-        { initialValue: false }
-    );
 
     protected readonly connectionState = this.socketService.connectionState;
 
     constructor() {
         // Handle room parameter from route
-        this.route.paramMap.pipe(takeUntilDestroyed()).subscribe(params => {
+        this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params: ParamMap) => {
             const room = params.get("roomName");
             if (!room || room.length === 0) {
                 this.router.navigate(["/"]);

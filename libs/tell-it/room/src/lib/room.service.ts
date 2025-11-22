@@ -17,7 +17,9 @@ function isStoryEqual(a: StoryData | undefined, b: StoryData | undefined): boole
 export class RoomService implements OnDestroy {
     private readonly socketService = inject(SocketService);
 
-    readonly users = toSignal(this.socketService.usersUpdate().pipe(takeUntilDestroyed()), { initialValue: [] as UserOverview[]  });
+    readonly users = toSignal(this.socketService.usersUpdate().pipe(takeUntilDestroyed()), {
+        initialValue: [] as UserOverview[]
+    });
     readonly gameStatus = toSignal(this.socketService.gameStatus().pipe(takeUntilDestroyed()), {
         initialValue: GameStatus.Waiting as GameStatus
     });

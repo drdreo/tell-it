@@ -1,7 +1,9 @@
-import { ChangeDetectionStrategy, Component, input, output } from "@angular/core";
+import { ChangeDetectionStrategy, Component, computed, input, output } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import { bootstrapWifi } from "@ng-icons/bootstrap-icons";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { ConnectionState } from "@tell-it/data-access";
+import { fromEvent, map, merge } from "rxjs";
 
 @Component({
     selector: "tell-it-connection-status",
@@ -20,7 +22,7 @@ import { ConnectionState } from "@tell-it/data-access";
                         @case ("reconnecting") {
                             <div class="spinner"></div>
                             <h2>Reconnecting...</h2>
-                            <p>Attempting to restore connection {{ "(" + attemptNumber() + ")" }}</p>
+                            <p>Attempting to restore connection ({{ connectionState().attemptNumber }})</p>
                         }
                         @case ("disconnected") {
                             <h2>Connection Lost</h2>
@@ -40,9 +42,19 @@ import { ConnectionState } from "@tell-it/data-access";
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConnectionStatusComponent {
-    status = input.required<"offline" | ConnectionState["status"]>();
-    attemptNumber = input<number>(1);
+    connectionState = input.required<ConnectionState>();
     reconnect = output<void>();
+
+    protected readonly offline = toSignal(
+        merge(fromEvent(window, "offline").pipe(map(() => true)), fromEvent(window, "online").pipe(map(() => false))),
+        { initialValue: false }
+    );
+
+    status = computed(() => {
+        const offline = this.offline();
+        const { status } = this.connectionState();
+        return offline ? "offline" : status;
+    });
 
     protected isBlocking() {
         // Only show blocking overlay for offline and final disconnected state

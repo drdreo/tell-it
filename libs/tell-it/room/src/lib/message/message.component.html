@@ -4,13 +4,15 @@
         <button
             class="tts-button"
             (click)="tts(message()!)"
-            [attr.aria-label]="isLoadingTts() ? 'Loading...' : (isReading() ? 'Stop text-to-speech' : 'Play text-to-speech')"
+            [attr.aria-label]="
+                isLoadingTts() ? 'Loading...' : isReading() ? 'Stop text-to-speech' : 'Play text-to-speech'
+            "
             [class.reading]="isReading()"
             [class.loading]="isLoadingTts()"
             [disabled]="isLoadingTts()">
             <ng-icon
-                [name]="isLoadingTts() ? 'bootstrapHourglassSplit' : (isReading() ? 'bootstrapPause' : 'bootstrapPlay')"
-                [attr.alt]="isLoadingTts() ? 'Loading' : (isReading() ? 'Stop Button' : 'Play Button')" />
+                [name]="isLoadingTts() ? 'bootstrapHourglassSplit' : isReading() ? 'bootstrapPause' : 'bootstrapPlay'"
+                [attr.alt]="isLoadingTts() ? 'Loading' : isReading() ? 'Stop Button' : 'Play Button'" />
         </button>
     }
 </div>
