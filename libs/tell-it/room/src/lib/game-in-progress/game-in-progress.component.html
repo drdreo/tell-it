@@ -1,11 +1,21 @@
 <div class="game-container">
     <div class="responsive-container">
-        @if (turnTimer()) {
+        <div class="game-header">
             <div class="turn-timer">
-                {{ turnTimer() }}
-                <ng-icon name="bootstrapStopwatch" />
+                @if (turnTimer()) {
+                    <ng-icon name="bootstrapStopwatch" />
+                    {{ turnTimer() }}
+                }
             </div>
-        }
+            @let _finishVotes = finishVotes();
+            <div class="finish-votes" [class.has-votes]="_finishVotes && _finishVotes.length > 0">
+                @if (_finishVotes && _finishVotes.length > 0) {
+                    <ng-icon name="bootstrapCheck" />
+                    Finish: {{ _finishVotes.length }}/{{ users()?.length }}
+                }
+            </div>
+        </div>
+
         <ul class="story-queue-list">
             Pending stories:
             @for (_user of users(); track _user.id) {
@@ -17,18 +27,17 @@
                 </li>
             }
         </ul>
-        @let _finishVotes = finishVotes();
-        @if (_finishVotes && _finishVotes.length > 0) {
-            <div class="finish-votes">Finish: {{ _finishVotes.length }}/{{ users()?.length }}</div>
-        }
-        @let _story = story();
-        @if (_story) {
-            <tell-it-app-message [author]="_story.author" [message]="_story.text"></tell-it-app-message>
-        } @else if (user()) {
-            Waiting for a story...
-        } @else {
-            You are a spectator. TBD
-        }
+
+        <div class="story-content">
+            @let _story = story();
+            @if (_story) {
+                <tell-it-app-message [author]="_story.author" [message]="_story.text"></tell-it-app-message>
+            } @else if (user()) {
+                <div class="waiting-message">Waiting for a story...</div>
+            } @else {
+                <div class="waiting-message">You are a spectator. TBD</div>
+            }
+        </div>
 
         <textarea
             #storyInput
