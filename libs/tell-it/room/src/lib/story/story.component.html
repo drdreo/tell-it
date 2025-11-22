@@ -9,7 +9,7 @@
     [statsExpanded]="statsExpanded()"
     [isDownloadButtonEnabled]="hasAudioCached()"
     (statsToggle)="toggleStatsExpanded()"
-    (ttsClick)="tts(message()!)"
+    (ttsClick)="tts(message())"
     (downloadClick)="downloadAudio()" />
 
 @if (statsExpanded()) {

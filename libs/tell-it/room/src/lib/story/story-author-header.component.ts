@@ -131,7 +131,7 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 
                 &:disabled {
                     cursor: not-allowed;
-                    opacity: 0.5;
+                    opacity: 0.3;
                     pointer-events: none;
                 }
             }

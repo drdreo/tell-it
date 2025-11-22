@@ -29,12 +29,11 @@ export class TtsService {
 
         let audioBlob: Blob;
 
-        // Check if we have this text cached
+        // check cache, otherwise generate new TTS
         const cachedAudio = this.audioCache().get(text);
         if (cachedAudio) {
             audioBlob = cachedAudio;
         } else {
-            // Make the API request
             const requestBody = {
                 audioConfig: {
                     audioEncoding: "LINEAR16",
@@ -81,16 +80,18 @@ export class TtsService {
         this.currentAudio = new Audio(audioUrl);
         this.isReading.set(true);
 
-        this.currentAudio.onended = () => {
+        const resetAudio = (url: string) => {
             this.isReading.set(false);
             this.currentAudio = null;
-            URL.revokeObjectURL(audioUrl); // Clean up the object URL
+            URL.revokeObjectURL(url);
+        };
+
+        this.currentAudio.onended = () => {
+            resetAudio(audioUrl);
         };
 
         this.currentAudio.onerror = () => {
-            this.isReading.set(false);
-            this.currentAudio = null;
-            URL.revokeObjectURL(audioUrl); // Clean up the object URL
+            resetAudio(audioUrl);
         };
 
         await this.currentAudio.play();
