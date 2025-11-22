@@ -14,7 +14,7 @@
                     "base": "dist/apps/tell-it"
                 },
                 "index": "apps/tell-it/src/index.html",
-                "polyfills": ["apps/tell-it/src/polyfills.ts"],
+                "polyfills": [],
                 "tsConfig": "apps/tell-it/tsconfig.app.json",
                 "inlineStyleLanguage": "scss",
                 "assets": ["apps/tell-it/src/favicon.ico", "apps/tell-it/src/favicon", "apps/tell-it/src/assets"],
@@ -64,9 +64,6 @@
                 }
             },
             "defaultConfiguration": "development",
-            "options": {
-                "proxyConfig": "apps/tell-it/proxy.conf.json"
-            },
             "continuous": true
         },
         "extract-i18n": {
@@ -76,11 +73,9 @@
             }
         },
         "test": {
-            "executor": "@nx/jest:jest",
-            "outputs": ["{workspaceRoot}/coverage/apps/tell-it"],
+            "executor": "@angular/build:unit-test",
             "options": {
-                "jestConfig": "apps/tell-it/jest.config.ts",
-                "tsConfig": "apps/tell-it/tsconfig.spec.json"
+                "browsers": ["chromium"]
             }
         }
     }
